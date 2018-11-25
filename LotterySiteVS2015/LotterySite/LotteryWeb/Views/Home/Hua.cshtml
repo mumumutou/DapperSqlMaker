@@ -1,0 +1,54 @@
+﻿@{
+    Layout = null;
+}
+
+
+
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Rubik Cube</title>
+        <meta charset="UTF-8">
+        <style>
+            html, body {
+                padding: 0px;
+                margin: 0px;
+            }
+            .main {
+                margin: 0px;
+                padding: 0px;
+                position: absolute;
+                top: 0px;
+                bottom: 0px;
+                left: 0px;
+                right: 0px;
+            }
+        </style>
+        <script>
+            var font = '24px arial, sans-serif';
+            var htconfig = {
+                Default: {
+                    panelTitleLabelFont: font
+                }
+            };
+        </script>
+         
+
+        <script src="http://www.hightopo.com/guide/lib/core/ht.js"></script>
+        <script src="http://www.hightopo.com/guide/lib/plugin/ht-cssanimation.js"></script>
+	    <script src="http://www.hightopo.com/guide/lib/plugin/ht-panel.js"></script>
+    	<script src="http://www.hightopo.com/guide/lib/plugin/ht-form.js"></script>
+    	<script src="http://www.hightopo.com/demo/rubik-cube/ht-cube.js"></script>
+        <script>
+            function init() {
+                createScene();
+            };
+
+        </script>
+
+    </head>
+    <body onload="init();">
+    </body>
+</html>
+

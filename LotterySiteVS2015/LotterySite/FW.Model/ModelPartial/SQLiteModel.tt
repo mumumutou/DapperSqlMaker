@@ -1,0 +1,107 @@
+﻿<#@ template hostspecific="True" #>
+<#@ include file="EF.Utility.CS.ttinclude"#> 
+<#@ include file="$(SolutionDir)\FW.Common\T4Ttinclude\SQLiteInit.ttinclude" #>
+<#@ assembly name="EnvDTE" #>
+<#@ assembly name="System.Data" #>
+<#@ assembly name="System.Data.Entity.Design" #>
+<#@ assembly name="System.Xml" #>
+<#@ assembly name="System.Configuration" #>
+<#@ assembly name="$(SolutionDir)\Lib\sqlite\System.Data.SQLite.dll" #> 
+
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Data" #>
+<#@ import namespace="System.Data.Common" #>
+<#@ import namespace="System.Diagnostics" #>
+<#@ import namespace="System.Globalization" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Text.RegularExpressions" #>
+<#@ import namespace="System.Configuration" #>
+<#@ import namespace="System.Data.SQLite" #>
+<#@ output extension=".cst"#>  
+
+
+<# 
+	Namespace = TopNamespace + ".Model";
+    // Read schema 
+	
+	EntityFrameworkTemplateFileManager fileManager = EntityFrameworkTemplateFileManager.Create(this); // 多文件生成
+/*
+	// Tweak Schema
+	tables["tablename"].Ignore = true;							// To ignore a table
+	tables["tablename"].ClassName = "newname";					// To change the class name of a table
+	tables["tablename"]["columnname"].Ignore = true;			// To ignore a column
+	tables["tablename"]["columnname"].PropertyName="newname";	// To change the property name of a column
+	tables["tablename"]["columnname"].PropertyType="bool";		// To change the property type of a column
+*/
+#>
+
+<# fileManager.StartHeader(); #>
+
+using System;
+using Dapper;
+using Dapper.Contrib.Extensions;
+
+namespace <#=Namespace #>
+{
+
+<# fileManager.EndBlock(); #>
+
+
+<#
+foreach(Table tbl in from t in tables where !t.Ignore select t){
+		if(IsExcluded(tbl.Name, ExcludeTablePrefixes)) continue;
+		 
+		fileManager.StartNewFile(tbl.Name+".cs"); // 新建文件
+#>
+    /// <summary>
+    /// A class which represents the <#=tbl.Name#> <#=(tbl.IsView)?"view":"table"#>.
+    /// </summary>
+	[Table("<#=tbl.Name#>")]
+	public partial class <#=tbl.ClassName#>
+	{  
+	   /* <#foreach(Column col in from c in tbl.Columns where !c.Ignore select c) {#> <#=col.PropertyName #> <#}#> */ 
+
+	    
+        #region 待写入字段集合 可抽象出来
+		public bool _IsWriteFiled = false;
+        [WriteFiled]
+        public System.Collections.Generic.List<System.Reflection.PropertyInfo> _WriteFiled 
+						= new System.Collections.Generic.List<System.Reflection.PropertyInfo>();
+		#endregion
+
+        #region FieldName
+<#foreach(Column col in from c in tbl.Columns where !c.Ignore select c) {#>
+		public readonly string  Field_<#=col.PropertyName #> = "<#=col.PropertyName #>"; 
+<#}#>
+		#endregion
+
+        #region Field
+<#foreach(Column col in from c in tbl.Columns where !c.Ignore select c) {#>
+		private <#=col.PropertyType #><#=CheckNullable(col)#> _<#=col.PropertyName #> { get; set; }
+<#}#>
+        #endregion
+
+<#foreach(Column col in from c in tbl.Columns where !c.Ignore select c){ 
+	if (tbl.PK!=null && tbl.PK.Name==col.PropertyName && col.PropertyType == "int") { #>
+		[Key]
+<#} if (tbl.PK!=null && tbl.PK.Name==col.PropertyName && col.PropertyType == "string") { #>
+		[ExplicitKey] // 手动插入(主)键
+<#}#>
+		public virtual <#=col.PropertyType #><#=CheckNullable(col)#> <#=col.PropertyName #> { 
+			set { _<#=col.PropertyName #> = value; 
+					if(_IsWriteFiled) _WriteFiled.Add(this.GetType().GetProperty(this.Field_<#=col.PropertyName #>) ); }
+			get { return _<#=col.PropertyName #>; }
+		}
+<#}#>
+
+	}
+
+<#}#>
+
+<# fileManager.StartFooter(); #>
+} // namespace
+<# fileManager.EndBlock(); #>
+<# fileManager.Process(true); #> 
+ 

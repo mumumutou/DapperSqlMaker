@@ -1,0 +1,500 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{8004F325-E0AE-4779-B7B4-7A11CADBA101}</ProjectGuid>
+    <ProjectTypeGuids>{E3E379DF-F4C6-4180-9B81-6769533ABE47};{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>LotteryWeb</RootNamespace>
+    <AssemblyName>LotteryWeb</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <MvcBuildViews>false</MvcBuildViews>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.Linq" />
+    <Reference Include="System.Data.SQLite, Version=1.0.105.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Lib\sqlite\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Abstractions" />
+    <Reference Include="System.Web.Routing" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.4.5.6\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Net.Http.2.0.20710.0\lib\net40\System.Net.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Formatting, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.4.0.20710.0\lib\net40\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.WebRequest">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Net.Http.2.0.20710.0\lib\net40\System.Net.Http.WebRequest.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Helpers, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.4.0.20710.0\lib\net40\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.4.0.20710.0\lib\net40\System.Web.Http.WebHost.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.4.0.20710.0\lib\net40\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.Razor.2.0.20710.0\lib\net40\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.WebPages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.WebPages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.WebPages.Razor.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\LockController.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WebCommon\CHOUJIANG.cs" />
+    <Compile Include="WebCommon\PrizeQuota.cs" />
+    <Compile Include="WebCommon\StringExtension.cs" />
+    <Compile Include="WebCommon\ToolMethods.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App_Start\FilterConfig.cs" />
+    <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="App_Start\WebApiConfig.cs" />
+    <Content Include="Content\2\cit.jpg" />
+    <Content Include="Content\2\draps.jpg" />
+    <Content Include="Content\2\earth.jpg" />
+    <Content Include="Content\2\flo.jpg" />
+    <Content Include="Content\2\index.html" />
+    <Content Include="Content\2\pil.jpg" />
+    <Content Include="Content\ajax.js" />
+    <Content Include="Content\folio\css\bootstrap.min.css" />
+    <Content Include="Content\folio\css\font-awesome.min.css" />
+    <Content Include="Content\folio\css\jquery-ui-1.8.16.custom.css" />
+    <Content Include="Content\folio\css\lightbox.min.css" />
+    <Content Include="Content\folio\css\loading.gif" />
+    <Content Include="Content\folio\css\main.css" />
+    <Content Include="Content\folio\fonts\fontawesome-webfont.svg" />
+    <Content Include="Content\folio\images\ajax-loader.gif" />
+    <Content Include="Content\folio\images\bg-black.png" />
+    <Content Include="Content\folio\images\closebutton.png" />
+    <Content Include="Content\folio\images\container-bg.png" />
+    <Content Include="Content\folio\images\cursor.png" />
+    <Content Include="Content\folio\images\header-image\image01.png" />
+    <Content Include="Content\folio\images\header-image\image02.jpg" />
+    <Content Include="Content\folio\images\jhon-img.gif" />
+    <Content Include="Content\folio\images\jhon-img.jpg" />
+    <Content Include="Content\folio\images\left-arrow.png" />
+    <Content Include="Content\folio\images\loading.gif" />
+    <Content Include="Content\folio\images\logo-2.png" />
+    <Content Include="Content\folio\images\plus-icon.png" />
+    <Content Include="Content\folio\images\preloader.gif" />
+    <Content Include="Content\folio\images\projects\big-images\1.jpg" />
+    <Content Include="Content\folio\images\projects\big-images\10.jpg" />
+    <Content Include="Content\folio\images\projects\big-images\11.jpg" />
+    <Content Include="Content\folio\images\projects\big-images\12.jpg" />
+    <Content Include="Content\folio\images\projects\big-images\2.jpg" />
+    <Content Include="Content\folio\images\projects\big-images\3.jpg" />
+    <Content Include="Content\folio\images\projects\big-images\4.jpg" />
+    <Content Include="Content\folio\images\projects\big-images\5.jpg" />
+    <Content Include="Content\folio\images\projects\big-images\6.jpg" />
+    <Content Include="Content\folio\images\projects\big-images\7.jpg" />
+    <Content Include="Content\folio\images\projects\big-images\8.jpg" />
+    <Content Include="Content\folio\images\projects\big-images\9.jpg" />
+    <Content Include="Content\folio\images\projects\thumb-images\thumb1.jpg" />
+    <Content Include="Content\folio\images\projects\thumb-images\thumb10.jpg" />
+    <Content Include="Content\folio\images\projects\thumb-images\thumb11.jpg" />
+    <Content Include="Content\folio\images\projects\thumb-images\thumb12.jpg" />
+    <Content Include="Content\folio\images\projects\thumb-images\thumb2.jpg" />
+    <Content Include="Content\folio\images\projects\thumb-images\thumb3.jpg" />
+    <Content Include="Content\folio\images\projects\thumb-images\thumb4.jpg" />
+    <Content Include="Content\folio\images\projects\thumb-images\thumb5.jpg" />
+    <Content Include="Content\folio\images\projects\thumb-images\thumb6.jpg" />
+    <Content Include="Content\folio\images\projects\thumb-images\thumb7.jpg" />
+    <Content Include="Content\folio\images\projects\thumb-images\thumb8.jpg" />
+    <Content Include="Content\folio\images\projects\thumb-images\thumb9.jpg" />
+    <Content Include="Content\folio\images\right-arrow.png" />
+    <Content Include="Content\folio\index.html" />
+    <Content Include="Content\folio\js\bootstrap.min.js" />
+    <Content Include="Content\folio\js\custom.js" />
+    <Content Include="Content\folio\js\header-custom.js" />
+    <Content Include="Content\folio\js\jquery.contact.js" />
+    <Content Include="Content\folio\js\jquery.countTo.js" />
+    <Content Include="Content\folio\js\jquery.isotope.js" />
+    <Content Include="Content\folio\js\jquery.min.js" />
+    <Content Include="Content\folio\js\jquery.placeholder.js" />
+    <Content Include="Content\folio\js\jquery.superslides.js" />
+    <Content Include="Content\folio\js\jquery.ui.rlightbox.js" />
+    <Content Include="Content\folio\js\jquery.ui.widget.min.js" />
+    <Content Include="Content\folio\js\modernizr.custom.26633.js" />
+    <Content Include="Content\folio\js\stickUp.js" />
+    <Content Include="Content\JianZhu\css\style.css" />
+    <Content Include="Content\JianZhu\images\0.gif" />
+    <Content Include="Content\JianZhu\images\11.jpg" />
+    <Content Include="Content\JianZhu\images\body_bg1.jpg" />
+    <Content Include="Content\JianZhu\images\body_bg2.jpg" />
+    <Content Include="Content\JianZhu\images\button.png" />
+    <Content Include="Content\JianZhu\images\erweima.jpg" />
+    <Content Include="Content\JianZhu\images\kai_button.png" />
+    <Content Include="Content\JianZhu\images\tishi.jpg" />
+    <Content Include="Content\JianZhu\index1.html" />
+    <Content Include="Content\JianZhu\index2.html" />
+    <Content Include="Content\JianZhu\js\jquery-1-6.js" />
+    <Content Include="Content\JianZhu\yindao.html" />
+    <Content Include="Content\mui-examples\hello-mui\css\app.css" />
+    <Content Include="Content\mui-examples\hello-mui\css\feedback.css" />
+    <Content Include="Content\mui-examples\hello-mui\css\icons-extra.css" />
+    <Content Include="Content\mui-examples\hello-mui\css\mui.dtpicker.css" />
+    <Content Include="Content\mui-examples\hello-mui\css\mui.imageviewer.css" />
+    <Content Include="Content\mui-examples\hello-mui\css\mui.indexedlist.css" />
+    <Content Include="Content\mui-examples\hello-mui\css\mui.listpicker.css" />
+    <Content Include="Content\mui-examples\hello-mui\css\mui.min.css" />
+    <Content Include="Content\mui-examples\hello-mui\css\mui.picker.all.css" />
+    <Content Include="Content\mui-examples\hello-mui\css\mui.picker.css" />
+    <Content Include="Content\mui-examples\hello-mui\css\mui.picker.min.css" />
+    <Content Include="Content\mui-examples\hello-mui\css\mui.poppicker.css" />
+    <Content Include="Content\mui-examples\hello-mui\examples\accordion.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\actionsheet-plus.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\actionsheet.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\ad.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\ajax.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\badges.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\beecloud.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\best-practices\list-to-detail\detail.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\best-practices\list-to-detail\list-to-detail.css" />
+    <Content Include="Content\mui-examples\hello-mui\examples\best-practices\list-to-detail\listview.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\best-practices\list-to-detail\vue.min.js" />
+    <Content Include="Content\mui-examples\hello-mui\examples\buttons-with-badges.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\buttons-with-block.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\buttons-with-icons.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\buttons-with-loading.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\buttons.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\card.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\checkbox.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\clouddb_wilddog.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\date.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\dialog.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\dtpicker.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\echarts.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\feedback.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\grid-default.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\grid-pagination.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\guide.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\icons-extra.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\icons.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\im-chat.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\imageviewer.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\indexed-list-select.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\indexed-list.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\info.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\input.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\lazyload-image.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\list-triplex-row.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\list-with-input.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\locker-dom.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\login.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\media-list.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\message-bottom.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\modals.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\nav-nativeObj.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\nav.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\nav_transparent.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\nav_transparent_native.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\numbox.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\offcanvas-drag-down.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\offcanvas-drag-left-plus-main.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\offcanvas-drag-left-plus-menu.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\offcanvas-drag-left.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\offcanvas-drag-right-plus-main.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\offcanvas-drag-right-plus-menu.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\offcanvas-drag-right.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\pagination.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\picker.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\popovers.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\progressbar.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\pullrefresh.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\pullrefresh_main.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\pullrefresh_sub.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\pullrefresh_with_tab.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\radio.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\range.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\setting.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\slider-default.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\slider-native.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\slider-table-default.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\slider-table-pagination.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\slider-with-title.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\switches.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\tab-top-subpage-1.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\tab-top-subpage-2.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\tab-top-subpage-3.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\tab-top-subpage-4.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\tab-top-subpage-5.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\tab-top-webview-main.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\tab-vertical-scroll.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\tab-webview-main.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\tab-webview-subpage-about.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\tab-webview-subpage-chat.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\tab-webview-subpage-contact.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\tab-webview-subpage-setting.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\tab-with-segmented-control-vertical.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\tab-with-segmented-control.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\tab-with-viewpagerindicator.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\tabbar-labels-only.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\tabbar-with-submenus.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\tabbar.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\tableviews-with-badges.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\tableviews-with-collapses.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\tableviews-with-swipe.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\tableviews.html" />
+    <Content Include="Content\mui-examples\hello-mui\examples\typography.html" />
+    <Content Include="Content\mui-examples\hello-mui\images\60x60.gif" />
+    <Content Include="Content\mui-examples\hello-mui\images\cbd.jpg" />
+    <Content Include="Content\mui-examples\hello-mui\images\login-1.png" />
+    <Content Include="Content\mui-examples\hello-mui\images\logo.png" />
+    <Content Include="Content\mui-examples\hello-mui\images\muwu.jpg" />
+    <Content Include="Content\mui-examples\hello-mui\images\qrcode.png" />
+    <Content Include="Content\mui-examples\hello-mui\images\shuijiao.jpg" />
+    <Content Include="Content\mui-examples\hello-mui\images\yuantiao.jpg" />
+    <Content Include="Content\mui-examples\hello-mui\index-menu.html" />
+    <Content Include="Content\mui-examples\hello-mui\index.html" />
+    <Content Include="Content\mui-examples\hello-mui\js\95516.js" />
+    <Content Include="Content\mui-examples\hello-mui\js\ad.js" />
+    <Content Include="Content\mui-examples\hello-mui\js\arttmpl.js" />
+    <Content Include="Content\mui-examples\hello-mui\js\beecloud.js" />
+    <Content Include="Content\mui-examples\hello-mui\js\city.data-3.js" />
+    <Content Include="Content\mui-examples\hello-mui\js\city.data.js" />
+    <Content Include="Content\mui-examples\hello-mui\js\feedback.js" />
+    <Content Include="Content\mui-examples\hello-mui\js\mui.dtpicker.js" />
+    <Content Include="Content\mui-examples\hello-mui\js\mui.imageViewer.js" />
+    <Content Include="Content\mui-examples\hello-mui\js\mui.indexedlist.js" />
+    <Content Include="Content\mui-examples\hello-mui\js\mui.js" />
+    <Content Include="Content\mui-examples\hello-mui\js\mui.lazyload.img.js" />
+    <Content Include="Content\mui-examples\hello-mui\js\mui.lazyload.js" />
+    <Content Include="Content\mui-examples\hello-mui\js\mui.listpicker.js" />
+    <Content Include="Content\mui-examples\hello-mui\js\mui.locker.js" />
+    <Content Include="Content\mui-examples\hello-mui\js\mui.min.js" />
+    <Content Include="Content\mui-examples\hello-mui\js\mui.picker.all.js" />
+    <Content Include="Content\mui-examples\hello-mui\js\mui.picker.js" />
+    <Content Include="Content\mui-examples\hello-mui\js\mui.picker.min.js" />
+    <Content Include="Content\mui-examples\hello-mui\js\mui.poppicker.js" />
+    <Content Include="Content\mui-examples\hello-mui\js\mui.previewimage.js" />
+    <Content Include="Content\mui-examples\hello-mui\js\mui.pullToRefresh.js" />
+    <Content Include="Content\mui-examples\hello-mui\js\mui.pullToRefresh.material.js" />
+    <Content Include="Content\mui-examples\hello-mui\js\mui.view.js" />
+    <Content Include="Content\mui-examples\hello-mui\js\mui.zoom.js" />
+    <Content Include="Content\mui-examples\hello-mui\js\update.js" />
+    <Content Include="Content\mui-examples\hello-mui\js\webviewGroup.js" />
+    <Content Include="Content\mui-examples\hello-mui\libs\echarts-all.js" />
+    <Content Include="Content\mui-examples\login\css\feedback-page.css" />
+    <Content Include="Content\mui-examples\login\css\mui.min.css" />
+    <Content Include="Content\mui-examples\login\css\style.css" />
+    <Content Include="Content\mui-examples\login\forget_password.html" />
+    <Content Include="Content\mui-examples\login\images\iconfont-tianjia.png" />
+    <Content Include="Content\mui-examples\login\images\qihoo.png" />
+    <Content Include="Content\mui-examples\login\images\qq.png" />
+    <Content Include="Content\mui-examples\login\images\sinaweibo.png" />
+    <Content Include="Content\mui-examples\login\images\user-photo.png" />
+    <Content Include="Content\mui-examples\login\images\weixin.png" />
+    <Content Include="Content\mui-examples\login\js\app.js" />
+    <Content Include="Content\mui-examples\login\js\feedback-page.js" />
+    <Content Include="Content\mui-examples\login\js\feedback.js" />
+    <Content Include="Content\mui-examples\login\js\mui.enterfocus.js" />
+    <Content Include="Content\mui-examples\login\js\mui.locker.js" />
+    <Content Include="Content\mui-examples\login\js\mui.min.js" />
+    <Content Include="Content\mui-examples\login\js\mui.view.js" />
+    <Content Include="Content\mui-examples\login\libs\easymob-webim-sdk\easemob.im-1.0.5.js" />
+    <Content Include="Content\mui-examples\login\libs\easymob-webim-sdk\jquery-1.11.1.js" />
+    <Content Include="Content\mui-examples\login\libs\easymob-webim-sdk\json2.js" />
+    <Content Include="Content\mui-examples\login\libs\easymob-webim-sdk\strophe-custom-2.0.0.js" />
+    <Content Include="Content\mui-examples\login\login.html" />
+    <Content Include="Content\mui-examples\login\main.html" />
+    <Content Include="Content\mui-examples\login\reg.html" />
+    <Content Include="Content\mui-examples\login\setting.html" />
+    <Content Include="Content\mui-examples\login\unlock.html" />
+    <Content Include="Content\mui-examples\nativeTab\css\mui.css" />
+    <Content Include="Content\mui-examples\nativeTab\css\mui.min.css" />
+    <Content Include="Content\mui-examples\nativeTab\html\new-webview.html" />
+    <Content Include="Content\mui-examples\nativeTab\html\tab-webview-subpage-chat.html" />
+    <Content Include="Content\mui-examples\nativeTab\html\tab-webview-subpage-contact.html" />
+    <Content Include="Content\mui-examples\nativeTab\images\60x60.gif" />
+    <Content Include="Content\mui-examples\nativeTab\images\logo.png" />
+    <Content Include="Content\mui-examples\nativeTab\images\ma.png" />
+    <Content Include="Content\mui-examples\nativeTab\index.html" />
+    <Content Include="Content\mui-examples\nativeTab\js\mui.js" />
+    <Content Include="Content\mui-examples\nativeTab\js\mui.min.js" />
+    <Content Include="Content\mui-examples\nativeTab\js\util.js" />
+    <Content Include="Global.asax" />
+    <Content Include="PrizeQuota.xml" />
+    <Content Include="Web.config" />
+    <Content Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="Views\Web.config" />
+    <Content Include="x86\SQLite.Interop.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_Data\" />
+    <Folder Include="Models\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FW.Common\FW.Common.csproj">
+      <Project>{671584e6-8efc-4082-93ff-86ac2982036a}</Project>
+      <Name>FW.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FW.Dal\FW.Dal.csproj">
+      <Project>{3edab720-d175-40a5-8b45-9e0627991017}</Project>
+      <Name>FW.Dal</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FW.Model\FW.Model.csproj">
+      <Project>{e0965a2a-dcdf-4fdb-b6e0-060fe085f408}</Project>
+      <Name>FW.Model</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Home\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\mui-examples\hello-mui\.project" />
+    <Content Include="Content\mui-examples\hello-mui\fonts\mui-icons-extra.ttf" />
+    <Content Include="Content\mui-examples\hello-mui\fonts\mui.ttf" />
+    <Content Include="Content\mui-examples\hello-mui\manifest.json" />
+    <Content Include="Content\mui-examples\login\.project" />
+    <Content Include="Content\mui-examples\login\fonts\mui.ttf" />
+    <Content Include="Content\mui-examples\login\libs\easymob-webim-sdk\quickstart.md" />
+    <Content Include="Content\mui-examples\login\manifest.json" />
+    <Content Include="Content\mui-examples\login\README.md" />
+    <Content Include="Content\mui-examples\nativeTab\fonts\.DS_Store" />
+    <Content Include="Content\mui-examples\nativeTab\fonts\iconfont.ttf" />
+    <Content Include="Content\mui-examples\nativeTab\fonts\mui.ttf" />
+    <Content Include="Content\mui-examples\nativeTab\html\.DS_Store" />
+    <Content Include="Content\mui-examples\nativeTab\images\.DS_Store" />
+    <Content Include="Content\mui-examples\nativeTab\manifest.json" />
+    <Content Include="Content\mui-examples\nativeTab\README.md" />
+    <Content Include="Content\mui-examples\nativeTab\unpackage\.confirmed_dependencies" />
+    <Content Include="Content\mui-examples\nativeTab\unpackage\.dependencies" />
+    <Content Include="Content\folio\fonts\fontawesome-webfont.eot" />
+    <Content Include="Content\folio\fonts\fontawesome-webfont.ttf" />
+    <Content Include="Content\folio\fonts\fontawesome-webfont.woff" />
+    <Content Include="Content\folio\fonts\FontAwesome.otf" />
+    <Content Include="Content\folio\php\contact.php" />
+    <None Include="db\cater.db" />
+    <Content Include="db\Lock.db" />
+    <None Include="Properties\PublishProfiles\test.pubxml" />
+    <Content Include="Views\Home\Hua.cshtml" />
+    <Content Include="Views\Home\zhuye.cshtml" />
+    <Content Include="Views\Lock\Index.cshtml" />
+    <Content Include="Views\Home\folio.cshtml" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <Target Name="MvcBuildViews" AfterTargets="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">
+    <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
+  </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>13854</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:50579/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target> -->
+</Project>

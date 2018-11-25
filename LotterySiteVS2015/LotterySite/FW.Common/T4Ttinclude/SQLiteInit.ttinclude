@@ -1,0 +1,16 @@
+﻿<#@ include file="./SQLiteSchemaReader.ttinclude" #>
+<#  // 初始化文件 一个库对应一个ttinclude文件 
+	// Settings  初始化配置 
+	ConnectionString = @"Data Source=E:/cc/test/LotterySite/LotteryWeb/db/Lock.db;";  // 连接串
+	TableFilter = " and name in ('LockPers') ";  // 过滤表
+	TopNamespace = "FW";  // 顶级命名空间
+	ClassPrefix = ""; 
+	ClassSuffix = "";
+    IncludeViews = true;
+	ExcludeTablePrefixes = new string[]{"aspnet_","webpages_"}; 
+    
+	// Read schema
+	var tables = LoadTables();
+
+#>
+		 

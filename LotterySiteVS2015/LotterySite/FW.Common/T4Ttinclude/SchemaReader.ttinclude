@@ -1,0 +1,201 @@
+﻿
+<#+ 
+/*
+The contents of this file are subject to the New BSD
+ License (the "License"); you may not use this file
+ except in compliance with the License. You may obtain a copy of
+ the License at http://www.opensource.org/licenses/bsd-license.php
+ 
+ Software distributed under the License is distributed on an 
+ "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+ implied. See the License for the specific language governing
+ rights and limitations under the License.
+*/
+
+string ConnectionString = ""; 
+string TableFilter = ""; 
+string TopNamespace = "";
+string Namespace = "";
+string ClassPrefix = "";
+string ClassSuffix = "";
+string SchemaName = null;
+bool IncludeViews;
+string[] ExcludeTablePrefixes = new string[]{};
+string _connectionString="";
+string _providerName="";
+string SqlToModelStr = "";
+string SqlToModelName = ""; 
+
+static Regex rxCleanUp = new Regex(@"[^\w\d_]", RegexOptions.Compiled);
+
+static Func<string, string> CleanUp = (str) =>
+{
+	str = rxCleanUp.Replace(str, "_");
+	if (char.IsDigit(str[0])) str = "_" + str;
+	
+    return str;
+};
+
+string CheckNullable(Column col)
+{
+    string result="";
+    if(col.IsNullable && 
+		col.PropertyType !="byte[]" && 
+		col.PropertyType !="string" &&
+		col.PropertyType !="Microsoft.SqlServer.Types.SqlGeography" &&
+		col.PropertyType !="Microsoft.SqlServer.Types.SqlGeometry"
+		)
+        result="?";
+    return result;
+}
+  
+static bool IsExcluded(string tablename, string[] ExcludeTablePrefixes)
+{
+	for (int i = 0; i < ExcludeTablePrefixes.Length; i++)
+	{
+		string s = ExcludeTablePrefixes[i];
+		if(tablename.StartsWith(s)) return true;
+	}
+	return false;
+}
+
+
+abstract class SchemaReader
+{
+	public abstract Tables ReadSchema(string connstr, string tableFilter);
+	public GeneratedTextTransformation outer;
+	public void WriteLine(string o)
+	{
+		outer.WriteLine(o);
+	}
+	
+    public string GetPropertyType(string sqlType)
+    { 
+        string sysType = "string";
+        switch (sqlType)
+        {
+            case "bigint":
+                sysType = "long";
+                break;
+            case "smallint":
+                sysType = "short";
+                break;
+            case "int":
+			case "number":
+			case "integer":
+                sysType = "int";
+                break;
+            case "uniqueidentifier":
+                sysType = "Guid";
+                break;
+            case "smalldatetime":
+            case "datetime":
+            case "date":
+            case "time":
+                sysType = "DateTime";
+                break;
+            case "float":
+                sysType = "double";
+                break;
+            case "real":
+                sysType = "float";
+                break;
+            case "numeric":
+            case "smallmoney":
+            case "decimal":
+            case "money":
+                sysType = "decimal";
+                break;
+            case "tinyint":
+                sysType = "byte";
+                break;
+            case "bit":
+                sysType = "bool";
+                break;
+            case "image":
+            case "binary":
+            case "varbinary":
+            case "timestamp":
+                sysType = "byte[]";
+                break;
+            case "geography":
+                sysType = "Microsoft.SqlServer.Types.SqlGeography";
+                break;
+            case "geometry":
+                sysType = "Microsoft.SqlServer.Types.SqlGeometry";
+                break;
+        }
+        return sysType;
+    }
+} 
+ 
+public class Table
+{
+    public List<Column> Columns;	
+    public string Name;
+	public string Schema;
+	public bool IsView;
+    public string CleanName;
+    public string ClassName;
+	public string SequenceName;
+	public bool Ignore;
+	public string TableDesc;
+
+    public Column PK
+    {
+        get
+        {
+            return this.Columns.SingleOrDefault(x=>x.IsPK);
+        }
+    }
+
+	public Column GetColumn(string columnName)
+	{
+		return Columns.Single(x=>string.Compare(x.Name, columnName, true)==0);
+	}
+
+	public Column this[string columnName]
+	{
+		get
+		{
+			return GetColumn(columnName);
+		}
+	}
+
+}
+
+public class Column
+{
+    public string Name;
+    public string PropertyName;
+    public string PropertyType;
+	public string DbType;
+    public bool IsPK;
+    public bool IsNullable;
+	public bool IsAutoIncrement;
+	public bool Ignore;
+	public string ColumnDesc;
+}
+
+public class Tables : List<Table>
+{
+	public Tables()
+	{
+	}
+	
+	public Table GetTable(string tableName)
+	{
+		return this.Single(x=>string.Compare(x.Name, tableName, true)==0);
+	}
+
+	public Table this[string tableName]
+	{
+		get
+		{
+			return GetTable(tableName);
+		}
+	}
+
+}
+ 
+#>
