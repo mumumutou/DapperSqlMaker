@@ -15,7 +15,7 @@
     <AssemblyName>LotteryWeb</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
-    <UseIISExpress>true</UseIISExpress>
+    <UseIISExpress>false</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
@@ -152,7 +152,6 @@
     <Content Include="Content\folio\images\header-image\image01.png" />
     <Content Include="Content\folio\images\header-image\image02.jpg" />
     <Content Include="Content\folio\images\jhon-img.gif" />
-    <Content Include="Content\folio\images\jhon-img.jpg" />
     <Content Include="Content\folio\images\left-arrow.png" />
     <Content Include="Content\folio\images\loading.gif" />
     <Content Include="Content\folio\images\logo-2.png" />
@@ -482,7 +481,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>13854</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:50579/</IISUrl>
+          <IISUrl>http://127.0.0.1:8089/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
