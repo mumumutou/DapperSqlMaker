@@ -462,6 +462,7 @@
     <Content Include="Views\Home\zhuye.cshtml" />
     <Content Include="Views\Lock\Index.cshtml" />
     <Content Include="Views\Home\folio.cshtml" />
+    <Content Include="Readme.md" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
