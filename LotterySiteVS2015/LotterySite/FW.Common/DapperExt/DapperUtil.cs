@@ -94,7 +94,7 @@ namespace FW.Common.DapperExt
         //}
 
         /// <summary>
-        /// 删除实体
+        /// 删除实体 据根据主键
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entity"></param>

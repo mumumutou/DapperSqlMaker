@@ -36,10 +36,52 @@ namespace FW.Common.DapperExt.Tests
         #endregion
 
 
+
         [Test]
-        public void VisitExpressionTest1()
+        public void Add测试()
         {
-            // 1
+             
+            var efrows = LockDapperUtil<LockPers>.Insert(p => {
+                p.Id = Guid.NewGuid().ToString();
+                p.Name = "测试bool添加";
+                p.Content = p.Name;
+                p.InsertTime = DateTime.Now;
+                p.IsDel = false;
+            });
+
+            Console.WriteLine(efrows);
+
+        }
+        [Test]
+        public void Update测试()
+        {
+            LockDapperUtil<LockPers>.Update(
+                s => {
+                    s.Name = "测试bool修改";
+                    s.Content = s.Name;
+                    s.IsDel = true;
+                },
+                w => w.Id == "2c3607f5-caa9-40d7-8fa8-3475a37aa33e" && w.IsDel == false
+                );
+        }
+
+        [Test]
+        public void bool测试() {
+            Expression<Func<LockPers, bool>> expression = t => t.Name.Contains("%蛋蛋%") && t.IsDel == false;
+            StringBuilder sql = null;
+            DynamicParameters spars = null;
+            AnalysisExpression.VisitExpression(expression, ref sql, ref spars);
+            Console.WriteLine(sql);
+
+            var objs3 = LockDapperUtil<LockPers>.Get(expression); 
+            WriteJson(objs3);
+
+        }
+
+        [Test]
+        public void In测试1()
+        {
+            // 1 in 表达式内创建数组(少量) 会直接转成sql 不走参数化
             Expression<Func<LockPers, bool>> expression = t => SM.In(t.Name, new string[] { "马", "码" })
                && t.Name == "农码一生" && t.Prompt == "男" || t.Name.Contains("11");
             StringBuilder sql = null;
@@ -55,15 +97,12 @@ namespace FW.Common.DapperExt.Tests
 
         }
         [Test]
-        public void VisitExpressionTest()
+        public void In测试2()
         {
+            //2 in  声明数组变量当参数传入 走参数化查询
             var arrEditCount = new int[5] { 22, 2, 3, 5, 1 };  // 
-            //2 
-            Expression<Func<LockPers, bool>> expression = w =>
-                (w.Prompt.Contains("%hou%") || w.Prompt.Contains("%15%") || w.Prompt.Contains("%137%") || w.Prompt.Contains("%138%") || w.Prompt.Contains("%139%"))
-            //    && ( w.IsDel == "1" && ( w.IsDel == "1" || w.IsDel != "0"  ) || SM.In(w.IsDel, arrEditCount)  )
-            //    && ( w.Name.Contains("%蛋蛋%") || w.Name.Contains("%zfb%") )
-            ;
+            Expression<Func<LockPers, bool>> expression = w => SM.In(w.EditCount, arrEditCount)
+                && (w.Prompt.Contains("%hou%") || w.IsDel == false ) ;
             StringBuilder sql = null;
             DynamicParameters spars = null;
             AnalysisExpression.VisitExpression(expression, ref sql, ref spars);
@@ -198,7 +237,7 @@ namespace FW.Common.DapperExt.Tests
         
 
         [Test]
-        public void Get()
+        public void Get查询测试()
         {
             // 1. GetId 
             //var old1 = LockDapperUtil.Get<LockPers>("7fc02473-fee2-40da-a048-4398d9b052fd");

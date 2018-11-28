@@ -147,6 +147,14 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>MSSQLToModel.txt</LastGenOutput>
     </Content>
+    <Content Include="T4Ttinclude\ModelGenerator\OracleModelGenerator.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>OracleModelGenerator.cst</LastGenOutput>
+    </Content>
+    <Content Include="T4Ttinclude\ModelGenerator\SingleOracleModelGenerator.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>SingleOracleModelGenerator.cs</LastGenOutput>
+    </Content>
     <Content Include="T4Ttinclude\ModelGenerator\TestSQLiteModel.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>TestSQLiteModel.cst</LastGenOutput>

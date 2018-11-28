@@ -573,16 +573,18 @@ namespace Dapper.Contrib.Extensions
 
             for (var i = 0; i < nonIdProps.Count; i++)
             {
+                var suffix = "_s" + i;
                 var property = nonIdProps.ElementAt(i);
-                adapter.AppendColumnNameEqualsValue(sb, property.Name);  //fix for issue #336
+                adapter.AppendColumnNameEqualsValue(sb, property.Name, suffix);  //fix for issue #336
                 if (i < nonIdProps.Count - 1)
                     sb.AppendFormat(", ");
             }
             sb.Append(" where ");
             for (var i = 0; i < keyProperties.Count; i++)
             {
+                var suffix = "_w" + i;
                 var property = keyProperties.ElementAt(i);
-                adapter.AppendColumnNameEqualsValue(sb, property.Name);  //fix for issue #336
+                adapter.AppendColumnNameEqualsValue(sb, property.Name, suffix);  //fix for issue #336
                 if (i < keyProperties.Count - 1)
                     sb.AppendFormat(" and ");
             }
@@ -599,68 +601,68 @@ namespace Dapper.Contrib.Extensions
         /// <param name="transaction">The transaction to run under, null (the default) if none</param>
         /// <param name="commandTimeout">Number of seconds before command execution timeout</param>
         /// <param name="isAllUpdate">是否修改全部字段</param>
-        public static bool UpdateWriteField<T>(this IDbConnection connection, T entityToUpdate, T entityWhere, IDbTransaction transaction = null, int? commandTimeout = null, bool isAllUpdate = false)
-        {
-            var proxy = entityToUpdate as IProxy;
-            if (proxy != null)
-            {
-                if (!proxy.IsDirty) return false;
-            }
+        //public static bool UpdateWriteField<T>(this IDbConnection connection, T entityToUpdate, T entityWhere, IDbTransaction transaction = null, int? commandTimeout = null, bool isAllUpdate = false)
+        //{
+        //    var proxy = entityToUpdate as IProxy;
+        //    if (proxy != null)
+        //    {
+        //        if (!proxy.IsDirty) return false;
+        //    }
 
-            var type = typeof(T);
+        //    var type = typeof(T);
 
-            if (type.IsArray)
-            {
-                type = type.GetElementType();
-            }
-            else if (type.IsGenericType())
-            {
-                type = type.GetGenericArguments()[0];
-            }
+        //    if (type.IsArray)
+        //    {
+        //        type = type.GetElementType();
+        //    }
+        //    else if (type.IsGenericType())
+        //    {
+        //        type = type.GetGenericArguments()[0];
+        //    }
 
-            //var keyProperties = KeyPropertiesCache(type).ToList();  //added ToList() due to issue #418, must work on a list copy
-            //var explicitKeyProperties = ExplicitKeyPropertiesCache(type);
-            //if (!keyProperties.Any() && !explicitKeyProperties.Any())
-            //    throw new ArgumentException("Entity must have at least one [Key] or [ExplicitKey] property");
+        //    //var keyProperties = KeyPropertiesCache(type).ToList();  //added ToList() due to issue #418, must work on a list copy
+        //    //var explicitKeyProperties = ExplicitKeyPropertiesCache(type);
+        //    //if (!keyProperties.Any() && !explicitKeyProperties.Any())
+        //    //    throw new ArgumentException("Entity must have at least one [Key] or [ExplicitKey] property");
 
-            // 筛选修改赋值字段
-            var allWriteFieldProperties = WriteFiledPropertiesCache(type, entityToUpdate);
-            if (!allWriteFieldProperties.Any()) throw new ArgumentException("修改字段数量为空");
+        //    // 筛选修改赋值字段
+        //    var allWriteFieldProperties = WriteFiledPropertiesCache(type, entityToUpdate);
+        //    if (!allWriteFieldProperties.Any()) throw new ArgumentException("修改字段数量为空");
 
-            // 筛选条件赋值字段  // 可以为空
-            var allWriteFieldPropertiesWhere = WriteFiledPropertiesCache(type, entityWhere);
-            if(!allWriteFieldPropertiesWhere.Any() && !isAllUpdate) throw new ArgumentException("整表修改需要把isAllUpdate设置为True");
+        //    // 筛选条件赋值字段  // 可以为空
+        //    var allWriteFieldPropertiesWhere = WriteFiledPropertiesCache(type, entityWhere);
+        //    if(!allWriteFieldPropertiesWhere.Any() && !isAllUpdate) throw new ArgumentException("整表修改需要把isAllUpdate设置为True");
 
-            var name = GetTableName(type);
+        //    var name = GetTableName(type);
 
-            var sb = new StringBuilder();
-            sb.AppendFormat("update {0} set ", name);
+        //    var sb = new StringBuilder();
+        //    sb.AppendFormat("update {0} set ", name);
              
 
-            var adapter = GetFormatter(connection);
+        //    var adapter = GetFormatter(connection);
 
-            for (var i = 0; i < allWriteFieldProperties.Count; i++)
-            {
-                var property = allWriteFieldProperties.ElementAt(i);
-                adapter.AppendColumnNameEqualsValue(sb, property.Name);  //fix for issue #336
-                if (i < allWriteFieldProperties.Count - 1)
-                    sb.AppendFormat(", ");
-            }
-            if (allWriteFieldPropertiesWhere.Any() )
-            {
-                sb.Append(" where ");
-                for (var i = 0; i < allWriteFieldPropertiesWhere.Count; i++)
-                {
-                    var property = allWriteFieldPropertiesWhere.ElementAt(i);
-                    adapter.AppendColumnNameEqualsValue(sb, property.Name);  //fix for issue #336
-                    if (i < allWriteFieldPropertiesWhere.Count - 1)
-                        sb.AppendFormat(" and ");
-                }
-            }
-            EntityWriteFiledPropertiesJoinWhere(allWriteFieldPropertiesWhere, entityToUpdate, entityWhere);
-            var updated = connection.Execute(sb.ToString(), entityToUpdate, commandTimeout: commandTimeout, transaction: transaction);
-            return updated > 0;
-        }
+        //    for (var i = 0; i < allWriteFieldProperties.Count; i++)
+        //    {
+        //        var property = allWriteFieldProperties.ElementAt(i);
+        // 需要修改 参数名称加后缀       adapter.AppendColumnNameEqualsValue(sb, property.Name);  //fix for issue #336
+        //        if (i < allWriteFieldProperties.Count - 1)
+        //            sb.AppendFormat(", ");
+        //    }
+        //    if (allWriteFieldPropertiesWhere.Any() )
+        //    {
+        //        sb.Append(" where ");
+        //        for (var i = 0; i < allWriteFieldPropertiesWhere.Count; i++)
+        //        {
+        //            var property = allWriteFieldPropertiesWhere.ElementAt(i);
+        //  需要修改 参数名称加后缀           adapter.AppendColumnNameEqualsValue(sb, property.Name);  //fix for issue #336
+        //            if (i < allWriteFieldPropertiesWhere.Count - 1)
+        //                sb.AppendFormat(" and ");
+        //        }
+        //    }
+        //    EntityWriteFiledPropertiesJoinWhere(allWriteFieldPropertiesWhere, entityToUpdate, entityWhere);
+        //    var updated = connection.Execute(sb.ToString(), entityToUpdate, commandTimeout: commandTimeout, transaction: transaction);
+        //    return updated > 0;
+        //}
 
         public static bool UpdateWriteField<T>(this IDbConnection connection, T entityToUpdate, Expression<Func<T, bool>> expression, List<IDataParameter> spars, IDbTransaction transaction = null, int? commandTimeout = null, bool isAllUpdate = false)
         {
@@ -699,18 +701,19 @@ namespace Dapper.Contrib.Extensions
 
             DynamicParameters dpars = new DynamicParameters();
 
-            SqlMapper.ITypeHandler handler = null;
+            // SqlMapper.ITypeHandler handler = null;
             for (var i = 0; i < allWriteFieldProperties.Count; i++)
             {
+                var suffix = "_s" + i ;  // Field = @Field_s0
                 var property = allWriteFieldProperties.ElementAt(i);
-                adapter.AppendColumnNameEqualsValue(sb, property.Name);  //fix for issue #336
+                adapter.AppendColumnNameEqualsValue(sb, property.Name, suffix);  //fix for issue #336
                 if (i < allWriteFieldProperties.Count - 1)
                     sb.AppendFormat(", ");
 
                 var value = property.GetValue(entityToUpdate, null);
                 // var dbtype = SqlMapper.LookupDbType(property.PropertyType, property.Name, true, out handler);
                 // 类型转换 ？？？？ 找dapper的类型转换
-                dpars.Add(property.Name, value); //, dbtype );
+                dpars.Add(property.Name + suffix, value); //, dbtype );
 
             }
             sb.Append(" where ");
@@ -723,7 +726,7 @@ namespace Dapper.Contrib.Extensions
 
 
         /// <summary>
-        /// Delete entity in table "Ts".
+        /// Delete entity in table "Ts".  需要根据主键删除
         /// </summary>
         /// <typeparam name="T">Type of entity</typeparam>
         /// <param name="connection">Open SqlConnection</param>
@@ -770,6 +773,11 @@ namespace Dapper.Contrib.Extensions
             var deleted = connection.Execute(sb.ToString(), entityToDelete, transaction, commandTimeout);
             return deleted > 0;
         }
+        
+        /// <summary>
+        /// 根据部分字段删除数据 无法执行有重复条件的删除sql 需要改成表达式的形式
+        /// </summary> 
+        /// <returns></returns>
         public static bool DeleteWriteField<T>(this IDbConnection connection, T entityToDelete, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             if (entityToDelete == null)
@@ -812,6 +820,12 @@ namespace Dapper.Contrib.Extensions
             return deleted > 0;
         }
 
+        /// <summary>
+        /// 根据表达式删除字段 
+        /// </summary>
+        /// <typeparam name="T"></typeparam> 
+        /// <param name="whereExps">表达式</param> 
+        /// <returns></returns>
         public static bool DeleteWriteField<T>(this IDbConnection connection, Expression<Func<T, bool>> whereExps, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             if (whereExps == null)
@@ -838,7 +852,7 @@ namespace Dapper.Contrib.Extensions
 
             // sb参数啊查询 变量@ 不同库适配 adapter.AppendColumnNameEqualsValue  ???
             //    adapter.AppendColumnNameEqualsValue(sb, property.Name);  //fix for issue #336
-            AnalysisExpression.VisitExpression(whereExps, ref sb, ref dpars);
+            AnalysisExpression.VisitExpression(whereExps, ref sb, ref dpars);    // Field = @Field0
 
             var adapter = GetFormatter(connection);
 
@@ -1078,13 +1092,27 @@ namespace Dapper.Contrib.Extensions
     }
 }
 
+/// <summary>
+/// 不通数据库 参数格式适配器 "\"{0}\" = @{1}"
+/// </summary>
 public partial interface ISqlAdapter
 {
     int Insert(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert);
     
     //new methods for issue #336
     void AppendColumnName(StringBuilder sb, string columnName);
+
+    /// <summary>
+    /// 参数化格式 Field = @Field 
+    /// </summary>
     void AppendColumnNameEqualsValue(StringBuilder sb, string columnName);
+
+    /// <summary>
+    /// 参数化格式 Field = @Field | 防止参数字段名重复 传入suffix  示例结果 Field = @Field_0
+    /// </summary> 
+    /// <param name="columnName">字段名</param>
+    /// <param name="suffix">参数名后缀</param>
+    void AppendColumnNameEqualsValue(StringBuilder sb, string columnName,string suffix);
 }
 
 public partial class SqlServerAdapter : ISqlAdapter
@@ -1115,6 +1143,10 @@ public partial class SqlServerAdapter : ISqlAdapter
     public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName)
     {
         sb.AppendFormat("[{0}] = @{1}", columnName, columnName);
+    }
+    public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName, string suffix)
+    {
+        sb.AppendFormat("[{0}] = @{1}{2}", columnName, columnName, suffix);
     }
 }
 
@@ -1147,6 +1179,10 @@ public partial class SqlCeServerAdapter : ISqlAdapter
     {
         sb.AppendFormat("[{0}] = @{1}", columnName, columnName);
     }
+    public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName, string suffix)
+    {
+        sb.AppendFormat("[{0}] = @{1}{2}", columnName, columnName, suffix);
+    }
 }
 
 public partial class MySqlAdapter : ISqlAdapter
@@ -1176,6 +1212,10 @@ public partial class MySqlAdapter : ISqlAdapter
     public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName)
     {
         sb.AppendFormat("`{0}` = @{1}", columnName, columnName);
+    }
+    public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName, string suffix)
+    {
+        sb.AppendFormat("`{0}` = @{1}{2}", columnName, columnName, suffix);
     }
 }
 
@@ -1227,6 +1267,10 @@ public partial class PostgresAdapter : ISqlAdapter
     {
         sb.AppendFormat("\"{0}\" = @{1}", columnName, columnName);
     }
+    public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName, string suffix)
+    {
+        sb.AppendFormat("\"{0}\" = @{1}{2}", columnName, columnName, suffix);
+    }
 }
 
 public partial class SQLiteAdapter : ISqlAdapter
@@ -1254,5 +1298,9 @@ public partial class SQLiteAdapter : ISqlAdapter
     public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName)
     {
         sb.AppendFormat("\"{0}\" = @{1}", columnName, columnName);
+    }
+    public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName, string suffix)
+    {
+        sb.AppendFormat("\"{0}\" = @{1}{2}", columnName, columnName, suffix);
     }
 }

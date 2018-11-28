@@ -232,12 +232,6 @@ namespace FW.Common.DapperExt
             }
         }
 
-        /// <summary>
-        /// 更新整个实体 (只写入赋值字段)
-        /// </summary>
-        /// <param name="entityfunc">修改的字段</param>
-        /// <param name="wherefunc">where条件</param>
-        /// <returns>返回是否修改成功</returns>
         //public static bool Update(Action<T> setAcn, Action<T> whereAcn)
         //{
         //    if (setAcn == null)
@@ -266,6 +260,13 @@ namespace FW.Common.DapperExt
 
         //}
 
+        /// <summary>
+        /// 更新整个实体 (只写入赋值字段)
+        /// t.Update( s => {  s.IsDel = true; },  w => w.Id == 1);
+        /// </summary>
+        /// <param name="entityfunc">修改的字段</param>
+        /// <param name="wherefunc">where条件</param>
+        /// <returns>返回是否修改成功</returns> 
         public static bool Update(Action<T> setAcn, Expression<Func<T, bool>> whereAcn)
         {
             if (setAcn == null)
@@ -294,30 +295,39 @@ namespace FW.Common.DapperExt
             }
 
         }
+
+
         /// <summary>
         /// 删除实体 (条件是赋值的字段)
         /// </summary>
         /// <param name="whereAcn">where字段实体</param>
         /// <returns>返回是否删除成功</returns>
-        //public static bool Delete(Action<T> whereAcn)
-        //{
-        //    Type type = typeof(T);
-        //    var writeFiled = type.GetField("_IsWriteFiled");
-        //    if (writeFiled == null)
-        //        throw new Exception("未能找到_IsWriteFiled写入标识字段");
+        public static bool Delete(Action<T> whereAcn)
+        {
+            Type type = typeof(T);
+            var writeFiled = type.GetField("_IsWriteFiled");
+            if (writeFiled == null)
+                throw new Exception("未能找到_IsWriteFiled写入标识字段");
 
-        //    T where = new T();
-        //    writeFiled.SetValue(where, true); //pwhere._IsWriteFiled = true;
-        //    whereAcn(where);
-             
-        //    using (var conn = DataBaseConfig.GetSqliteConnection(DataBaseConfig.LockSqlLiteConnectionString))
-        //    {
-        //        var t = conn.DeleteWriteField(where, null, null);
-        //        return t;
-        //    }
+            T where = new T();
+            writeFiled.SetValue(where, true); //pwhere._IsWriteFiled = true;
+            whereAcn(where);
 
-        //}
+            using (var conn = DataBaseConfig.GetSqliteConnection(DataBaseConfig.LockSqlLiteConnectionString))
+            {
+                var t = conn.DeleteWriteField(where, null, null);
+                return t;
+            }
 
+        }
+
+
+
+
+        /// <summary>
+        /// 删除字段 根据where表达式 
+        /// </summary> 
+        /// <returns></returns>
         public static bool Delete(Expression<Func<T, bool>> whereExps)
         {
             //Type type = typeof(T);

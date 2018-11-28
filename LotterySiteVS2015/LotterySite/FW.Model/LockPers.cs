@@ -26,9 +26,6 @@ namespace FW.Model
 
 
         public LockPers() {  }
-        public LockPers(bool isWrite) {
-            this._IsWriteFiled = isWrite;
-        }
         
 
         private string _ContentOld;

@@ -21,6 +21,10 @@ namespace FW.Model
         public System.Collections.Generic.List<System.Reflection.PropertyInfo> _WriteFiled 
 						= new System.Collections.Generic.List<System.Reflection.PropertyInfo>();
 		#endregion
+		 
+        public LockPers(bool isWrite) {
+            this._IsWriteFiled = isWrite;
+        }
 
         #region FieldName
 		public readonly string  Field_Name = "Name"; 
