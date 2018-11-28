@@ -17,7 +17,7 @@ namespace FW.Model
         //public virtual string Content { get; set; }
         //      // this.OnPropertyValueChange()  
         //      public virtual string Prompt { get; set; }
-        //      [ExplicitKey]  // 显示键 代码中赋值
+        //      字段名为id会默认当作主键   [ExplicitKey]  // 显示键 代码中赋值
         //public virtual string Id { get; set; }
         //public virtual DateTime? InsertTime { get; set; }
         //public virtual string IsDel { get; set; }
@@ -29,6 +29,8 @@ namespace FW.Model
         public LockPers(bool isWrite) {
             this._IsWriteFiled = isWrite;
         }
+        
+
         private string _ContentOld;
         [Write(false)]
         public virtual string ContentOld {
@@ -42,5 +44,19 @@ namespace FW.Model
 
     }
 
-
+    [Table("LockPers")]
+    public class LockPers_ : LockPers
+    {
+        private string _Id { get; set; }
+        [ExplicitKey]  // 显示键 代码中赋值
+        public override string Id
+        {
+            set
+            {
+                _Id = value;
+                if (_IsWriteFiled) _WriteFiled.Add(this.GetType().GetProperty(this.Field_Id));
+            }
+            get { return _Id; }
+        }
+    }
 } // namespace

@@ -12,7 +12,7 @@ namespace FW.Model
 	[Table("LockPers")]
 	public partial class LockPers
 	{  
-	   /*  Name  Content  Prompt  Id  InsertTime  IsDel  DelTime  UpdateTime  */ 
+	   /*  Name  Content  Prompt  Id  InsertTime  IsDel  DelTime  UpdateTime  EditCount  */ 
 
 	    
         #region 待写入字段集合 可抽象出来
@@ -31,6 +31,7 @@ namespace FW.Model
 		public readonly string  Field_IsDel = "IsDel"; 
 		public readonly string  Field_DelTime = "DelTime"; 
 		public readonly string  Field_UpdateTime = "UpdateTime"; 
+		public readonly string  Field_EditCount = "EditCount"; 
 		#endregion
 
         #region Field
@@ -39,9 +40,10 @@ namespace FW.Model
 		private string _Prompt { get; set; }
 		private string _Id { get; set; }
 		private DateTime? _InsertTime { get; set; }
-		private string _IsDel { get; set; }
+		private bool _IsDel { get; set; }
 		private DateTime? _DelTime { get; set; }
 		private DateTime? _UpdateTime { get; set; }
+		private int? _EditCount { get; set; }
         #endregion
 
 		public virtual string Name { 
@@ -59,8 +61,7 @@ namespace FW.Model
 					if(_IsWriteFiled) _WriteFiled.Add(this.GetType().GetProperty(this.Field_Prompt) ); }
 			get { return _Prompt; }
 		}
-        [ExplicitKey] // 手动插入(主)键
-        public virtual string Id { 
+		public virtual string Id { 
 			set { _Id = value; 
 					if(_IsWriteFiled) _WriteFiled.Add(this.GetType().GetProperty(this.Field_Id) ); }
 			get { return _Id; }
@@ -70,7 +71,7 @@ namespace FW.Model
 					if(_IsWriteFiled) _WriteFiled.Add(this.GetType().GetProperty(this.Field_InsertTime) ); }
 			get { return _InsertTime; }
 		}
-		public virtual string IsDel { 
+		public virtual bool IsDel { 
 			set { _IsDel = value; 
 					if(_IsWriteFiled) _WriteFiled.Add(this.GetType().GetProperty(this.Field_IsDel) ); }
 			get { return _IsDel; }
@@ -84,6 +85,11 @@ namespace FW.Model
 			set { _UpdateTime = value; 
 					if(_IsWriteFiled) _WriteFiled.Add(this.GetType().GetProperty(this.Field_UpdateTime) ); }
 			get { return _UpdateTime; }
+		}
+		public virtual int? EditCount { 
+			set { _EditCount = value; 
+					if(_IsWriteFiled) _WriteFiled.Add(this.GetType().GetProperty(this.Field_EditCount) ); }
+			get { return _EditCount; }
 		}
 
 	}

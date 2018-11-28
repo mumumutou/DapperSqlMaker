@@ -110,6 +110,7 @@ abstract class SchemaReader
                 sysType = "byte";
                 break;
             case "bit":
+			case "boolean" :  // sqlite bool
                 sysType = "bool";
                 break;
             case "image":

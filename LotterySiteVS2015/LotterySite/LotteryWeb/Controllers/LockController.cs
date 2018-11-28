@@ -89,7 +89,7 @@ namespace LotteryWeb.Controllers
         public ActionResult Delete(string Id)
         {
             var old = LockDapperUtil.Get<LockPers>(Id);
-            old.IsDel = "1";
+            old.IsDel = true;
             old.DelTime = DateTime.Now;
             var t = LockDapperUtil.Update(old);
             return Content(Convert.ToInt32(t).ToString());
@@ -105,7 +105,7 @@ namespace LotteryWeb.Controllers
         {
             
 
-            // 2. Update (set和where里不能有相同字段)
+            // 2. Update (跟新部分字段 set和where里不能有相同字段)
             LockPers pset = new LockPers(true);
             pset.Name = "修改95 只修改Name字段";
             LockPers pwhere = new LockPers(true);
@@ -115,7 +115,7 @@ namespace LotteryWeb.Controllers
             // 4. Delete 
             LockPers pdel = new LockPers(true);
             pdel.Id = "1339a621-09f5-4d44-8653-09354013c3c0";
-            pdel.IsDel = "1";
+            pdel.IsDel = true;
             //var efrowsdel = LockDapperUtil.Delete(pdel);
 
             // 6. Update
@@ -179,7 +179,7 @@ namespace LotteryWeb.Controllers
             //, where => SQLMethods.DB_Like(where.Content, "%xxoo%") && where.IsDel == "1");
 
             // 9. select 表达式 
-            var test = LockDapperUtil<LockPers>.Get(w => SM.Like(w.Name, "%Steam%") && w.IsDel == "1");
+            var test = LockDapperUtil<LockPers>.Get(w => SM.Like(w.Name, "%Steam%") && w.IsDel == true);
 
             // 10. delete 表达式 
             // var delresult = LockDapperUtil<LockPers>.Delete(w => SQLMethods.DB_Like(w.Content, "%xxoo%") && w.IsDel == "1");
@@ -187,7 +187,7 @@ namespace LotteryWeb.Controllers
             // 11. dynamic 
             //var test2 = LockDapperUtil.Query("SELECT * FROM LockPers where isDel != 1  order by Name ", null);
 
-
+            // 12. order by 排序
 
 
 

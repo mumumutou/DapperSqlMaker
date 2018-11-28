@@ -183,9 +183,9 @@ namespace Dapper.Contrib.Extensions
         /// </summary>
         /// <typeparam name="T">Interface or type to create and populate</typeparam>
         /// <param name="connection">Open SqlConnection</param>
-        /// <param name="id">Id of the entity to get, must be marked with [Key] attribute</param>
+        /// <param name="id">Id of the entity to get, must be marked with [Key] or [ExplicitKey] attribute</param>
         /// <param name="transaction">The transaction to run under, null (the default) if none</param>
-        /// <param name="commandTimeout">Number of seconds before command execution timeout</param>
+        /// <param name="commandTimeout">Number of seconds before command execution timeout</param> 
         /// <returns>Entity of T</returns>
         public static T Get<T>(this IDbConnection connection, dynamic id, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
@@ -193,7 +193,7 @@ namespace Dapper.Contrib.Extensions
 
             string sql;
             if (!GetQueries.TryGetValue(type.TypeHandle, out sql))
-            {
+            { 
                 var key = GetSingleKey<T>(nameof(Get));
                 var name = GetTableName(type);
 
@@ -229,7 +229,7 @@ namespace Dapper.Contrib.Extensions
             }
             return obj;
         }
-
+        
         /// <summary>
         /// Returns a single entity by a single id from table "Ts".  
         /// Id must be marked with [Key] attribute.

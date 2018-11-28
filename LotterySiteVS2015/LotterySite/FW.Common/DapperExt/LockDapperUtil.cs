@@ -178,6 +178,9 @@ namespace FW.Common.DapperExt
         //    }
         //}
 
+
+
+
         public static List<T> Get(Expression<Func<T, bool>> whereExps)
         {
             //Type type = typeof(T);
@@ -195,6 +198,12 @@ namespace FW.Common.DapperExt
                 return t;
             }
         }
+         
+        public static List<T> Get(Expression<Action<T>> filedExps, Expression<Func<T, bool>> whereExps)
+        {
+            return null;
+        }
+
 
         /// <summary>
         /// 插入记录
