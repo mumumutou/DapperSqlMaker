@@ -124,7 +124,7 @@ namespace Dapper.Contrib.Extensions
             return properties.ToList();
         }
 
-        // 筛选赋值字段
+        // 筛选赋值过的字段   //待修改 直接通过字段名称反射获取  ?????
         private static List<PropertyInfo> WriteFiledPropertiesCache(Type type, object entity)
         {
             FieldInfo pi;
@@ -133,7 +133,8 @@ namespace Dapper.Contrib.Extensions
                 var piwfiledList = pi.GetValue(entity) as List<PropertyInfo>;
                 return piwfiledList;
             }
-
+            
+            //????? 标识浪费WriteFiled, 直接通过字段名称反射获取
             var writeFiledField = type.GetFields().Where(p => p.GetCustomAttributes(true).Any(a => a is WriteFiledAttribute)).FirstOrDefault<FieldInfo>();
 
             WriteFiledProperties[type.TypeHandle] = writeFiledField;
@@ -269,7 +270,10 @@ namespace Dapper.Contrib.Extensions
 
         }
 
-        // cc 
+        /// <summary>
+        /// 查询数据 根据表达式
+        /// </summary> 
+        /// <returns></returns>
         public static List<T> GetWriteField<T>(this IDbConnection connection, Expression<Func<T, bool>> whereAcn, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             var type = typeof(T);

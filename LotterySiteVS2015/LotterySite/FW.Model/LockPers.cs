@@ -24,8 +24,8 @@ namespace FW.Model
         //public virtual DateTime? DelTime { get; set; }
         //      public virtual DateTime? UpdateTime { get; set; }
 
-
-        public LockPers() {  }
+        
+        public LockPers() { this._IsWriteFiled = true; }  
         
 
         private string _ContentOld;
@@ -34,7 +34,7 @@ namespace FW.Model
             get { return _ContentOld; }
             set {
                 _ContentOld = value;
-                _WriteFiled.Add(this.GetType().GetProperty("ContentOld") );
+                // _WriteFiled.Add(this.GetType().GetProperty("ContentOld") );  // 非库字段无需记录
             }
         }
 

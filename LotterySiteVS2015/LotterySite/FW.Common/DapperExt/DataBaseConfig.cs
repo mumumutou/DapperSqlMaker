@@ -41,6 +41,12 @@ namespace FW.Common
              System.AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/") 
              +   "db/Lock.db";
 
+        public static readonly string LockTestSqlLiteConnectionString =
+            "Data Source=" +
+             //"G:/Sites/LotterySite.git/trunk/LotterySiteVS2015/LotterySite/TestsFW.Common/db/"
+             System.AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").Replace("/bin/Debug","")
+             + "db/Lock.db";
+
         public static IDbConnection GetSqliteConnection(string sqliteConnectionString = null)
         {
             if (string.IsNullOrWhiteSpace(sqliteConnectionString))

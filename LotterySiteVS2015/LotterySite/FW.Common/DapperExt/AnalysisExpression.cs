@@ -85,14 +85,14 @@ namespace FW.Common.DapperExt
                     {
                         MemberExpression Member = method.Object as MemberExpression;
                         ConstantExpression constant = method.Arguments.FirstOrDefault() as ConstantExpression;
-                        spars.Add(Member.Member.Name + num, constant.Value.ToString());
+                        spars.Add(Member.Member.Name + num, constant.Value); //.ToString());
                         sb.AppendFormat(" {0} like @{0}{1} ", Member.Member.Name, num);
                     }
                     else if (method.Method.Name == "Like")
                     { // 自定义方法 like
                         MemberExpression Member = method.Arguments[0] as MemberExpression;
                         ConstantExpression constant = method.Arguments[1] as ConstantExpression;
-                        spars.Add(Member.Member.Name + num, constant.Value.ToString());
+                        spars.Add(Member.Member.Name + num, constant.Value); //.ToString());
                         sb.AppendFormat(" {0} like @{0}{1} ", Member.Member.Name, num);
                     }
                     else if (method.Method.Name == "In")
@@ -130,7 +130,7 @@ namespace FW.Common.DapperExt
                     {
                         MemberExpression Member = method.Object as MemberExpression;
                         ConstantExpression constant = method.Arguments.FirstOrDefault() as ConstantExpression;
-                        spars.Add(Member.Member.Name + num, constant.Value.ToString());
+                        spars.Add(Member.Member.Name + num, constant.Value); //.ToString());
                         sb.AppendFormat(" {0} = @{0}{1} ", Member.Member.Name, num);
                     }
                     // Console.WriteLine(sb);
@@ -218,21 +218,21 @@ namespace FW.Common.DapperExt
                     {
                         MemberExpression Member = binaryg.Right as MemberExpression;
                         ConstantExpression constant = binaryg.Left as ConstantExpression;
-                        spars.Add( Member.Member.Name + num, constant.Value.ToString()  );
+                        spars.Add( Member.Member.Name + num, constant.Value); //.ToString()  );
                         sb.AppendFormat(" {0} {2} @{0}{1} ", Member.Member.Name, +num, exgl);  // A > @A0
                     }
                     else if (binaryg.Left.NodeType == ExpressionType.MemberAccess && binaryg.Right is ConstantExpression)
                     {
                         MemberExpression Member = binaryg.Left as MemberExpression;
                         ConstantExpression constant = binaryg.Right as ConstantExpression;
-                        spars.Add(Member.Member.Name + num, constant.Value.ToString());
+                        spars.Add(Member.Member.Name + num, constant.Value); // .ToString());
                         sb.AppendFormat(" {0} {2} @{0}{1} ", Member.Member.Name, num, exgl);
                     }
                     else if (binaryg.Left.NodeType == ExpressionType.MemberAccess && binaryg.Right.NodeType == ExpressionType.Convert)
                     {
                         MemberExpression Member = binaryg.Left as MemberExpression;
                         ConstantExpression constant = (binaryg.Right as UnaryExpression).Operand as ConstantExpression;
-                        spars.Add(Member.Member.Name + num, constant.Value.ToString());
+                        spars.Add(Member.Member.Name + num, constant.Value); //.ToString());
                         sb.AppendFormat(" {0} {2} @{0}{1} ", Member.Member.Name, num, exgl);
                     }
                     // Console.WriteLine(sb);

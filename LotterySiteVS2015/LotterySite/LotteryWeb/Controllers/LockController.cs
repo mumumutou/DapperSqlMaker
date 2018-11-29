@@ -179,7 +179,7 @@ namespace LotteryWeb.Controllers
             //, where => SQLMethods.DB_Like(where.Content, "%xxoo%") && where.IsDel == "1");
 
             // 9. select 表达式 
-            var test = LockDapperUtil<LockPers>.Get(w => SM.Like(w.Name, "%Steam%") && w.IsDel == true);
+            var test = LockDapperUtil<LockPers>.New.Get(w => SM.Like(w.Name, "%Steam%") && w.IsDel == true);
 
             // 10. delete 表达式 
             // var delresult = LockDapperUtil<LockPers>.Delete(w => SQLMethods.DB_Like(w.Content, "%xxoo%") && w.IsDel == "1");

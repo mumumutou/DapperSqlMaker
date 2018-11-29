@@ -7,6 +7,8 @@ using Dapper.Contrib.Extensions;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Data.SqlClient;
+using System.Data;
+using System.Data.SQLite;
 
 namespace FW.Common.DapperExt
 {
@@ -158,8 +160,23 @@ namespace FW.Common.DapperExt
 
     }
 
-    public partial class LockDapperUtil<T> where T : class, new()
+    public partial class LockDapperUtil<T> : DapperUtilBase<T>
+                                            where T : class, new()
     {
+         
+        public readonly static LockDapperUtil<T> New = new LockDapperUtil<T>();
+        private LockDapperUtil() { }
+        //public static LockDapperUtil<T> 
+
+        protected override IDbConnection GetCurrentConnection(bool isfirst)
+        {
+            DataBaseConfig.GetSqliteConnection();
+            if (isfirst) return null;
+
+            SQLiteConnection conn = new SQLiteConnection(DataBaseConfig.LockTestSqlLiteConnectionString);
+            conn.Open();
+            return conn;
+        }
         //public static List<T> Get(Action<T> whereAcn)
         //{
         //    Type type = typeof(T);
@@ -181,56 +198,7 @@ namespace FW.Common.DapperExt
 
 
 
-        public static List<T> Get(Expression<Func<T, bool>> whereExps)
-        {
-            //Type type = typeof(T);
-            //var writeFiled = type.GetField("_IsWriteFiled");
-            //if (writeFiled == null)
-            //    throw new Exception("未能找到_IsWriteFiled写入标识字段");
 
-            //T where = new T();
-            //writeFiled.SetValue(where, true); //pwhere._IsWriteFiled = true;
-            //whereAcn(where);
-
-            using (var conn = DataBaseConfig.GetSqliteConnection(DataBaseConfig.LockSqlLiteConnectionString))
-            {
-                var t = conn.GetWriteField<T>(whereExps, null, null);
-                return t;
-            }
-        }
-         
-        public static List<T> Get(Expression<Action<T>> filedExps, Expression<Func<T, bool>> whereExps)
-        {
-            return null;
-        }
-
-
-        /// <summary>
-        /// 插入记录
-        /// </summary>
-        /// <typeparam name="T">实体类型</typeparam>
-        /// <param name="entityfunc">增加的字段</param>
-        /// <returns></returns>
-        public static int Insert(Action<T> entityAcn)
-        {
-            if (entityAcn == null)
-                throw new Exception("entityAcn为空");
-
-            Type type = typeof(T);
-            var writeFiled = type.GetField("_IsWriteFiled");
-            if (writeFiled == null)
-                throw new Exception("未能找到_IsWriteFiled写入标识字段");
-
-            T entity = new T();
-            writeFiled.SetValue(entity, true); //padd._IsWriteFiled = true;
-            entityAcn(entity);
-
-            using (var conn = DataBaseConfig.GetSqliteConnection(DataBaseConfig.LockSqlLiteConnectionString))
-            {
-                var t = conn.InsertWriteField(entity, null, null);
-                return (int)t;
-            }
-        }
 
         //public static bool Update(Action<T> setAcn, Action<T> whereAcn)
         //{
@@ -260,97 +228,8 @@ namespace FW.Common.DapperExt
 
         //}
 
-        /// <summary>
-        /// 更新整个实体 (只写入赋值字段)
-        /// t.Update( s => {  s.IsDel = true; },  w => w.Id == 1);
-        /// </summary>
-        /// <param name="entityfunc">修改的字段</param>
-        /// <param name="wherefunc">where条件</param>
-        /// <returns>返回是否修改成功</returns> 
-        public static bool Update(Action<T> setAcn, Expression<Func<T, bool>> whereAcn)
-        {
-            if (setAcn == null)
-                throw new Exception("setAcn为空");
-            if (whereAcn == null)
-                throw new Exception("whereAcn为空");
-
-            Type type = typeof(T);
-            var writeFiled = type.GetField("_IsWriteFiled");
-            if (writeFiled == null)
-                throw new Exception("未能找到_IsWriteFiled写入标识字段");
-
-            T entity = new T();
-            writeFiled.SetValue(entity, true); //pupdate._IsWriteFiled = true;
-            setAcn(entity);
-
-            //T where = new T();
-            //writeFiled.SetValue(where, true); //pwhere._IsWriteFiled = true;
-            //whereAcn(where);
-              
-
-            using (var conn = DataBaseConfig.GetSqliteConnection(DataBaseConfig.LockSqlLiteConnectionString))
-            {
-                var t = conn.UpdateWriteField(entity, whereAcn, null, null);
-                return t;
-            }
-
-        }
-
-
-        /// <summary>
-        /// 删除实体 (条件是赋值的字段)
-        /// </summary>
-        /// <param name="whereAcn">where字段实体</param>
-        /// <returns>返回是否删除成功</returns>
-        public static bool Delete(Action<T> whereAcn)
-        {
-            Type type = typeof(T);
-            var writeFiled = type.GetField("_IsWriteFiled");
-            if (writeFiled == null)
-                throw new Exception("未能找到_IsWriteFiled写入标识字段");
-
-            T where = new T();
-            writeFiled.SetValue(where, true); //pwhere._IsWriteFiled = true;
-            whereAcn(where);
-
-            using (var conn = DataBaseConfig.GetSqliteConnection(DataBaseConfig.LockSqlLiteConnectionString))
-            {
-                var t = conn.DeleteWriteField(where, null, null);
-                return t;
-            }
-
-        }
-
-
-
-
-        /// <summary>
-        /// 删除字段 根据where表达式 
-        /// </summary> 
-        /// <returns></returns>
-        public static bool Delete(Expression<Func<T, bool>> whereExps)
-        {
-            //Type type = typeof(T);
-            //var writeFiled = type.GetField("_IsWriteFiled");
-            //if (writeFiled == null)
-            //    throw new Exception("未能找到_IsWriteFiled写入标识字段");
-
-            //T where = new T();
-            //writeFiled.SetValue(where, true); //pwhere._IsWriteFiled = true;
-            //whereAcn(where);
-
-            using (var conn = DataBaseConfig.GetSqliteConnection(DataBaseConfig.LockSqlLiteConnectionString))
-            {
-                var t = conn.DeleteWriteField(whereExps, null, null);
-                return t;
-            }
-
-        }
-
-
 
 
     }
 
-     
 }

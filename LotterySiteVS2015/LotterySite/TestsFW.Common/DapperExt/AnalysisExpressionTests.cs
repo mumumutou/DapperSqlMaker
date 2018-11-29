@@ -36,12 +36,14 @@ namespace FW.Common.DapperExt.Tests
         #endregion
 
 
+        // 字段赋值 和表达式 两套分开
+
 
         [Test]
         public void Add测试()
         {
              
-            var efrows = LockDapperUtil<LockPers>.Insert(p => {
+            var efrows = LockDapperUtil<LockPers>.New.Insert(p => {
                 p.Id = Guid.NewGuid().ToString();
                 p.Name = "测试bool添加";
                 p.Content = p.Name;
@@ -53,16 +55,33 @@ namespace FW.Common.DapperExt.Tests
 
         }
         [Test]
-        public void Update测试()
+        public void Update测试1()
         {
-            LockDapperUtil<LockPers>.Update(
+            var issucs = LockDapperUtil<LockPers>.New.Update(
                 s => {
                     s.Name = "测试bool修改";
                     s.Content = s.Name;
                     s.IsDel = true;
                 },
-                w => w.Id == "2c3607f5-caa9-40d7-8fa8-3475a37aa33e" && w.IsDel == false
+                w => w.Name == "测试bool添加" && w.IsDel == false
                 );
+            Console.WriteLine(issucs);
+        }
+        [Test]
+        public void Update测试2()
+        {
+            LockPers set = new LockPers() { Name = "测试bool修改2", Content = "测试bool修改2", IsDel = true };
+            //set.Name = "测试bool修改";
+            //set.Content = set.Name;
+            //set.IsDel = true;
+            Update测试2(set);
+        }
+        public void Update测试2(LockPers set)
+        {
+            var issucs = LockDapperUtil<LockPers>.New.Update( set,
+                w => w.Name == "测试bool修改" && w.IsDel == true
+                );
+            Console.WriteLine(issucs);
         }
 
         [Test]
@@ -73,7 +92,7 @@ namespace FW.Common.DapperExt.Tests
             AnalysisExpression.VisitExpression(expression, ref sql, ref spars);
             Console.WriteLine(sql);
 
-            var objs3 = LockDapperUtil<LockPers>.Get(expression); 
+            var objs3 = LockDapperUtil<LockPers>.New.Get(expression); 
             WriteJson(objs3);
 
         }
@@ -247,7 +266,7 @@ namespace FW.Common.DapperExt.Tests
 
 
             // 2. 
-            var objs3 = LockDapperUtil<LockPers>.Get(w => w.IsDel == true && w.Name.Contains("%蛋蛋%")
+            var objs3 = LockDapperUtil<LockPers>.New.Get(w => w.IsDel == true && w.Name.Contains("%蛋蛋%")
                 && SM.In(w.EditCount, new int[4] { 11, 2, 3, 5 })
                 );
             WriteJson(objs3);
@@ -276,7 +295,7 @@ namespace FW.Common.DapperExt.Tests
             //var efrwostest2 = LockDapperUtil.Update<LockPers>(pset, pwhere);
 
             // 2.Update
-            var efrowsupdate2 = LockDapperUtil<LockPers>.Update(
+            var efrowsupdate2 = LockDapperUtil<LockPers>.New.Update(
             set =>
             {
                 set.Name = "修改95 修改Name和Content字段";
@@ -287,7 +306,7 @@ namespace FW.Common.DapperExt.Tests
 
             // 3.Update
             // where 字段参数名 会 和 set 字段参数名重复, set字段名统一加_
-            var efrowsupdate3 = LockDapperUtil<LockPers>.Update(
+            var efrowsupdate3 = LockDapperUtil<LockPers>.New.Update(
             set =>
             {
                 set.Name = "修改95 修改Name和Content字段";
