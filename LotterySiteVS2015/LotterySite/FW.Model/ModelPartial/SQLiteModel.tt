@@ -65,7 +65,7 @@ foreach(Table tbl in from t in tables where !t.Ignore select t){
 
 	    
         #region 待写入字段集合 可抽象出来
-		public bool _IsWriteFiled = false;
+		public bool _IsWriteFiled = true; // 默认记录赋值过的字段
         [WriteFiled]
         public System.Collections.Generic.List<System.Reflection.PropertyInfo> _WriteFiled 
 						= new System.Collections.Generic.List<System.Reflection.PropertyInfo>();
@@ -77,13 +77,13 @@ foreach(Table tbl in from t in tables where !t.Ignore select t){
 
         #region FieldName
 <#foreach(Column col in from c in tbl.Columns where !c.Ignore select c) {#>
-		public readonly string  Field_<#=col.PropertyName #> = "<#=col.PropertyName #>"; 
+		public static readonly string  Field_<#=col.PropertyName #> = "<#=col.PropertyName #>"; 
 <#}#>
 		#endregion
 
         #region Field
 <#foreach(Column col in from c in tbl.Columns where !c.Ignore select c) {#>
-		private <#=col.PropertyType #><#=CheckNullable(col)#> _<#=col.PropertyName #> { get; set; }
+		private <#=col.PropertyType #><#=CheckNullable(col)#> _<#=col.PropertyName #> ; 
 <#}#>
         #endregion
 
@@ -95,14 +95,48 @@ foreach(Table tbl in from t in tables where !t.Ignore select t){
 <#}#>
 		public virtual <#=col.PropertyType #><#=CheckNullable(col)#> <#=col.PropertyName #> { 
 			set { _<#=col.PropertyName #> = value; 
-					if(_IsWriteFiled) _WriteFiled.Add(this.GetType().GetProperty(this.Field_<#=col.PropertyName #>) ); }
+					if(_IsWriteFiled) _WriteFiled.Add(this.GetType().GetProperty(Field_<#=col.PropertyName #>) ); }
 			get { return _<#=col.PropertyName #>; }
 		}
 <#}#>
 
 	}
 
+//	################
+    /// <summary>
+    /// 查询用 只存数据的实体  <#=tbl.Name#>_ <#=(tbl.IsView)?"view":"table"#>.
+    /// </summary>
+	[Table("<#=tbl.Name#>")]
+	public partial class <#=tbl.ClassName#>_
+	{  
+	   /* <#foreach(Column col in from c in tbl.Columns where !c.Ignore select c) {#> <#=col.PropertyName #> <#}#> */ 
+
+	      
+        #region Field
+<#foreach(Column col in from c in tbl.Columns where !c.Ignore select c) {#>
+		private <#=col.PropertyType #><#=CheckNullable(col)#> _<#=col.PropertyName #> ;
 <#}#>
+        #endregion
+
+<#foreach(Column col in from c in tbl.Columns where !c.Ignore select c){ 
+	if (tbl.PK!=null && tbl.PK.Name==col.PropertyName && col.PropertyType == "int") { #>
+		[Key]
+<#} if (tbl.PK!=null && tbl.PK.Name==col.PropertyName && col.PropertyType == "string") { #>
+		[ExplicitKey] // 手动插入(主)键
+<#}#>
+		public virtual <#=col.PropertyType #><#=CheckNullable(col)#> <#=col.PropertyName #> { 
+			set { _<#=col.PropertyName #> = value; }
+			get { return _<#=col.PropertyName #>; }
+		}
+<#}#>
+
+	}
+
+
+<#}#>
+
+
+
 
 <# fileManager.StartFooter(); #>
 } // namespace

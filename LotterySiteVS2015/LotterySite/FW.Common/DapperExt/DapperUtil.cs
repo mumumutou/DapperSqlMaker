@@ -59,23 +59,23 @@ namespace FW.Common.DapperExt
             }
         }
 
-        /// <summary>
-        /// 更新整个实体
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        public static bool Update<T>(T entity) where T : class
-        {
-            Type type = typeof(T);
-            if (entity == null)
-                throw new Exception();
-            using (var conn = DataBaseConfig.GetSqliteConnection() )
-            {
-                var t = conn.Update(entity, null, null );
-                return t;
-            }
-        }
+        ///// <summary>
+        ///// 更新整个实体
+        ///// </summary>
+        ///// <typeparam name="T"></typeparam>
+        ///// <param name="entity"></param>
+        ///// <returns></returns>
+        //public static bool Update<T>(T entity) where T : class
+        //{
+        //    Type type = typeof(T);
+        //    if (entity == null)
+        //        throw new Exception();
+        //    using (var conn = DataBaseConfig.GetSqliteConnection())
+        //    {
+        //        var t = conn.Update(entity, null, null);
+        //        return t;
+        //    }
+        //}
 
         ///// <summary>
         ///// 更新实体的部分字段 必须包含主键！

@@ -105,6 +105,7 @@
     <Compile Include="Dapper-1.50.2\Dapper\WrappedDataReader.cs" />
     <Compile Include="Dapper-1.50.2\Dapper\WrappedReader.cs" />
     <Compile Include="Dapper-1.50.2\Dapper\XmlHandlers.cs" />
+    <Compile Include="DapperExt\LockDapperUtilTest.cs" />
     <Compile Include="DapperExt\QueryMaker.cs" />
     <Compile Include="DataToModel.cs" />
     <Compile Include="LockEncrypt.cs" />

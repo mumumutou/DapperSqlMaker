@@ -935,6 +935,8 @@ namespace Dapper
                 cmd = command.SetupCommand(cnn, info.ParamReader);
 
                 if (wasClosed) cnn.Open();
+                // Console.WriteLine(cmd.CommandText);  
+                // 打印执行的sql语句 待修改成配置参数为调试下执行
                 reader = ExecuteReaderWithFlagsFallback(cmd, wasClosed, CommandBehavior.SequentialAccess | CommandBehavior.SingleResult);
                 wasClosed = false; // *if* the connection was closed and we got this far, then we now have a reader
                 // with the CloseConnection flag, so the reader will deal with the connection; we

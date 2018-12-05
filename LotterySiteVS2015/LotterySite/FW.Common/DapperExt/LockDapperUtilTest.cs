@@ -15,38 +15,38 @@ namespace FW.Common.DapperExt
     /// <summary>
     /// Sqlite库1
     /// </summary>
-    public partial class LockDapperUtil : DapperUtilBase
+    public partial class LockDapperUtilTest : DapperUtilBase
     {
-        public readonly static LockDapperUtil New = new LockDapperUtil();
-        private LockDapperUtil() { }
-        //public static LockDapperUtil<T> 
+        public readonly static LockDapperUtilTest New = new LockDapperUtilTest();
+        private LockDapperUtilTest() { }
+        //public static LockDapperUtilTest<T> 
 
         protected override IDbConnection GetCurrentConnection(bool isfirst)
         {
             DataBaseConfig.GetSqliteConnection();
             if (isfirst) return null;
 
-            SQLiteConnection conn = new SQLiteConnection(DataBaseConfig.LockSqlLiteConnectionString);
+            SQLiteConnection conn = new SQLiteConnection(DataBaseConfig.LockTestSqlLiteConnectionString);
             conn.Open();
             return conn;
         }
-         
+
     }
 
-    public partial class LockDapperUtil<T> : DapperUtilBase<T>
+    public partial class LockDapperUtilTest<T> : DapperUtilBase<T>
                                             where T : class, new()
     {
-         
-        public readonly static LockDapperUtil<T> New = new LockDapperUtil<T>();
-        private LockDapperUtil() { }
-        //public static LockDapperUtil<T> 
+
+        public readonly static LockDapperUtilTest<T> New = new LockDapperUtilTest<T>();
+        private LockDapperUtilTest() { }
+        //public static LockDapperUtilTest<T> 
 
         protected override IDbConnection GetCurrentConnection(bool isfirst)
         {
             DataBaseConfig.GetSqliteConnection();
             if (isfirst) return null;
 
-            SQLiteConnection conn = new SQLiteConnection(DataBaseConfig.LockSqlLiteConnectionString);
+            SQLiteConnection conn = new SQLiteConnection(DataBaseConfig.LockTestSqlLiteConnectionString);
             conn.Open();
             return conn;
         }
@@ -101,7 +101,7 @@ namespace FW.Common.DapperExt
         //    }
 
         //}
-         
+
 
     }
 

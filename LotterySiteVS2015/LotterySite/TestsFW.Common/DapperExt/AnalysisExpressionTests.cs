@@ -7,6 +7,7 @@ using System.Text;
 using System.Linq.Expressions;
 using FW.Model;
 using Dapper;
+using System.Data.SQLite;
 
 namespace FW.Common.DapperExt.Tests
 {
@@ -35,15 +36,71 @@ namespace FW.Common.DapperExt.Tests
 
         #endregion
 
+        #region where条件
+
+        #endregion
 
         // 字段赋值 和表达式 两套分开
+        // 根据不同条件拼接 where
 
+        public void GetPage(int page, int rows) {
+            //      int records; // 总条数
+            //      List<GeneralMessage> generalmessageList = generalmessageBll.LoadPageEntities(
+            //          where,
+            //          p => p.GmgID,
+            //          page, rows, out records, true
+            //          ).ToList<GeneralMessage>();
+            //     
+            //      int total = (int)Math.Ceiling(records * 1.0 / rows); // 总页数
+            //      var o = new { records = records, total = total, rows = generalmessageList };
+            //      string s = JsonHelper.DateSerializeObject(o);
+            //      return Content(s);
+        }
+        
+        [Test]
+        public void Get测试() {
+
+            var arrEditCount = new int[6] { 22, 2, 3, 5, 1, 11 };  // 
+            DateTime? startDate2 = new DateTime(2018, 3, 17);
+            DateTime? endDate2 = ((DateTime)startDate2).AddDays(1);
+            DateTime? startDate = new DateTime(2018,10,17);
+            DateTime? endDate = ((DateTime)startDate).AddDays(1);
+
+            var objs = LockDapperUtilTest<LockPers_>.New.Get(w => 
+                SM.In(w.EditCount, arrEditCount)
+                && (w.InsertTime >= startDate && w.InsertTime < endDate || w.InsertTime >= startDate2 && w.InsertTime < endDate2)
+                && w.IsDel == false
+            );
+
+            WriteJson(objs);
+        }
+        [Test]
+        public void Get测试2() {
+
+            var arrEditCount = new int[6] { 22, 2, 3, 5, 1, 11 };  // 
+            DateTime? startDate2 = new DateTime(2018, 3, 17);
+            DateTime? endDate2 = ((DateTime)startDate2).AddDays(1);
+            DateTime? startDate = new DateTime(2018,10,17);
+            DateTime? endDate = ((DateTime)startDate).AddDays(1);
+
+            Expression<Func<LockPers_, bool>> where = PredicateBuilder.WhereStart<LockPers_>();
+            where = where.And(w => SM.In(w.EditCount, arrEditCount));
+            where = where.And(w => ( w.InsertTime >= startDate && w.InsertTime < endDate || w.InsertTime >= startDate2 && w.InsertTime < endDate2 ));
+            where = where.And(w => w.IsDel == false);
+
+            var order = LockPers.Field_InsertTime;
+
+            var objs = LockDapperUtilTest<LockPers_>.New.Get( where , order, true);
+
+            WriteJson(objs);
+        }
 
         [Test]
         public void Add测试()
         {
-             
-            var efrows = LockDapperUtil<LockPers>.New.Insert(p => {
+
+            var efrows = LockDapperUtilTest<LockPers>.New.Insert(p =>
+            {
                 p.Id = Guid.NewGuid().ToString();
                 p.Name = "测试bool添加";
                 p.Content = p.Name;
@@ -57,8 +114,9 @@ namespace FW.Common.DapperExt.Tests
         [Test]
         public void Update测试1()
         {
-            var issucs = LockDapperUtil<LockPers>.New.Update(
-                s => {
+            var issucs = LockDapperUtilTest<LockPers>.New.Update(
+                s =>
+                {
                     s.Name = "测试bool修改";
                     s.Content = s.Name;
                     s.IsDel = true;
@@ -70,29 +128,43 @@ namespace FW.Common.DapperExt.Tests
         [Test]
         public void Update测试2()
         {
-            LockPers set = new LockPers() { Name = "测试bool修改2", Content = "测试bool修改2", IsDel = true };
-            //set.Name = "测试bool修改";
-            //set.Content = set.Name;
-            //set.IsDel = true;
-            Update测试2(set);
-        }
-        public void Update测试2(LockPers set)
-        {
-            var issucs = LockDapperUtil<LockPers>.New.Update( set,
+            LockPers set = new LockPers() { Content = "测试bool修改2" };
+            set.Name = "测试bool修改2";
+            set.IsDel = true;
+
+            var issucs = LockDapperUtilTest<LockPers>.New.Update(
+                set,
                 w => w.Name == "测试bool修改" && w.IsDel == true
                 );
             Console.WriteLine(issucs);
         }
 
         [Test]
-        public void bool测试() {
+        public void Delete测试()
+        {
+
+            var Name = "测试bool修改2";
+
+            var issucs = LockDapperUtilTest<LockPers>.New.Delete(
+                w => w.Name == Name && w.IsDel == true
+                );
+            Console.WriteLine(issucs);
+
+        }
+
+
+
+
+        [Test]
+        public void bool测试()
+        {
             Expression<Func<LockPers, bool>> expression = t => t.Name.Contains("%蛋蛋%") && t.IsDel == false;
             StringBuilder sql = null;
             DynamicParameters spars = null;
             AnalysisExpression.VisitExpression(expression, ref sql, ref spars);
             Console.WriteLine(sql);
 
-            var objs3 = LockDapperUtil<LockPers>.New.Get(expression); 
+            var objs3 = LockDapperUtilTest<LockPers>.New.Get(expression);
             WriteJson(objs3);
 
         }
@@ -117,11 +189,13 @@ namespace FW.Common.DapperExt.Tests
         }
         [Test]
         public void In测试2()
-        {
+        { 
+            //var Name = "测试bool修改2";
             //2 in  声明数组变量当参数传入 走参数化查询
             var arrEditCount = new int[5] { 22, 2, 3, 5, 1 };  // 
-            Expression<Func<LockPers, bool>> expression = w => SM.In(w.EditCount, arrEditCount)
-                && (w.Prompt.Contains("%hou%") || w.IsDel == false ) ;
+            Expression<Func<LockPers, bool>> expression = w =>  SM.In(w.EditCount, arrEditCount)
+                //&& w.Name == Name
+                && (w.Prompt.Contains("%hou%") || w.IsDel == false);
             StringBuilder sql = null;
             DynamicParameters spars = null;
             AnalysisExpression.VisitExpression(expression, ref sql, ref spars);
@@ -141,8 +215,12 @@ namespace FW.Common.DapperExt.Tests
             //      //and EditCount in ('18/11/28', '18/11/22')
             // Assert.Fail(); //断言
 
-            //var objs = LockDapperUtil<LockPers>.Get(expression);
+            //var objs = LockDapperUtilTest<LockPers>.Get(expression);
             //WriteJson(objs);
+
+        }
+
+        public void NotIn测试() {
 
         }
 
@@ -152,11 +230,11 @@ namespace FW.Common.DapperExt.Tests
         /// </summary>
         [Test]
         public void 括号优先级()
-        { 
+        {
             // 1
             Expression<Func<LockPers, bool>> expression = w =>
                 (w.Id == "1" && (w.Name == "2" || w.Prompt == "3") && w.Content == "4" || w.Id == "5")
-                && ( w.IsDel != false && ( w.IsDel == false || w.IsDel == true) );
+                && (w.IsDel != false && (w.IsDel == false || w.IsDel == true));
             StringBuilder sql = null;
             DynamicParameters spars = null;
             AnalysisExpression.VisitExpression(expression, ref sql, ref spars);
@@ -199,6 +277,26 @@ namespace FW.Common.DapperExt.Tests
 
 
         }
+        [Test]
+        public void 括号测试2() {
+            Expression<Func<LockPers, bool>> expression = w =>
+             w.Id == "1" && w.Name == "2"  
+             || (w.IsDel != false &&  w.IsDel == true);
+            StringBuilder sql = null;
+            DynamicParameters spars = null;
+            AnalysisExpression.VisitExpression(expression, ref sql, ref spars);
+            Console.WriteLine(sql);
+            var example = " w.Id == '1' && w.Name == '2' || (w.IsDel != false && w.IsDel == true) ";
+            Console.WriteLine(example);
+
+            foreach (var name in spars.ParameterNames)
+            {
+                Console.WriteLine(name);
+                WriteJson(spars.Get<object>(name));
+            }
+
+
+        }
 
         [Test]
         public void 括号优先级连接数据库测试()
@@ -216,9 +314,98 @@ namespace FW.Common.DapperExt.Tests
             Console.WriteLine(example);
 
         }
+        
+        [Test]
+        public void 不同查询条件添加不通的where()
+        {
 
-        public void 不同查询条件添加不通的where() {
+            var Name = "测试bool修改2";
+            //var Content = "测试bool修改2";
+            //var arrEditCount = new int[5] { 22, 2, 3, 5, 1 };  // 
+            DateTime? startDate = new DateTime(2018, 10, 17);
+            DateTime? endDate = ((DateTime)startDate).AddDays(1);
+            var IsDel = false;
 
+            //时间类型现在获取不到
+            Expression<Func<LockPers, bool>> expression = w =>
+                w.Name == Name
+                && w.InsertTime >= startDate
+                && w.InsertTime < endDate
+                //&& w.InsertTime > // SM.DateStr(InserTime)
+                //&& SM.In(w.EditCount, arrEditCount) 
+                && w.IsDel == IsDel;
+
+            StringBuilder sql = null;
+            DynamicParameters spars = null;
+            AnalysisExpression.VisitExpression(expression, ref sql, ref spars);
+            Console.WriteLine(sql);
+
+            // expression = w => w.Content == Content;
+            
+
+            foreach (var name in spars.ParameterNames)
+            {
+                Console.WriteLine(name);
+                WriteJson(spars.Get<object>(name));
+            } 
+
+        }
+        [Test]
+        public void 不同查询条件添加不通的where2() {
+
+            //1
+            //Expression<Func<LockPers, bool>> expression1 = w => w.Name == "";
+            //Expression<Func<LockPers, bool>> expression2 = w => w.IsDel == true;
+            //Expression<Func<LockPers, bool>> expression3 = w => w.Content == ""; 
+            //Expression<Func<LockPers, bool>> expression4 = expression3.And(expression1.Or(expression2));
+
+            //2
+            var arrEditCount = new int[6] { 22, 2, 3, 5, 1, 11 };  // 
+            DateTime? startDate = new DateTime(2018, 10, 17);
+            DateTime? endDate = ((DateTime)startDate).AddDays(1);
+
+            DateTime? startDate2 = new DateTime(2018, 3, 17);
+            DateTime? endDate2 = ((DateTime)startDate).AddDays(1);
+
+            Expression<Func<LockPers_, bool>> where = PredicateBuilder.WhereStart<LockPers_>();
+            where = where.And(w => SM.In(w.EditCount, arrEditCount));
+            where = where.And(w => w.InsertTime >= startDate && w.InsertTime < endDate || w.InsertTime >= startDate2 && w.InsertTime < endDate2);
+            where = where.And(w => w.IsDel == false);
+            //where = where.Or(w => ());
+
+            //3 or里面括号问题
+            //int? i1 = 1;
+            //int? i2 = 2;
+            //int? i3 = 3;
+            //Expression<Func<LockPers_, bool>> where = PredicateBuilder.WhereStart<LockPers_>();
+            //where = where.And( ww => ww.EditCount == i1);
+            //where = where.And(ww => ww.EditCount == i2);
+            //where = where.Or(ww => (ww.EditCount == i3 && ww.IsDel == true));
+
+            StringBuilder sql = null;
+            DynamicParameters spars = null;
+            AnalysisExpression.VisitExpression(where, ref sql, ref spars);
+            Console.WriteLine(sql);
+             
+
+            foreach (var name in spars.ParameterNames)
+            {
+                Console.WriteLine(name);
+                WriteJson(spars.Get<object>(name));
+            }
+
+
+        }
+
+        public void 表别名() { }
+
+        public void 联表查询() {
+             
+            //using (SQLiteConnection conn = new SQLiteConnection(DataBaseConfig.LockTestSqlLiteConnectionString)) //GetCurrentConnection() )
+            //{
+            //    var obj = conn.Query<LockPers, LockPers, LockPers>(sql, entity);
+            //    return obj;
+            //}
         }
 
         public void 子查询()
@@ -227,6 +414,7 @@ namespace FW.Common.DapperExt.Tests
         }
 
         //将IsDel=False修改成0
+
 
 
         [Test]
@@ -241,8 +429,9 @@ namespace FW.Common.DapperExt.Tests
             spars.Add("EditCount", new int[4] { 11, 2, 3, 5 });
             spars.AddDynamicParams(spars2);
 
-            object test2 = LockDapperUtil.Query("SELECT * FROM LockPers where isDel != @isDel and name like @name and EditCount in @EditCount  order by Name ", spars);
+            object test2 = LockDapperUtilTest.New.Query("SELECT * FROM LockPers where isDel != @isDel and name like @name and EditCount in @EditCount  order by Name ", spars);
             WriteJson(test2);
+
 
 
             // 2 fomarrt
@@ -253,20 +442,20 @@ namespace FW.Common.DapperExt.Tests
 
         }
 
-        
+
 
         [Test]
         public void Get查询测试()
         {
             // 1. GetId 
-            //var old1 = LockDapperUtil.Get<LockPers>("7fc02473-fee2-40da-a048-4398d9b052fd");
+            //var old1 = LockDapperUtilTest.Get<LockPers>("7fc02473-fee2-40da-a048-4398d9b052fd");
             //WriteJson(old1); 
-            //var old2 = LockDapperUtil.Get<LockPers_>("7fc02473-fee2-40da-a048-4398d9b052fd");
+            //var old2 = LockDapperUtilTest.Get<LockPers_>("7fc02473-fee2-40da-a048-4398d9b052fd");
             //WriteJson(old2);
 
 
             // 2. 
-            var objs3 = LockDapperUtil<LockPers>.New.Get(w => w.IsDel == true && w.Name.Contains("%蛋蛋%")
+            var objs3 = LockDapperUtilTest<LockPers>.New.Get(w => w.IsDel == true && w.Name.Contains("%蛋蛋%")
                 && SM.In(w.EditCount, new int[4] { 11, 2, 3, 5 })
                 );
             WriteJson(objs3);
@@ -274,7 +463,7 @@ namespace FW.Common.DapperExt.Tests
 
             //var a = new object[] {  1 , "" , 222  };
 
-            //LockDapperUtil<LockPers>.Get(
+            //LockDapperUtilTest<LockPers>.Get(
             //    f => {
             //           object o = new object[5] { f.Id, f.IsDel, f.Name, f.Prompt, f.UpdateTime };
             //    }
@@ -285,17 +474,18 @@ namespace FW.Common.DapperExt.Tests
 
         }
 
-        public void Update() {
+        public void Update()
+        {
 
             // 1. Update (set和where里不能有相同字段)
             LockPers pset = new LockPers(true);
             pset.Name = "修改95 只修改Name字段";
             LockPers pwhere = new LockPers(true);
             pwhere.Content = "7fa867c5b404547797614abe57341844";
-            //var efrwostest2 = LockDapperUtil.Update<LockPers>(pset, pwhere);
+            //var efrwostest2 = LockDapperUtilTest.Update<LockPers>(pset, pwhere);
 
             // 2.Update
-            var efrowsupdate2 = LockDapperUtil<LockPers>.New.Update(
+            var efrowsupdate2 = LockDapperUtilTest<LockPers>.New.Update(
             set =>
             {
                 set.Name = "修改95 修改Name和Content字段";
@@ -306,13 +496,13 @@ namespace FW.Common.DapperExt.Tests
 
             // 3.Update
             // where 字段参数名 会 和 set 字段参数名重复, set字段名统一加_
-            var efrowsupdate3 = LockDapperUtil<LockPers>.New.Update(
+            var efrowsupdate3 = LockDapperUtilTest<LockPers>.New.Update(
             set =>
             {
                 set.Name = "修改95 修改Name和Content字段";
                 set.Prompt = "BMWWWWWWWWWWWWWWW";
             }
-            , 
+            ,
             where => SM.In(where.Name, new string[] { "马", "码" })
                      && where.Name == "农码一生" && where.Prompt == "男" || where.Name.Contains("11"));
 

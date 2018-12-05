@@ -274,7 +274,8 @@ namespace Dapper.Contrib.Extensions
         /// 查询数据 根据表达式
         /// </summary> 
         /// <returns></returns>
-        public static List<T> GetWriteField<T>(this IDbConnection connection, Expression<Func<T, bool>> whereAcn, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        // public static List<T> GetWriteField<T>(this IDbConnection connection, Expression<Func<T, bool>> whereAcn, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        public static List<T> GetWriteField<T>(this IDbConnection connection, Expression<Func<T, bool>> whereAcn,string orderByField = null, bool isOrderDesc = false, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             var type = typeof(T);
 
@@ -288,9 +289,15 @@ namespace Dapper.Contrib.Extensions
 
             DynamicParameters dpars = new DynamicParameters();
 
+            // where
             // sb参数啊查询 变量@ 不同库适配 adapter.AppendColumnNameEqualsValue  ???
             //    adapter.AppendColumnNameEqualsValue(sb, property.Name);  //fix for issue #336
             AnalysisExpression.VisitExpression(whereAcn, ref sb, ref dpars);
+
+            // order
+            if (orderByField != null) {
+                sb.AppendFormat(" order by {0} {1} ", orderByField, isOrderDesc ? "desc" : "");
+            }
 
             var adapter = GetFormatter(connection); 
 
@@ -387,8 +394,7 @@ namespace Dapper.Contrib.Extensions
         /// <param name="connection">Open SqlConnection</param>
         /// <param name="entityToInsert">Entity to insert, can be list of entities</param>
         /// <param name="transaction">The transaction to run under, null (the default) if none</param>
-        /// <param name="commandTimeout">Number of seconds before command execution timeout</param>
-        /// <param name="isWriteField">是否只写入赋值的字段</param>
+        /// <param name="commandTimeout">Number of seconds before command execution timeout</param> 
         /// <returns>Identity of inserted entity, or number of inserted rows if inserting a list</returns>
         public static long Insert<T>(this IDbConnection connection, T entityToInsert, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
@@ -452,6 +458,10 @@ namespace Dapper.Contrib.Extensions
             return returnVal;
         }
 
+        /// <summary>
+        /// 添加 值插入赋值字段 
+        /// </summary> 
+        /// <returns></returns>
         public static long InsertWriteField<T>(this IDbConnection connection, T entityToInsert, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             var isList = false;
@@ -520,7 +530,7 @@ namespace Dapper.Contrib.Extensions
 
 
         /// <summary>
-        /// Updates entity in table "Ts", checks if the entity is modified if the entity is tracked by the Get() extension.
+        /// 根据主键修改整个实体 用处不大删除Updates entity in table "Ts", checks if the entity is modified if the entity is tracked by the Get() extension.
         /// </summary>
         /// <typeparam name="T">Type to be updated</typeparam>
         /// <param name="connection">Open SqlConnection</param>
@@ -563,7 +573,7 @@ namespace Dapper.Contrib.Extensions
             keyProperties.AddRange(explicitKeyProperties);
             var computedProperties = ComputedPropertiesCache(type);
             var nonIdProps = allProperties.Except(keyProperties.Union(computedProperties)).ToList();
-            
+
             // 筛选赋值字段
             if (isWriteField)
             {
@@ -573,7 +583,7 @@ namespace Dapper.Contrib.Extensions
             // where字段赋值到entity
 
 
-            var adapter = GetFormatter(connection); 
+            var adapter = GetFormatter(connection);
 
             for (var i = 0; i < nonIdProps.Count; i++)
             {
@@ -641,7 +651,7 @@ namespace Dapper.Contrib.Extensions
 
         //    var sb = new StringBuilder();
         //    sb.AppendFormat("update {0} set ", name);
-             
+
 
         //    var adapter = GetFormatter(connection);
 
@@ -668,7 +678,19 @@ namespace Dapper.Contrib.Extensions
         //    return updated > 0;
         //}
 
-        public static bool UpdateWriteField<T>(this IDbConnection connection, T entityToUpdate, Expression<Func<T, bool>> expression, List<IDataParameter> spars, IDbTransaction transaction = null, int? commandTimeout = null, bool isAllUpdate = false)
+
+        /// <summary>
+        /// 修改 值修改赋值过的字段 根据where表达式
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="connection"></param>
+        /// <param name="entityToUpdate"></param>
+        /// <param name="expression"></param>
+        /// <param name="spars"></param>
+        /// <param name="transaction"></param>
+        /// <param name="commandTimeout"></param> 
+        /// <returns></returns>
+        public static bool UpdateWriteField<T>(this IDbConnection connection, T entityToUpdate, Expression<Func<T, bool>> expression, List<IDataParameter> spars, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             var proxy = entityToUpdate as IProxy;
             if (proxy != null)
@@ -691,10 +713,7 @@ namespace Dapper.Contrib.Extensions
             // 筛选修改赋值字段
             var allWriteFieldProperties = WriteFiledPropertiesCache(type, entityToUpdate);
             if (!allWriteFieldProperties.Any()) throw new ArgumentException("修改字段数量为空");
-
-            // 筛选条件赋值字段  // 可以为空 
-            //if (!spars.Any() ) throw new ArgumentException("整表修改需要把isAllUpdate设置为True");
-
+              
             var name = GetTableName(type);
 
             var sb = new StringBuilder();

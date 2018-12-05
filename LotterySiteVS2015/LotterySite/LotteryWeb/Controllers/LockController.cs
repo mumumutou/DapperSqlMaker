@@ -70,7 +70,7 @@ namespace LotteryWeb.Controllers
             }
             else
             { // 修改
-                var old = LockDapperUtil.Get<LockPers>(p.Id);
+                var old = LockDapperUtil<LockPers>.New.Get(p.Id);
                 if (old.Content != LockEncrypt.StringToMD5(p.ContentOld))
                 { // 旧内容不一致
                     return Content("-1");  // 旧内容不一致
@@ -79,7 +79,7 @@ namespace LotteryWeb.Controllers
                 old.Content = LockEncrypt.StringToMD5(p.Content);
                 old.Prompt = p.Prompt;
                 old.UpdateTime = DateTime.Now;
-                var t = LockDapperUtil.Update(old);
+                var t = LockDapperUtil<LockPers>.New.Update(old);
 
                 return Content(Convert.ToInt32(t).ToString());
             }
@@ -88,10 +88,10 @@ namespace LotteryWeb.Controllers
 
         public ActionResult Delete(string Id)
         {
-            var old = LockDapperUtil.Get<LockPers>(Id);
+            var old = LockDapperUtil<LockPers>.New.Get(Id);
             old.IsDel = true;
             old.DelTime = DateTime.Now;
-            var t = LockDapperUtil.Update(old);
+            var t = LockDapperUtil<LockPers>.New.Update(old);
             return Content(Convert.ToInt32(t).ToString());
 
             ////string sql = string.Format(" delete from LockPers where Id = @Id ");
@@ -179,7 +179,7 @@ namespace LotteryWeb.Controllers
             //, where => SQLMethods.DB_Like(where.Content, "%xxoo%") && where.IsDel == "1");
 
             // 9. select 表达式 
-            var test = LockDapperUtil<LockPers>.New.Get(w => SM.Like(w.Name, "%Steam%") && w.IsDel == true);
+            //var test = LockDapperUtil<LockPers>.New.Get(w => SM.Like(w.Name, "%Steam%") && w.IsDel == true);
 
             // 10. delete 表达式 
             // var delresult = LockDapperUtil<LockPers>.Delete(w => SQLMethods.DB_Like(w.Content, "%xxoo%") && w.IsDel == "1");

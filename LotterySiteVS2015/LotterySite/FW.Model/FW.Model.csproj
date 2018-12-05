@@ -52,7 +52,11 @@
     <Compile Include="ModelPartial\LockPers.cs">
       <DependentUpon>SQLiteModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="ModelPartial\Users.cs">
+      <DependentUpon>SQLiteModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Users.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FW.Common\FW.Common.csproj">
