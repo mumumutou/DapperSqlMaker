@@ -75,7 +75,7 @@ namespace FW.Common.DapperExt
     {
 
 
-        // sql, pars
+        // sql, pars  单表解析
         public static void VisitExpression(Expression expression, ref StringBuilder sb, ref DynamicParameters spars)
         {
             if (sb == null)
@@ -281,8 +281,253 @@ namespace FW.Common.DapperExt
         }
 
 
+        // sql, pars 多表别名解析
+        public static void JoinExpression(Expression expression, Dictionary<string, string> tabAliasName, ref StringBuilder sb, ref DynamicParameters spars)
+        {
+            if (sb == null)
+            {
+                sb = new StringBuilder();
+                // level = 0;
+                spars = new DynamicParameters();
+            }
+            // Console.WriteLine(sb); // 查看执行顺序是解开
+            var num = spars.ParameterNames.Count();
+            switch (expression.NodeType)
+            {
+                case ExpressionType.Call://执行方法
+                    MethodCallExpression method = expression as MethodCallExpression;
+                    if (method.Method.Name == "WhereStartIgnore") break;
+                    // where拼接条件开始 忽略解析该方法  
+                    else if (method.Method.Name == "Contains")
+                    {
+                        MemberExpression Member = method.Object as MemberExpression;
+                        ParameterExpression Parmexr = Member.Expression as ParameterExpression;
+                        var mberName = tabAliasName[Parmexr.Type.FullName] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名 
+                        object ctvalue;
+                        if (method.Arguments.FirstOrDefault() is ConstantExpression)
+                        { //
+                            ctvalue = (method.Arguments.FirstOrDefault() as ConstantExpression).Value;
+                        }
+                        else if (method.Arguments.FirstOrDefault() is MemberExpression)
+                        { // 值 传入的时 变量 
+                            ctvalue = GetMemberValue(method.Arguments.FirstOrDefault() as MemberExpression);
+                         }
+                        else throw new Exception("Contains未解析");
+
+                        spars.Add(Member.Member.Name + num, ctvalue); //constant.Value //.ToString());
+                        sb.AppendFormat(" {0} like @{1}{2} ", mberName, Member.Member.Name, num);
+                    }
+                    else if (method.Method.Name == "Like")
+                    { // 自定义方法 like
+                        MemberExpression Member = method.Arguments[0] as MemberExpression;
+                        ParameterExpression Parmexr = Member.Expression as ParameterExpression;
+                        var mberName = tabAliasName[Parmexr.Type.FullName] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
+                        ConstantExpression constant = method.Arguments[1] as ConstantExpression;
+                        spars.Add(Member.Member.Name + num, constant.Value); //.ToString());
+                        sb.AppendFormat(" {0} like @{1}{2} ", mberName, Member.Member.Name, num);
+                    }
+                    else if (method.Method.Name == "In")
+                    { // 自定义方法 in
+                        MemberExpression Member = method.Arguments[0] as MemberExpression; // 字段名
+                        ParameterExpression Parmexr = Member.Expression as ParameterExpression;
+                        var mberName = tabAliasName[Parmexr.Type.FullName] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
+
+                        MemberExpression member2 = method.Arguments[1] as MemberExpression; //第1种 数组传入表达式
+                        if (member2 != null)
+                        {
+                            //右边变量名 member2.Name 
+                            ConstantExpression constMember2 = member2.Expression as ConstantExpression; //右边变量所在的类
+                            var constValue = constMember2.Value.GetType().GetField(member2.Member.Name).GetValue(constMember2.Value);
+
+                            //var arr = (member2.Expression as ConstantExpression).Value;
+                            spars.Add(Member.Member.Name, constValue);//arr);
+                            sb.AppendFormat(" {0} in @{1}", mberName, Member.Member.Name);
+                            break;
+                        }
+                        NewArrayExpression constant = method.Arguments[1] as NewArrayExpression;  //第2种 表达式内构建数组
+                        if (constant != null)
+                        {
+                            var cstarr = constant.Expressions.Select(p =>
+                            {
+                                var cp = p as ConstantExpression;
+                                if (cp.Type == typeof(String)
+                                || cp.Type == typeof(DateTime))
+                                    return string.Format("'{0}'", cp.Value);
+                                return cp.Value;
+                            }).ToList();
+                            sb.AppendFormat(" {0} in ({1})", mberName, string.Join(",", cstarr));
+                            break;
+                        }
 
 
+                        // oracle参数化In可传入数组
+                        //spars.Add(Member.Member.Name + num, constant.Value.ToString()); 
+                        //sb.AppendFormat(" {0} in @{0}{1} ", Member.Member.Name, num);
+                    }
+                    else if (method.Method.Name == "Convert")
+                    {
+                        MemberExpression Member = method.Object as MemberExpression;
+                        ParameterExpression Parmexr = Member.Expression as ParameterExpression;
+                        var mberName = tabAliasName[Parmexr.Type.FullName] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
+                        ConstantExpression constant = method.Arguments.FirstOrDefault() as ConstantExpression;
+                        spars.Add(Member.Member.Name + num, constant.Value); //.ToString());
+                        sb.AppendFormat(" {0} = @{1}{2} ", mberName, Member.Member.Name, num);
+                    }
+                    // Console.WriteLine(sb);
+                    break;
+                case ExpressionType.Lambda://lambda表达式
+                    LambdaExpression lambda = expression as LambdaExpression;
+
+                    //Console.WriteLine(lambda+ "");  // 打印lambda表达式
+
+                    JoinExpression(lambda.Body, tabAliasName, ref sb, ref spars);
+
+                    // BinaryExpression  // 二元表达式
+                    // UnaryExpression   // 一元表达式
+                    // BlockExpression   // 块
+
+                    break;
+                //case ExpressionType.Equal://相等比较 
+                case ExpressionType.AndAlso://and条件运算
+                case ExpressionType.OrElse: // 或运算
+                    BinaryExpression binary = expression as BinaryExpression;
+                    //if (binary.Left.NodeType == ExpressionType.Constant)
+                    //{
+                    //    MemberExpression Member = binary.Right as MemberExpression;
+                    //    ConstantExpression constant = binary.Left as ConstantExpression;
+                    //    spars.Add( Member.Member.Name + num, constant.Value.ToString()  );
+                    //    sb.AppendFormat(" {0} = @{0}{1} ", Member.Member.Name, +num );
+                    //}
+                    //else if (binary.Left.NodeType == ExpressionType.MemberAccess && binary.Right is ConstantExpression)
+                    //{
+                    //    MemberExpression Member = binary.Left as MemberExpression;
+                    //    ConstantExpression constant = binary.Right as ConstantExpression;
+                    //    spars.Add( Member.Member.Name + num, constant.Value.ToString() );
+                    //    sb.AppendFormat(" {0} = @{0}{1} ", Member.Member.Name, num );
+                    //}
+                    //else if (binary.Left.NodeType == ExpressionType.MemberAccess &&  binary.Right.NodeType == ExpressionType.Convert)
+                    //{
+                    //    MemberExpression Member = binary.Left as MemberExpression;
+                    //    ConstantExpression constant = (binary.Right as UnaryExpression).Operand as ConstantExpression;
+                    //    spars.Add( Member.Member.Name + num, constant.Value.ToString() );
+                    //    sb.AppendFormat(" {0} = @{0}{1} ", Member.Member.Name, num );
+                    //}
+                    //else
+                    //{
+                    // sql串联or会补上内嵌括号 不影响  调试时c#串联or的表达式也会自动补上内嵌括号
+                    if (binary.Left.NodeType == ExpressionType.OrElse
+                            && (binary.Right.NodeType != ExpressionType.OrElse || binary.Right.NodeType != ExpressionType.AndAlso))
+                    { sb.Append(" ( "); }
+
+                    JoinExpression(binary.Left, tabAliasName, ref sb, ref spars);
+
+                    if (binary.Left.NodeType == ExpressionType.OrElse
+                        && (binary.Right.NodeType != ExpressionType.OrElse || binary.Right.NodeType != ExpressionType.AndAlso))
+                    { sb.Append(" ) "); }
+
+                    if (spars.ParameterNames.Count() > 0)
+                    { //  where拼接条件开始 判断忽略解析WhereStartIgnore方法 
+                        sb.Append(expression.NodeType == ExpressionType.OrElse ? " or " : " and ");
+                    }
+
+                    if (binary.Right.NodeType == ExpressionType.OrElse
+                            && (binary.Left.NodeType != ExpressionType.OrElse || binary.Left.NodeType != ExpressionType.AndAlso))
+                    { sb.Append(" ( "); }
+                    JoinExpression(binary.Right, tabAliasName, ref sb, ref spars);
+                    if (binary.Right.NodeType == ExpressionType.OrElse
+                            && (binary.Left.NodeType != ExpressionType.OrElse || binary.Left.NodeType != ExpressionType.AndAlso))
+                    { sb.Append(" ) "); }
+
+                    //}
+
+                    // Console.WriteLine(sb);
+                    break;
+                case ExpressionType.Equal://相等比较
+                case ExpressionType.NotEqual:
+                case ExpressionType.GreaterThan:
+                case ExpressionType.GreaterThanOrEqual:
+                case ExpressionType.LessThan:
+                case ExpressionType.LessThanOrEqual:
+                    // 大于 小于 成员在左边还是在右边的 转成sql的位置也不同???
+                    var exgl = expression.NodeType == ExpressionType.Equal ? "="
+                            : expression.NodeType == ExpressionType.NotEqual ? "!="
+                            : expression.NodeType == ExpressionType.GreaterThan ? ">"
+                            : expression.NodeType == ExpressionType.GreaterThanOrEqual ? ">="
+                            : expression.NodeType == ExpressionType.LessThan ? "<"
+                            : expression.NodeType == ExpressionType.LessThanOrEqual ? "<="
+                            : null;
+                    if (exgl == null) throw new Exception("未知的比较符号");
+
+                    BinaryExpression binaryg = expression as BinaryExpression;
+                    if (binaryg.Left.NodeType == ExpressionType.Constant)
+                    { // 左边为常量值  右边为字段名
+                        MemberExpression Member = binaryg.Right as MemberExpression;
+                        ParameterExpression Parmexr = Member.Expression as ParameterExpression;
+                        var mberName = tabAliasName[Parmexr.Type.FullName] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
+                        ConstantExpression constant = binaryg.Left as ConstantExpression;
+                        spars.Add(Member.Member.Name + num, constant.Value); //.ToString()  );
+                        sb.AppendFormat(" {0} {1} @{2}{3} ", mberName, exgl, Member.Member.Name, num);  // A > @A0
+                    }
+                    else if (binaryg.Left.NodeType == ExpressionType.MemberAccess && binaryg.Right is ConstantExpression)
+                    { // 左边为字段名 右边为常量值
+                        MemberExpression Member = binaryg.Left as MemberExpression;
+                        ParameterExpression Parmexr = Member.Expression as ParameterExpression;
+                        var mberName = tabAliasName[Parmexr.Type.FullName] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
+                        ConstantExpression constant = binaryg.Right as ConstantExpression;
+                        spars.Add(Member.Member.Name + num, constant.Value); // .ToString());
+                        sb.AppendFormat(" {0} {1} @{2}{3} ", mberName, exgl, Member.Member.Name, num);
+                    }
+                    // 时间格式化处理
+                    //else if (binaryg.Left.NodeType == ExpressionType.MemberAccess && binaryg.Right.NodeType == ExpressionType.Convert)
+                    //{
+                    //    MemberExpression Member = binaryg.Left as MemberExpression;
+                    //    ConstantExpression constant = (binaryg.Right as UnaryExpression).Operand as ConstantExpression;
+
+                    //    spars.Add(Member.Member.Name + num, constant.Value); //.ToString());
+                    //    sb.AppendFormat(" {0} {2} @{0}{1} ", Member.Member.Name, num, exgl);
+                    //}
+
+                    else if (binaryg.Left.NodeType == ExpressionType.MemberAccess && binaryg.Right.NodeType == ExpressionType.MemberAccess)
+                    {  // 左边为字段名 右边为传入的外部变量 w => w.Name == varName
+                        MemberExpression Member = binaryg.Left as MemberExpression;
+                        ParameterExpression Parmexr = Member.Expression as ParameterExpression;
+                        var mberName = tabAliasName[Parmexr.Type.FullName] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
+
+                        object constValue = GetMemberValue(binaryg.Right as MemberExpression);
+                        //MemberExpression constMember = binaryg.Right as MemberExpression; //右边变量名 constMember.Member.Name 
+                        //ConstantExpression constant = constMember.Expression as ConstantExpression; //右边变量所在的类
+                        //var constValue = constant.Value.GetType().GetField(constMember.Member.Name).GetValue(constant.Value);
+
+                        spars.Add(Member.Member.Name + num, constValue); //.ToString());
+                        sb.AppendFormat(" {0} {1} @{2}{3} ", mberName, exgl, Member.Member.Name, num);
+                    }
+                    // Console.WriteLine(sb);
+                    break;
+                default:
+                    break;
+
+
+
+            }
+        }
+
+        private static object GetMemberValue(MemberExpression ctmber,string mberName = null) //)MethodCallExpression method)
+        {
+            // ctmber.Member.Name
+            if (mberName == null) mberName = ctmber.Member.Name;
+            //  w => w.字段 == 变量
+            //  w => w.字段 == 变量.属性
+            //  w => w.字段 == 变量.属性.属性
+
+            if (ctmber.Expression is MemberExpression) return GetMemberValue(ctmber.Expression as MemberExpression,mberName);
+
+            object ctvalue; 
+            ConstantExpression ctconst = ctmber.Expression as ConstantExpression;
+            ctvalue = ctconst.Value.GetType().GetField(ctmber.Member.Name).GetValue(ctconst.Value); //ctmber.Member.Name
+            if (ctmber.Member.Name != mberName)
+                ctvalue = ctvalue.GetType().GetProperty(mberName).GetValue(ctvalue,null);
+            return ctvalue;
+        }
     }
 
 
@@ -345,6 +590,7 @@ namespace FW.Common.DapperExt
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public static Expression<Func<T, bool>> WhereStart<T>() { return f => SM.WhereStartIgnore(); }
+        public static Expression<Func<T,Y, bool>> WhereStart<T,Y>() { return (f,y) => SM.WhereStartIgnore(); }
         //public static Expression<Func<T, bool>> True<T>() { return f => true; }
         //public static Expression<Func<T, bool>> False<T>() { return f => false; }
         public static Expression<T> Compose<T>(this Expression<T> first, Expression<T> second, Func<Expression, Expression, Expression> merge)
@@ -357,6 +603,20 @@ namespace FW.Common.DapperExt
 
             // apply composition of lambda expression bodies to parameters from the first expression   
             return Expression.Lambda<T>(merge(first.Body, secondBody), first.Parameters);
+        }
+
+        public static void Test() {
+
+            return;
+        }
+
+        public static Expression<Func<T,Y, bool>> And<T,Y>(this Expression<Func<T,Y, bool>> first, Expression<Func<T,Y, bool>> second)
+        {
+            return first.Compose(second, Expression.AndAlso);
+        }
+        public static Expression<Func<T, Y, bool>> Or<T, Y>(this Expression<Func<T, Y, bool>> first, Expression<Func<T, Y, bool>> second)
+        {
+            return first.Compose(second, Expression.AndAlso);
         }
 
         public static Expression<Func<T, bool>> And<T>(this Expression<Func<T, bool>> first, Expression<Func<T, bool>> second)

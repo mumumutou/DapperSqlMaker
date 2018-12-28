@@ -306,6 +306,31 @@ namespace Dapper.Contrib.Extensions
             return list;
         }
 
+        public static List<T> GetJoinTalbe<T, TSecond>(this IDbConnection connection, Expression<Func<T, TSecond, bool>> whereAcn, string orderByField = null, bool isOrderDesc = false, IDbTransaction transaction = null, int? commandTimeout = null) {
+
+            var type = typeof(T);
+
+             
+            var name = GetTableName(type);
+            var sb = new StringBuilder();
+            sb.AppendFormat("select * from {0} where ", name);
+
+            DynamicParameters dpars = new DynamicParameters();
+             
+            AnalysisExpression.VisitExpression(whereAcn, ref sb, ref dpars);
+
+            // order
+            if (orderByField != null)
+            {
+                sb.AppendFormat(" order by {0} {1} ", orderByField, isOrderDesc ? "desc" : "");
+            }
+
+            var adapter = GetFormatter(connection);
+
+            var list = connection.Query<T>(sb.ToString(), dpars, transaction, commandTimeout: commandTimeout).ToList<T>();
+
+            return list;
+        }
 
         /// <summary>
         /// Returns a list of entites from table "Ts".  
@@ -356,7 +381,7 @@ namespace Dapper.Contrib.Extensions
         /// </summary>
         public static TableNameMapperDelegate TableNameMapper;
 
-        private static string GetTableName(Type type)
+        public static string GetTableName(Type type)
         {
             string name;
             if (TypeTableName.TryGetValue(type.TypeHandle, out name)) return name;

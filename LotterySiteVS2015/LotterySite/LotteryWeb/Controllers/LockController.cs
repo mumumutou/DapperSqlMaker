@@ -101,6 +101,37 @@ namespace LotteryWeb.Controllers
         }
 
 
+        public ActionResult GetWhere(LockPers lpmodel, Users umodel) {
+
+
+            //var Name =  lpmodel.Name; // "%蛋蛋%";
+            //var IsDel = lpmodel.IsDel; //false;
+            //var uName =  umodel.UserName; // "jiaojiao";
+
+            var Name = Request.Form["Name"]; // "%蛋蛋%";
+            var IsDel = bool.Parse(Request.Form["IsDel"]); //false;
+            var uName = Request.QueryString["UserName"]; // "jiaojiao";
+
+            //3
+            QueryMaker<LockPers, Users> query = LockDapperUtilTest<LockPers, Users>.Init()
+            //2
+            //QueryMaker<LockPers, Users> query = new LockDapperUtilTest<LockPers, Users>();
+            //query
+            //1
+            //QueryMaker<LockPers, Users> query = LockDapperUtilTest<LockPers, Users>.New
+                            .Select( (lp, u) => null //new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName }
+                                  , JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId)
+                            .Where((lpw, uw) => lpw.Name.Contains(Name) && lpw.IsDel == IsDel && uw.UserName == uName
+                                )  // 
+                            .Order((lp, w) => new { lp.EditCount, lp.Name })
+                            ; // .ExcuteSelect();
+            var resultsqlparams = query.RawSqlParams();
+            //var result = query.ExcuteSelect();
+
+            return Content("");
+        }
+
+
         public void delinsert()
         {
             

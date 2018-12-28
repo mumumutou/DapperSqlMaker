@@ -373,6 +373,8 @@ namespace FW.Common.DapperExt.Tests
             where = where.And(w => w.IsDel == false);
             //where = where.Or(w => ());
 
+
+
             //3 or里面括号问题
             //int? i1 = 1;
             //int? i2 = 2;
@@ -397,15 +399,181 @@ namespace FW.Common.DapperExt.Tests
 
         }
 
-        public void 表别名() { }
+        public void 三表连接测试() {
 
-        public void 联表查询() {
-             
-            //using (SQLiteConnection conn = new SQLiteConnection(DataBaseConfig.LockTestSqlLiteConnectionString)) //GetCurrentConnection() )
+        }
+
+        [Test]
+        public void 双表连接测试() {
+
+            LockPers lpmodel = new LockPers();
+            lpmodel.Name = "%蛋蛋%";
+            lpmodel.IsDel = false;
+            Users umodel = new Users();
+            umodel.UserName = "jiaojiao";
+            Expression<Func<LockPers, Users, bool>> where = PredicateBuilder.WhereStart<LockPers, Users>();
+            where = where.And((lpw, uw) => lpw.Name.Contains(lpmodel.Name));
+            where = where.And((lpw, uw) => lpw.IsDel == lpmodel.IsDel);
+            where = where.And((lpw, uw) => uw.UserName == umodel.UserName);
+
+            QueryMaker<LockPers, Users> query = LockDapperUtilTest<LockPers, Users>.Init()
+                            .Select( (lp, u) => null //new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName }
+                                  , JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId)
+                            .Where(where)
+                            .Order((lp, w) => new { lp.EditCount, lp.Name }); // .ExcuteSelect();
+            Tuple<string, DynamicParameters> resultsqlparams = query.RawSqlParams();
+            var result = query.ExcuteSelect();
+
+            Console.WriteLine(resultsqlparams.Item1); // sql
+            foreach (var name in resultsqlparams.Item2.ParameterNames)
+            {
+                Console.WriteLine(name);  // 参数名
+                WriteJson(resultsqlparams.Item2.Get<object>(name)); // 值
+            }
+            WriteJson(result); //  查询结果
+
+
+            //QueryMaker<LockPers, Users> query = new LockDapperUtilTest<LockPers, Users>();
+            //query
+
+
+            // 第2中where表达式 匿名参数属性传入
+            var model = new { Name  = "%蛋蛋%" , IsDel  = false, UserName = "jiaojiao" };
+            //Expression<Func<LockPers, Users, bool>> where = PredicateBuilder.WhereStart<LockPers, Users>();
+            //where = where.And((lpw, uw) => lpw.Name.Contains(model.Name));
+            //where = where.And((lpw, uw) => lpw.IsDel == model.IsDel);
+            //where = where.And((lpw, uw) => uw.UserName == model.UserName);
+
+
+            // 第3种where表达式
+            var Name2 = "%蛋蛋%";
+            var IsDel2 = false;
+            var UserName = "jiaojiao";
+            var Name = model.Name; // "%蛋蛋%";
+            var IsDel = model.IsDel; //false;
+            var uName = model.UserName; // "jiaojiao";
+
+            //.Where( (lpw, uw) => lpw.Name.Contains("%蛋蛋%") && lpw.Name.Contains(Name2) && lpw.Name.Contains(model.Name)
+            //&& lpw.IsDel == IsDel2 && lpw.IsDel == model.IsDel && uw.UserName == model.UserName )  // 
+
+
+            //foreach (dynamic item in result)
             //{
-            //    var obj = conn.Query<LockPers, LockPers, LockPers>(sql, entity);
-            //    return obj;
-            //}
+
+            //} 
+
+        }
+
+        /*
+           LockDapperUtilTest.Queryable<LockPers,Users>((lp, u) => new object[] {
+            JoinType.Left,   u.Id = lp.UserId })
+           .Select(
+               (w,w2) => w.Name == Name  && w.IsDel == IsDel && w2.UserName == uName    
+           ).ToList();
+
+           LockDapperUtilTest.Queryable<LockPers, Users>(JoinType.Left,(lp, u) => u.Id == lp.UserId)
+           .Queryable<Users, LockPers>(JoinType.Left,(u, lp) => u.Id == lp.UserId)
+           .Where()
+           .Excute();
+
+           QueryMaker.New()
+                           .SELECT<LockPers, Users, SynNote>()
+                           .JoinTable(  JoinType.Left, (lp, u) => u.Id == lp.UserId     )
+                           .JoinTable<Users, >(JoinType.Left, (u, lp) => u.Id == lp.UserId)
+                           .Where<LockPers, Users>( (lp, u) => lp.Name == Name && lp.IsDel == IsDel && u.UserName == uName )
+                           .RawSql(); 
+            
+                            //.JoinTable(JoinType.Left, (lp, u) => u.Id == lp.UserId)
+                            // .LeftJoin( (u, lp) => u.Id == lp.UserId)
+            */
+        [Test]
+        public void 表别名() {
+
+            var Name = "测试bool修改2";
+            var IsDel = false;
+            var uName = "cc";
+
+            Tuple<string, DynamicParameters> result = LockDapperUtilTest<LockPers,Users>.Init().Select(
+                             (lp, u) => new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName }
+                                  ,JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId)
+                            .Where((lpw, uw) => lpw.Name == Name && lpw.IsDel == IsDel && uw.UserName == uName)
+                            .Order((lp, w) => new { lp.EditCount, lp.Name })
+                            .RawSqlParams();
+                            //.Excute(); 
+            Console.WriteLine(result.Item1);
+            foreach (var name in result.Item2.ParameterNames)
+            {
+                Console.WriteLine(name);
+                WriteJson(result.Item2.Get<object>(name));
+            }
+
+            //var obj = LockDapperUtilTest.Queryable<LockPers, Users>(JoinType.Left,(lp, u) => u.Id == lp.UserId);
+            //var obj2 = LockDapperUtilTest.Queryable<Users, LockPers>(JoinType.Left,(u, lp) => u.Id == lp.UserId);
+            //var obj =  LockDapperUtilTest.Queryable1<LockPers, Users>((lp, u) => new object[] {
+            //  "JoinType.Left",   u.Id == lp.UserId });
+            Expression<Func<LockPers, bool>> expression = t => t.Name.Contains("%蛋蛋%") && t.IsDel == false;
+            //var list = LockDapperUtilTest<LockPers>.New.Get(expression);
+            //WriteJson(list);
+        }
+        [Test]
+        public void 联表sql生成() {
+            var Name = "测试bool修改2";
+            //var Content = "测试bool修改2";
+            //var arrEditCount = new int[5] { 22, 2, 3, 5, 1 };  // 
+            DateTime? startDate = new DateTime(2018, 10, 17);
+            DateTime? endDate = ((DateTime)startDate).AddDays(1);
+            var IsDel = false;
+            var uName = "cc";
+            //w,w2 作为表别名
+            Dictionary<string, string> tabalis = new Dictionary<string, string>();
+            tabalis.Add(typeof(LockPers).FullName,"w");
+            tabalis.Add(typeof(Users).FullName, "w2");
+            //时间类型现在获取不到
+            Expression<Func<LockPers,Users, bool>> expression = (w,w2) =>
+                w.Name == Name
+                && w.InsertTime >= startDate
+                && w.InsertTime < endDate
+                //&& w.InsertTime > // SM.DateStr(InserTime)
+                //&& SM.In(w.EditCount, arrEditCount) 
+                && w.IsDel == IsDel
+                && w2.UserName == uName
+                ;
+
+            StringBuilder sql = null;
+            DynamicParameters spars = null;
+            AnalysisExpression.JoinExpression(expression, tabalis, ref sql, ref spars);
+
+            Console.WriteLine(sql);
+            // expression = w => w.Content == Content;
+            foreach (var name in spars.ParameterNames)
+            {
+                Console.WriteLine(name);
+                WriteJson(spars.Get<object>(name));
+            }
+
+            Console.WriteLine("++_+++++++");
+
+        }
+
+        [Test]
+        public void 联表查询() {
+
+             
+            string sql = " select * from Users u left join LockPers lp on u.Id = lp.UserId where u.Id = 3";
+            using (SQLiteConnection conn = new SQLiteConnection(DataBaseConfig.LockTestSqlLiteConnectionString)) //GetCurrentConnection() )
+            {
+                //conn.Query<,,>()
+                var obj = conn.Query<Users, LockPers, Users>(sql, 
+                    (user, lockPers) => {
+                        if (lockPers != null)
+                            user.LockPerss.Add(lockPers);
+                        return user;
+                    }
+                    , null
+                    ); 
+
+
+             }
         }
 
         public void 子查询()

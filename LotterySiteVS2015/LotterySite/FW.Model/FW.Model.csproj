@@ -52,6 +52,9 @@
     <Compile Include="ModelPartial\LockPers.cs">
       <DependentUpon>SQLiteModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="ModelPartial\SynNote.cs">
+      <DependentUpon>SQLiteModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="ModelPartial\Users.cs">
       <DependentUpon>SQLiteModel.tt</DependentUpon>
     </Compile>
