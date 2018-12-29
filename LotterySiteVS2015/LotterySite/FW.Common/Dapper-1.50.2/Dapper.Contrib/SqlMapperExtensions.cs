@@ -1161,6 +1161,16 @@ public partial interface ISqlAdapter
     /// <param name="columnName">字段名</param>
     /// <param name="suffix">参数名后缀</param>
     void AppendColumnNameEqualsValue(StringBuilder sb, string columnName,string suffix);
+
+    ///// <summary>
+    ///// 分页查询
+    ///// </summary>
+    ///// <param name="page">页码</param>
+    ///// <param name="rows">行数</param>
+    ///// <param name="records">总页数</param>
+    //void ExcuteLimit(int page, int rows, out int records);
+    void Limit(StringBuilder sb, DynamicParameters sparams, int page, int rows);
+
 }
 
 public partial class SqlServerAdapter : ISqlAdapter
@@ -1195,6 +1205,15 @@ public partial class SqlServerAdapter : ISqlAdapter
     public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName, string suffix)
     {
         sb.AppendFormat("[{0}] = @{1}{2}", columnName, columnName, suffix);
+    }
+
+    public void Limit(StringBuilder sb, DynamicParameters sparams, int page, int rows)
+    {
+        // counts,rownum 放在字段解析里
+        sb.Insert(0, " select x.* from (  select count(a.Id) over() as counts , ROW_NUMBER() over(order by a.Id) as rownum "); // 
+        sb.Append("  ) x  where rownum between (@pageIndex - 1) * @pageSize + 1 and @pageIndex * @pageSize ");
+        sparams.Add("@pageIndex", page);
+        sparams.Add("@pageSize", rows);
     }
 }
 
@@ -1231,6 +1250,10 @@ public partial class SqlCeServerAdapter : ISqlAdapter
     {
         sb.AppendFormat("[{0}] = @{1}{2}", columnName, columnName, suffix);
     }
+    public void Limit(StringBuilder sb, DynamicParameters sparams, int page, int rows)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 public partial class MySqlAdapter : ISqlAdapter
@@ -1264,6 +1287,10 @@ public partial class MySqlAdapter : ISqlAdapter
     public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName, string suffix)
     {
         sb.AppendFormat("`{0}` = @{1}{2}", columnName, columnName, suffix);
+    }
+    public void Limit(StringBuilder sb, DynamicParameters sparams, int page, int rows)
+    {
+        throw new NotImplementedException();
     }
 }
 
@@ -1319,6 +1346,10 @@ public partial class PostgresAdapter : ISqlAdapter
     {
         sb.AppendFormat("\"{0}\" = @{1}{2}", columnName, columnName, suffix);
     }
+    public void Limit(StringBuilder sb, DynamicParameters sparams, int page, int rows)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 public partial class SQLiteAdapter : ISqlAdapter
@@ -1350,5 +1381,14 @@ public partial class SQLiteAdapter : ISqlAdapter
     public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName, string suffix)
     {
         sb.AppendFormat("\"{0}\" = @{1}{2}", columnName, columnName, suffix);
+    }
+    public void Limit(StringBuilder sb, DynamicParameters sparams,int page, int rows)
+    {//offset代表从第几条记录“之后“开始查询，limit表明查询多少条结果
+
+        int offset_ = (page - 1) * rows;
+        int limit_ = rows;
+        sb.Append(" limit @limit_ offset @offset_ ");
+        sparams.Add("@offset_", offset_);
+        sparams.Add("@limit_", limit_);
     }
 }

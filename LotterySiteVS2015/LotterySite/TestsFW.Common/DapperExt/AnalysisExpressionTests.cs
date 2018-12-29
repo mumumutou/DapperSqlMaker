@@ -44,6 +44,10 @@ namespace FW.Common.DapperExt.Tests
         // 根据不同条件拼接 where
 
         public void GetPage(int page, int rows) {
+
+            int a = (page - 1) * rows;
+            int b = page * rows;
+
             //      int records; // 总条数
             //      List<GeneralMessage> generalmessageList = generalmessageBll.LoadPageEntities(
             //          where,
@@ -56,17 +60,19 @@ namespace FW.Common.DapperExt.Tests
             //      string s = JsonHelper.DateSerializeObject(o);
             //      return Content(s);
         }
-        
+
         [Test]
         public void Get测试() {
+
+            
 
             var arrEditCount = new int[6] { 22, 2, 3, 5, 1, 11 };  // 
             DateTime? startDate2 = new DateTime(2018, 3, 17);
             DateTime? endDate2 = ((DateTime)startDate2).AddDays(1);
-            DateTime? startDate = new DateTime(2018,10,17);
+            DateTime? startDate = new DateTime(2018, 10, 17);
             DateTime? endDate = ((DateTime)startDate).AddDays(1);
 
-            var objs = LockDapperUtilTest<LockPers_>.New.Get(w => 
+            var objs = LockDapperUtilTest<LockPers_>.New.Get(w =>
                 SM.In(w.EditCount, arrEditCount)
                 && (w.InsertTime >= startDate && w.InsertTime < endDate || w.InsertTime >= startDate2 && w.InsertTime < endDate2)
                 && w.IsDel == false
@@ -80,17 +86,17 @@ namespace FW.Common.DapperExt.Tests
             var arrEditCount = new int[6] { 22, 2, 3, 5, 1, 11 };  // 
             DateTime? startDate2 = new DateTime(2018, 3, 17);
             DateTime? endDate2 = ((DateTime)startDate2).AddDays(1);
-            DateTime? startDate = new DateTime(2018,10,17);
+            DateTime? startDate = new DateTime(2018, 10, 17);
             DateTime? endDate = ((DateTime)startDate).AddDays(1);
 
             Expression<Func<LockPers_, bool>> where = PredicateBuilder.WhereStart<LockPers_>();
             where = where.And(w => SM.In(w.EditCount, arrEditCount));
-            where = where.And(w => ( w.InsertTime >= startDate && w.InsertTime < endDate || w.InsertTime >= startDate2 && w.InsertTime < endDate2 ));
+            where = where.And(w => (w.InsertTime >= startDate && w.InsertTime < endDate || w.InsertTime >= startDate2 && w.InsertTime < endDate2));
             where = where.And(w => w.IsDel == false);
 
             var order = LockPers.Field_InsertTime;
 
-            var objs = LockDapperUtilTest<LockPers_>.New.Get( where , order, true);
+            var objs = LockDapperUtilTest<LockPers_>.New.Get(where, order, true);
 
             WriteJson(objs);
         }
@@ -189,11 +195,11 @@ namespace FW.Common.DapperExt.Tests
         }
         [Test]
         public void In测试2()
-        { 
+        {
             //var Name = "测试bool修改2";
             //2 in  声明数组变量当参数传入 走参数化查询
             var arrEditCount = new int[5] { 22, 2, 3, 5, 1 };  // 
-            Expression<Func<LockPers, bool>> expression = w =>  SM.In(w.EditCount, arrEditCount)
+            Expression<Func<LockPers, bool>> expression = w => SM.In(w.EditCount, arrEditCount)
                 //&& w.Name == Name
                 && (w.Prompt.Contains("%hou%") || w.IsDel == false);
             StringBuilder sql = null;
@@ -280,8 +286,8 @@ namespace FW.Common.DapperExt.Tests
         [Test]
         public void 括号测试2() {
             Expression<Func<LockPers, bool>> expression = w =>
-             w.Id == "1" && w.Name == "2"  
-             || (w.IsDel != false &&  w.IsDel == true);
+             w.Id == "1" && w.Name == "2"
+             || (w.IsDel != false && w.IsDel == true);
             StringBuilder sql = null;
             DynamicParameters spars = null;
             AnalysisExpression.VisitExpression(expression, ref sql, ref spars);
@@ -314,7 +320,7 @@ namespace FW.Common.DapperExt.Tests
             Console.WriteLine(example);
 
         }
-        
+
         [Test]
         public void 不同查询条件添加不通的where()
         {
@@ -341,13 +347,13 @@ namespace FW.Common.DapperExt.Tests
             Console.WriteLine(sql);
 
             // expression = w => w.Content == Content;
-            
+
 
             foreach (var name in spars.ParameterNames)
             {
                 Console.WriteLine(name);
                 WriteJson(spars.Get<object>(name));
-            } 
+            }
 
         }
         [Test]
@@ -388,7 +394,7 @@ namespace FW.Common.DapperExt.Tests
             DynamicParameters spars = null;
             AnalysisExpression.VisitExpression(where, ref sql, ref spars);
             Console.WriteLine(sql);
-             
+
 
             foreach (var name in spars.ParameterNames)
             {
@@ -399,8 +405,94 @@ namespace FW.Common.DapperExt.Tests
 
         }
 
+        [Test]
+        public void 分页查询()
+        {
+
+        }
+        // 表别名字典重复????
+        [Test]
+        public void 四次自连表测试()
+        {
+
+        }
+
+        [Test]
+        public void 四表连接测试(){
+            LockPers lpmodel = new LockPers();
+            lpmodel.Name = "%蛋蛋%";
+            lpmodel.IsDel = false;
+            Users umodel = new Users();
+            umodel.UserName = "jiaojiao";
+            SynNote snmodel = new SynNote();
+            snmodel.Name = "%木头木%";
+            Expression<Func<LockPers, Users, SynNote, SynNote, bool>> where = PredicateBuilder.WhereStart<LockPers, Users, SynNote, SynNote>();
+            where = where.And((lpw, uw, sn, snn) => lpw.Name.Contains(lpmodel.Name));
+            where = where.And((lpw, uw, sn, snn) => lpw.IsDel == lpmodel.IsDel);
+            where = where.And((lpw, uw, sn, snn) => uw.UserName == umodel.UserName);
+            where = where.And((lpw, uw, sn, snn) => sn.Name.Contains(snmodel.Name));
+            //  SM.LimitCount,
+            QueryMaker<LockPers, Users, SynNote, SynNote> query = LockDapperUtilTest<LockPers, Users, SynNote, SynNote>.Init()
+                            .Select((lp, u, s, sn) => new {lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName, s.Content, s.Name }//null查询所有字段
+                                  , JoinType.Left,  (lpp, uu, snn, snnn) => uu.Id == lpp.UserId
+                                  , JoinType.Inner, (lpp, uu, snn, snnn) => uu.Id == snn.UserId && snn.Id == snn.UserId
+                                  , JoinType.Inner, (lpp, uu, snn, snnn) => snnn.Id == snn.UserId )
+                            .Where(where) //(lpp, uu, snn, snnn) => uu.Id == snn.UserId && snnn.Id == snn.UserId)//)
+                            .Order((lp, w, sn, snn) => new { lp.EditCount, lp.Name, sn.Content });
+
+            Tuple<StringBuilder, DynamicParameters> resultsqlparams = query.RawSqlParams();
+            Console.WriteLine(resultsqlparams.Item1.ToString()); // sql
+            foreach (var name in resultsqlparams.Item2.ParameterNames)
+            {
+                Console.WriteLine(name);  // 参数名
+                WriteJson(resultsqlparams.Item2.Get<object>(name)); // 值
+            }
+
+            var result = query.ExcuteSelect();
+            WriteJson(result); //  查询结果
+
+            int page = 2, rows = 2, records;
+            var result2 = query.LoadPage(page, rows, out records);
+            WriteJson(result2); //  查询结果
+
+        }
+        [Test]
         public void 三表连接测试() {
 
+            LockPers lpmodel = new LockPers();
+            lpmodel.Name = "%蛋蛋%";
+            lpmodel.IsDel = false;
+            Users umodel = new Users();
+            umodel.UserName = "jiaojiao";
+            SynNote snmodel = new SynNote();
+            snmodel.Name = "%木头%";
+            Expression<Func<LockPers, Users, SynNote, bool>> where = PredicateBuilder.WhereStart<LockPers, Users, SynNote>();
+            where = where.And((lpw, uw, sn) => lpw.Name.Contains(lpmodel.Name));
+            where = where.And((lpw, uw, sn) => lpw.IsDel == lpmodel.IsDel);
+            where = where.And((lpw, uw, sn) => uw.UserName == umodel.UserName);
+            where = where.And((lpw, uw, sn) => sn.Name.Contains(snmodel.Name));
+
+            QueryMaker<LockPers, Users, SynNote> query = LockDapperUtilTest<LockPers, Users, SynNote>.Init()
+                            .Select((lp, u, s) => new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName, s.Content, s.Name }//null查询所有字段
+                                  , JoinType.Left, (lpp, uu, snn) => uu.Id == lpp.UserId
+                                  , JoinType.Inner, (lpp, uu, snn) => uu.Id == snn.UserId)
+                            .Where(where)
+                            .Order((lp, w, sn) => new { lp.EditCount, lp.Name, sn.Content });
+
+            var result = query.ExcuteSelect();
+            WriteJson(result); //  查询结果
+
+            Tuple<StringBuilder, DynamicParameters> resultsqlparams = query.RawSqlParams();
+            Console.WriteLine(resultsqlparams.Item1.ToString()); // sql
+            foreach (var name in resultsqlparams.Item2.ParameterNames)
+            {
+                Console.WriteLine(name);  // 参数名
+                WriteJson(resultsqlparams.Item2.Get<object>(name)); // 值
+            }
+
+            int page = 2, rows = 3, records;
+            var result2 = query.LoadPage(page, rows, out records);
+            WriteJson(result2); //  查询结果
         }
 
         [Test]
@@ -417,20 +509,26 @@ namespace FW.Common.DapperExt.Tests
             where = where.And((lpw, uw) => uw.UserName == umodel.UserName);
 
             QueryMaker<LockPers, Users> query = LockDapperUtilTest<LockPers, Users>.Init()
-                            .Select( (lp, u) => null //new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName }
+                            .Select( (lp, u) =>  new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName }//null查询所有字段
                                   , JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId)
-                            .Where(where)
+                            .Where(  where)
+                                   //(lp, u) => lp.Name == lpmodel.Name && lp.IsDel == lpmodel.IsDel || u.UserName == umodel.UserName )
                             .Order((lp, w) => new { lp.EditCount, lp.Name }); // .ExcuteSelect();
-            Tuple<string, DynamicParameters> resultsqlparams = query.RawSqlParams();
             var result = query.ExcuteSelect();
+            WriteJson(result); //  查询结果
 
-            Console.WriteLine(resultsqlparams.Item1); // sql
+            Tuple<StringBuilder, DynamicParameters> resultsqlparams = query.RawSqlParams();
+            Console.WriteLine(resultsqlparams.Item1.ToString()); // sql
             foreach (var name in resultsqlparams.Item2.ParameterNames)
             {
                 Console.WriteLine(name);  // 参数名
                 WriteJson(resultsqlparams.Item2.Get<object>(name)); // 值
             }
-            WriteJson(result); //  查询结果
+
+            int page = 2, rows = 3, records;
+            var result2 = query.LoadPage(page, rows, out records);
+            WriteJson(result2); //  查询结果
+
 
 
             //QueryMaker<LockPers, Users> query = new LockDapperUtilTest<LockPers, Users>();
@@ -493,7 +591,7 @@ namespace FW.Common.DapperExt.Tests
             var IsDel = false;
             var uName = "cc";
 
-            Tuple<string, DynamicParameters> result = LockDapperUtilTest<LockPers,Users>.Init().Select(
+            Tuple<StringBuilder, DynamicParameters> result = LockDapperUtilTest<LockPers,Users>.Init().Select(
                              (lp, u) => new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName }
                                   ,JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId)
                             .Where((lpw, uw) => lpw.Name == Name && lpw.IsDel == IsDel && uw.UserName == uName)
@@ -599,6 +697,7 @@ namespace FW.Common.DapperExt.Tests
 
             object test2 = LockDapperUtilTest.New.Query("SELECT * FROM LockPers where isDel != @isDel and name like @name and EditCount in @EditCount  order by Name ", spars);
             WriteJson(test2);
+            object test3 = LockDapperUtilTest.New.Query("select count(1) as mycount , * from SynNote sn ", null);
 
 
 

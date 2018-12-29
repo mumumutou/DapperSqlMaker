@@ -60,6 +60,8 @@ namespace FW.Common.DapperExt
             return true;
         }
 
+
+        public static string LimitCount { get { return "SM.LimitCount"; } private set { } }
         public static bool WhereStartIgnore() => true;
 
 
@@ -281,8 +283,17 @@ namespace FW.Common.DapperExt
         }
 
 
-        // sql, pars 多表别名解析
-        public static void JoinExpression(Expression expression, Dictionary<string, string> tabAliasName, ref StringBuilder sb, ref DynamicParameters spars)
+
+        /// <summary>
+        /// sql, pars 多表别名解析
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="tabAliasName">别名字典</param>
+        /// <param name="sb"></param>
+        /// <param name="spars"></param>
+        /// <param name="paramsdic">表达式参数字典 参数-参数序号</param>
+        public static void JoinExpression(Expression expression, Dictionary<string, string> tabAliasName
+            , ref StringBuilder sb, ref DynamicParameters spars, Dictionary<string, int> paramsdic = null)
         {
             if (sb == null)
             {
@@ -302,7 +313,8 @@ namespace FW.Common.DapperExt
                     {
                         MemberExpression Member = method.Object as MemberExpression;
                         ParameterExpression Parmexr = Member.Expression as ParameterExpression;
-                        var mberName = tabAliasName[Parmexr.Type.FullName] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名 
+                        var tkey = Parmexr.Type.FullName + paramsdic[Parmexr.Name];
+                        var mberName = tabAliasName[tkey] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名 
                         object ctvalue;
                         if (method.Arguments.FirstOrDefault() is ConstantExpression)
                         { //
@@ -311,7 +323,7 @@ namespace FW.Common.DapperExt
                         else if (method.Arguments.FirstOrDefault() is MemberExpression)
                         { // 值 传入的时 变量 
                             ctvalue = GetMemberValue(method.Arguments.FirstOrDefault() as MemberExpression);
-                         }
+                        }
                         else throw new Exception("Contains未解析");
 
                         spars.Add(Member.Member.Name + num, ctvalue); //constant.Value //.ToString());
@@ -321,7 +333,8 @@ namespace FW.Common.DapperExt
                     { // 自定义方法 like
                         MemberExpression Member = method.Arguments[0] as MemberExpression;
                         ParameterExpression Parmexr = Member.Expression as ParameterExpression;
-                        var mberName = tabAliasName[Parmexr.Type.FullName] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
+                        var tkey = Parmexr.Type.FullName + paramsdic[Parmexr.Name];
+                        var mberName = tabAliasName[tkey] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
                         ConstantExpression constant = method.Arguments[1] as ConstantExpression;
                         spars.Add(Member.Member.Name + num, constant.Value); //.ToString());
                         sb.AppendFormat(" {0} like @{1}{2} ", mberName, Member.Member.Name, num);
@@ -330,7 +343,8 @@ namespace FW.Common.DapperExt
                     { // 自定义方法 in
                         MemberExpression Member = method.Arguments[0] as MemberExpression; // 字段名
                         ParameterExpression Parmexr = Member.Expression as ParameterExpression;
-                        var mberName = tabAliasName[Parmexr.Type.FullName] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
+                        var tkey = Parmexr.Type.FullName + paramsdic[Parmexr.Name];
+                        var mberName = tabAliasName[tkey] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
 
                         MemberExpression member2 = method.Arguments[1] as MemberExpression; //第1种 数组传入表达式
                         if (member2 != null)
@@ -368,7 +382,8 @@ namespace FW.Common.DapperExt
                     {
                         MemberExpression Member = method.Object as MemberExpression;
                         ParameterExpression Parmexr = Member.Expression as ParameterExpression;
-                        var mberName = tabAliasName[Parmexr.Type.FullName] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
+                        var tkey = Parmexr.Type.FullName + paramsdic[Parmexr.Name];
+                        var mberName = tabAliasName[tkey] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
                         ConstantExpression constant = method.Arguments.FirstOrDefault() as ConstantExpression;
                         spars.Add(Member.Member.Name + num, constant.Value); //.ToString());
                         sb.AppendFormat(" {0} = @{1}{2} ", mberName, Member.Member.Name, num);
@@ -379,8 +394,14 @@ namespace FW.Common.DapperExt
                     LambdaExpression lambda = expression as LambdaExpression;
 
                     //Console.WriteLine(lambda+ "");  // 打印lambda表达式
+                    Dictionary<string, int> pdic = new Dictionary<string, int>();
+                    int i = 1;
+                    foreach (var p in lambda.Parameters)
+                    {
+                        pdic.Add(p.Name,i++);
+                    }
 
-                    JoinExpression(lambda.Body, tabAliasName, ref sb, ref spars);
+                    JoinExpression(lambda.Body, tabAliasName, ref sb, ref spars, pdic);
 
                     // BinaryExpression  // 二元表达式
                     // UnaryExpression   // 一元表达式
@@ -419,13 +440,18 @@ namespace FW.Common.DapperExt
                             && (binary.Right.NodeType != ExpressionType.OrElse || binary.Right.NodeType != ExpressionType.AndAlso))
                     { sb.Append(" ( "); }
 
-                    JoinExpression(binary.Left, tabAliasName, ref sb, ref spars);
+                    JoinExpression(binary.Left, tabAliasName, ref sb, ref spars, paramsdic);
 
                     if (binary.Left.NodeType == ExpressionType.OrElse
                         && (binary.Right.NodeType != ExpressionType.OrElse || binary.Right.NodeType != ExpressionType.AndAlso))
                     { sb.Append(" ) "); }
 
-                    if (spars.ParameterNames.Count() > 0)
+
+                    //LambdaExpression lambda = expression as LambdaExpression;
+                    //MethodCallExpression method = lambda.Body. as MethodCallExpression;
+                    //if (method.Method.Name == "WhereStartIgnore") break;
+
+                    if (spars.ParameterNames.Count() > 0 || sb.Length > 0)
                     { //  where拼接条件开始 判断忽略解析WhereStartIgnore方法 
                         sb.Append(expression.NodeType == ExpressionType.OrElse ? " or " : " and ");
                     }
@@ -433,7 +459,7 @@ namespace FW.Common.DapperExt
                     if (binary.Right.NodeType == ExpressionType.OrElse
                             && (binary.Left.NodeType != ExpressionType.OrElse || binary.Left.NodeType != ExpressionType.AndAlso))
                     { sb.Append(" ( "); }
-                    JoinExpression(binary.Right, tabAliasName, ref sb, ref spars);
+                    JoinExpression(binary.Right, tabAliasName, ref sb, ref spars, paramsdic);
                     if (binary.Right.NodeType == ExpressionType.OrElse
                             && (binary.Left.NodeType != ExpressionType.OrElse || binary.Left.NodeType != ExpressionType.AndAlso))
                     { sb.Append(" ) "); }
@@ -463,7 +489,8 @@ namespace FW.Common.DapperExt
                     { // 左边为常量值  右边为字段名
                         MemberExpression Member = binaryg.Right as MemberExpression;
                         ParameterExpression Parmexr = Member.Expression as ParameterExpression;
-                        var mberName = tabAliasName[Parmexr.Type.FullName] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
+                        var tkey = Parmexr.Type.FullName + paramsdic[Parmexr.Name];
+                        var mberName = tabAliasName[tkey] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
                         ConstantExpression constant = binaryg.Left as ConstantExpression;
                         spars.Add(Member.Member.Name + num, constant.Value); //.ToString()  );
                         sb.AppendFormat(" {0} {1} @{2}{3} ", mberName, exgl, Member.Member.Name, num);  // A > @A0
@@ -472,7 +499,8 @@ namespace FW.Common.DapperExt
                     { // 左边为字段名 右边为常量值
                         MemberExpression Member = binaryg.Left as MemberExpression;
                         ParameterExpression Parmexr = Member.Expression as ParameterExpression;
-                        var mberName = tabAliasName[Parmexr.Type.FullName] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
+                        var tkey = Parmexr.Type.FullName + paramsdic[Parmexr.Name];
+                        var mberName = tabAliasName[tkey] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
                         ConstantExpression constant = binaryg.Right as ConstantExpression;
                         spars.Add(Member.Member.Name + num, constant.Value); // .ToString());
                         sb.AppendFormat(" {0} {1} @{2}{3} ", mberName, exgl, Member.Member.Name, num);
@@ -491,15 +519,29 @@ namespace FW.Common.DapperExt
                     {  // 左边为字段名 右边为传入的外部变量 w => w.Name == varName
                         MemberExpression Member = binaryg.Left as MemberExpression;
                         ParameterExpression Parmexr = Member.Expression as ParameterExpression;
-                        var mberName = tabAliasName[Parmexr.Type.FullName] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
+                        var tkey = Parmexr.Type.FullName + paramsdic[Parmexr.Name];
+                        var mberName = tabAliasName[tkey] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
+                        MemberExpression Member2 = binaryg.Right as MemberExpression;
+                        if (Member2.Expression is ParameterExpression) 
+                        { // 联表条件 左右都是表字段条件  on tab1.Id = tab2.Id
+                            ParameterExpression pexp = Member2.Expression as ParameterExpression;
 
-                        object constValue = GetMemberValue(binaryg.Right as MemberExpression);
+                            ParameterExpression Parmexr2 = Member2.Expression as ParameterExpression;
+                            var tkey2 = Parmexr2.Type.FullName + paramsdic[Parmexr2.Name];
+                            var mberName2 = tabAliasName[tkey2] + "." + Member2.Member.Name;  //Parmexr.Name 表.字段名
+                            sb.AppendFormat(" {0} {1} {2}", mberName, exgl, mberName2);
+                            break;
+                        }
+                        
+
+                        object constValue = GetMemberValue(Member2);
                         //MemberExpression constMember = binaryg.Right as MemberExpression; //右边变量名 constMember.Member.Name 
                         //ConstantExpression constant = constMember.Expression as ConstantExpression; //右边变量所在的类
                         //var constValue = constant.Value.GetType().GetField(constMember.Member.Name).GetValue(constant.Value);
 
                         spars.Add(Member.Member.Name + num, constValue); //.ToString());
                         sb.AppendFormat(" {0} {1} @{2}{3} ", mberName, exgl, Member.Member.Name, num);
+                            
                     }
                     // Console.WriteLine(sb);
                     break;
@@ -591,23 +633,27 @@ namespace FW.Common.DapperExt
         /// <returns></returns>
         public static Expression<Func<T, bool>> WhereStart<T>() { return f => SM.WhereStartIgnore(); }
         public static Expression<Func<T,Y, bool>> WhereStart<T,Y>() { return (f,y) => SM.WhereStartIgnore(); }
+        public static Expression<Func<T, Y, Z, bool>> WhereStart<T, Y, Z>() { return (f, y, z) => SM.WhereStartIgnore(); }
+        public static Expression<Func<T, Y, Z, O, bool>> WhereStart<T, Y, Z, O>() { return (f, y, z, o) => SM.WhereStartIgnore(); }
         //public static Expression<Func<T, bool>> True<T>() { return f => true; }
         //public static Expression<Func<T, bool>> False<T>() { return f => false; }
-        public static Expression<T> Compose<T>(this Expression<T> first, Expression<T> second, Func<Expression, Expression, Expression> merge)
+        public static Expression<Func<T, Y, Z, O, bool>> And<T, Y, Z, O>(this Expression<Func<T, Y, Z, O, bool>> first, Expression<Func<T, Y, Z, O, bool>> second)
         {
-            // build parameter map (from parameters of second to parameters of first)  
-            var map = first.Parameters.Select((f, i) => new { f, s = second.Parameters[i] }).ToDictionary(p => p.s, p => p.f);
-
-            // replace parameters in the second lambda expression with parameters from the first  
-            var secondBody = ParameterRebinder.ReplaceParameters(map, second.Body);
-
-            // apply composition of lambda expression bodies to parameters from the first expression   
-            return Expression.Lambda<T>(merge(first.Body, secondBody), first.Parameters);
+            return first.Compose(second, Expression.AndAlso);
+        }
+        public static Expression<Func<T, Y, Z, O, bool>> Or<T, Y, Z, O>(this Expression<Func<T, Y, Z, O, bool>> first, Expression<Func<T, Y, Z, O, bool>> second)
+        {
+            return first.Compose(second, Expression.AndAlso);
         }
 
-        public static void Test() {
 
-            return;
+        public static Expression<Func<T, Y, Z, bool>> And<T, Y, Z>(this Expression<Func<T, Y, Z, bool>> first, Expression<Func<T, Y, Z, bool>> second)
+        {
+            return first.Compose(second, Expression.AndAlso);
+        }
+        public static Expression<Func<T, Y, Z, bool>> Or<T, Y, Z>(this Expression<Func<T, Y, Z, bool>> first, Expression<Func<T, Y, Z, bool>> second)
+        {
+            return first.Compose(second, Expression.AndAlso);
         }
 
         public static Expression<Func<T,Y, bool>> And<T,Y>(this Expression<Func<T,Y, bool>> first, Expression<Func<T,Y, bool>> second)
@@ -628,7 +674,21 @@ namespace FW.Common.DapperExt
         {
             return first.Compose(second, Expression.OrElse);
         }
-    }
+
+
+
+        public static Expression<T> Compose<T>(this Expression<T> first, Expression<T> second, Func<Expression, Expression, Expression> merge)
+        {
+            // build parameter map (from parameters of second to parameters of first)  
+            var map = first.Parameters.Select((f, i) => new { f, s = second.Parameters[i] }).ToDictionary(p => p.s, p => p.f);
+
+            // replace parameters in the second lambda expression with parameters from the first  
+            var secondBody = ParameterRebinder.ReplaceParameters(map, second.Body);
+
+            // apply composition of lambda expression bodies to parameters from the first expression   
+            return Expression.Lambda<T>(merge(first.Body, secondBody), first.Parameters);
+        }
+      }
 
 
 }

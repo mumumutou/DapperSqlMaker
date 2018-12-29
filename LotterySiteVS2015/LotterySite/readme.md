@@ -10,3 +10,7 @@ sqlite 库
 方法: Dapper.SqlMapper.QueryImpl
 取消注释: // Console.WriteLine(cmd.CommandText);  
 
+where条件
+可变参数 比较时 先转成值类型
+
+实体表明后缀不要是数字

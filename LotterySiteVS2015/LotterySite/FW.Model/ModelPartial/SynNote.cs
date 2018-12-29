@@ -36,16 +36,16 @@ namespace FW.Model
 		#endregion
 
         #region Field
-		private int? _Id ; 
+		private int _Id ; 
 		private string _Content ; 
 		private DateTime? _NoteDate ; 
 		private string _Name ; 
-		private int? _UserId ; 
+		private int _UserId ; 
 		private bool? _IsDel ; 
         #endregion
 
 		[Key]
-		public virtual int? Id { 
+		public virtual int Id { 
 			set { _Id = value; 
 					if(_IsWriteFiled) _WriteFiled.Add(this.GetType().GetProperty(Field_Id) ); }
 			get { return _Id; }
@@ -65,7 +65,7 @@ namespace FW.Model
 					if(_IsWriteFiled) _WriteFiled.Add(this.GetType().GetProperty(Field_Name) ); }
 			get { return _Name; }
 		}
-		public virtual int? UserId { 
+		public virtual int UserId { 
 			set { _UserId = value; 
 					if(_IsWriteFiled) _WriteFiled.Add(this.GetType().GetProperty(Field_UserId) ); }
 			get { return _UserId; }
@@ -89,16 +89,16 @@ namespace FW.Model
 
 	      
         #region Field
-		private int? _Id ;
+		private int _Id ;
 		private string _Content ;
 		private DateTime? _NoteDate ;
 		private string _Name ;
-		private int? _UserId ;
+		private int _UserId ;
 		private bool? _IsDel ;
         #endregion
 
 		[Key]
-		public virtual int? Id { 
+		public virtual int Id { 
 			set { _Id = value; }
 			get { return _Id; }
 		}
@@ -114,7 +114,7 @@ namespace FW.Model
 			set { _Name = value; }
 			get { return _Name; }
 		}
-		public virtual int? UserId { 
+		public virtual int UserId { 
 			set { _UserId = value; }
 			get { return _UserId; }
 		}

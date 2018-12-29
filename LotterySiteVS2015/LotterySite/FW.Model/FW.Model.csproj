@@ -58,7 +58,17 @@
     <Compile Include="ModelPartial\Users.cs">
       <DependentUpon>SQLiteModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="MSSQLModelPartial\LockPers.cs">
+      <DependentUpon>MSSQLModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MSSQLModelPartial\SynNote.cs">
+      <DependentUpon>MSSQLModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MSSQLModelPartial\Users.cs">
+      <DependentUpon>MSSQLModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SynNote.cs" />
     <Compile Include="Users.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -68,7 +78,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ModelPartial\MSSQLModel.tt">
+    <Content Include="MSSQLModelPartial\MSSQLModel.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>MSSQLModel.cst</LastGenOutput>
     </Content>
@@ -94,8 +104,15 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>SQLiteModel.tt</DependentUpon>
     </None>
+    <None Include="MSSQLModelPartial\MSSQLModel.cst">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MSSQLModel.tt</DependentUpon>
+    </None>
+    <None Include="MSSQLModelPartial\MSSQLModel.tt.temp" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
