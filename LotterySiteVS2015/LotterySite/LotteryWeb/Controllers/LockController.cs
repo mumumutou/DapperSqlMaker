@@ -113,18 +113,19 @@ namespace LotteryWeb.Controllers
             var uName = Request.QueryString["UserName"]; // "jiaojiao";
 
             //3
-            QueryMaker<LockPers, Users> query = LockDapperUtilTest<LockPers, Users>.Init()
+            DapperSqlMaker<LockPers, Users> query = LockDapperUtilsqlite<LockPers, Users>
             //2
-            //QueryMaker<LockPers, Users> query = new LockDapperUtilTest<LockPers, Users>();
+            //QueryMaker<LockPers, Users> query = new LockDapperUtilsqlite<LockPers, Users>();
             //query
             //1
-            //QueryMaker<LockPers, Users> query = LockDapperUtilTest<LockPers, Users>.New
-                            .Select( (lp, u) => null //new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName }
-                                  , JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId)
-                            .Where((lpw, uw) => lpw.Name.Contains(Name) && lpw.IsDel == IsDel && uw.UserName == uName
-                                )  // 
-                            .Order((lp, w) => new { lp.EditCount, lp.Name })
-                            ; // .ExcuteSelect();
+            //QueryMaker<LockPers, Users> query = LockDapperUtilsqlite<LockPers, Users>.New
+                .Selec()
+                .Column((lp, u) => null ) //new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName }
+                .FromJoin( JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId)
+                .Where((lpw, uw) => lpw.Name.Contains(Name) && lpw.IsDel == IsDel && uw.UserName == uName
+                    )  // 
+                .Order((lp, w) => new { lp.EditCount, lp.Name })
+                ; // .ExcuteSelect();
             var resultsqlparams = query.RawSqlParams();
             //var result = query.ExcuteSelect();
 

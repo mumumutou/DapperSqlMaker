@@ -3,9 +3,9 @@
 	// Settings  初始化配置 
 	ConnectionString = @"server=127.0.0.1,1433;database=LockTest;uid=sa;pwd=sa123";  // 连接串
 	TableFilter = "  AND TABLE_NAME IN ('LockPers','SynNote','Users') ";  // 过滤表
-	TopNamespace = "FW.MSSQL";  // 顶级命名空间
-	ClassPrefix = ""; 
-	ClassSuffix = "";
+	TopNamespace = "FW";  // 顶级命名空间
+	ClassPrefix = "";  // class前缀
+	ClassSuffix = "_ms";  // class后缀
     IncludeViews = true;
 	ExcludeTablePrefixes = new string[]{"aspnet_","webpages_"}; 
     

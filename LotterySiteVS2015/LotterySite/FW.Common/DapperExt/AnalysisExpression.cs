@@ -60,8 +60,11 @@ namespace FW.Common.DapperExt
             return true;
         }
 
-
-        public static string LimitCount { get { return "SM.LimitCount"; } private set { } }
+        public static string ColumnAll = " * ";
+        public static string LimitSelectCount = " select count(1) counts ";
+        public static string LimitCount = " count(1) over() as counts ";
+        public static string _limitcount_Name = "SM.LimitCount";
+        public static string LimitRowNumber_Sql = " row_number() over(order by {0}) as rownum, ";
         public static bool WhereStartIgnore() => true;
 
 

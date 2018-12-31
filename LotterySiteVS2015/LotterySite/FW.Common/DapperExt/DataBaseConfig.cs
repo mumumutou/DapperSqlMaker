@@ -16,7 +16,7 @@ namespace FW.Common
         /// <summary>
         /// 默认的Sql Server的链接字符串
         /// </summary>
-        private static string DefaultSqlConnectionString = @"server=.;user id=sa;password=sa12345;database=ReportServerTempDB;";
+        public static string DefaultSqlConnectionString = @"server=127.0.0.1,1433;database=LockTest;uid=sa;pwd=sa123;";
         public static IDbConnection GetSqlConnection(string sqlConnectionString = null)
         {
             if (string.IsNullOrWhiteSpace(sqlConnectionString))

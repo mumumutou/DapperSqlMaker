@@ -124,8 +124,13 @@ namespace Dapper.Contrib.Extensions
             return properties.ToList();
         }
 
-        // 筛选赋值过的字段   //待修改 直接通过字段名称反射获取  ?????
-        private static List<PropertyInfo> WriteFiledPropertiesCache(Type type, object entity)
+        /// <summary>
+        /// 筛选赋值过的字段  只缓存了存储赋值字段的字段FieldInfo    //待修改 直接通过字段名称反射获取  ?????
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public static List<PropertyInfo> WriteFiledPropertiesCache(Type type, object entity)
         {
             FieldInfo pi;
             if (WriteFiledProperties.TryGetValue(type.TypeHandle, out pi))
@@ -511,7 +516,7 @@ namespace Dapper.Contrib.Extensions
             //var computedProperties = ComputedPropertiesCache(type);
             //var allPropertiesExceptKeyAndComputed = allProperties.Except(keyProperties.Union(computedProperties)).ToList();
 
-            // 筛选赋值字段
+            // 筛选赋值字段  每次插入赋值字段不同  不能读缓存
             var allWriteFieldProperties = WriteFiledPropertiesCache(type, entityToInsert);
             // if (wfdProsList.Count > 0) allPropertiesExceptKeyAndComputed = allPropertiesExceptKeyAndComputed.Intersect(allWriteFieldProperties).ToList<PropertyInfo>();
 
@@ -1169,7 +1174,7 @@ public partial interface ISqlAdapter
     ///// <param name="rows">行数</param>
     ///// <param name="records">总页数</param>
     //void ExcuteLimit(int page, int rows, out int records);
-    void Limit(StringBuilder sb, DynamicParameters sparams, int page, int rows);
+    void RawPage(StringBuilder sb, DynamicParameters sparams, int page, int rows);
 
 }
 
@@ -1177,7 +1182,7 @@ public partial class SqlServerAdapter : ISqlAdapter
 {
     public int Insert(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
     {
-        var cmd = $"insert into {tableName} ({columnList}) values ({parameterList});select SCOPE_IDENTITY() id";
+        var cmd = $"insert into {tableName} ({columnList}) values ({parameterList});select @@IDENTITY;";
         var multi = connection.QueryMultiple(cmd, entityToInsert, transaction, commandTimeout);
 
         var first = multi.Read().FirstOrDefault();
@@ -1207,10 +1212,10 @@ public partial class SqlServerAdapter : ISqlAdapter
         sb.AppendFormat("[{0}] = @{1}{2}", columnName, columnName, suffix);
     }
 
-    public void Limit(StringBuilder sb, DynamicParameters sparams, int page, int rows)
+    public void RawPage(StringBuilder sb, DynamicParameters sparams, int page, int rows)
     {
         // counts,rownum 放在字段解析里
-        sb.Insert(0, " select x.* from (  select count(a.Id) over() as counts , ROW_NUMBER() over(order by a.Id) as rownum "); // 
+        sb.Insert(0, " select x.* from (  "); //  select count(a.Id) over() as counts , ROW_NUMBER() over(order by a.Id) as rownum 
         sb.Append("  ) x  where rownum between (@pageIndex - 1) * @pageSize + 1 and @pageIndex * @pageSize ");
         sparams.Add("@pageIndex", page);
         sparams.Add("@pageSize", rows);
@@ -1250,7 +1255,7 @@ public partial class SqlCeServerAdapter : ISqlAdapter
     {
         sb.AppendFormat("[{0}] = @{1}{2}", columnName, columnName, suffix);
     }
-    public void Limit(StringBuilder sb, DynamicParameters sparams, int page, int rows)
+    public void RawPage(StringBuilder sb, DynamicParameters sparams, int page, int rows)
     {
         throw new NotImplementedException();
     }
@@ -1288,7 +1293,7 @@ public partial class MySqlAdapter : ISqlAdapter
     {
         sb.AppendFormat("`{0}` = @{1}{2}", columnName, columnName, suffix);
     }
-    public void Limit(StringBuilder sb, DynamicParameters sparams, int page, int rows)
+    public void RawPage(StringBuilder sb, DynamicParameters sparams, int page, int rows)
     {
         throw new NotImplementedException();
     }
@@ -1346,7 +1351,7 @@ public partial class PostgresAdapter : ISqlAdapter
     {
         sb.AppendFormat("\"{0}\" = @{1}{2}", columnName, columnName, suffix);
     }
-    public void Limit(StringBuilder sb, DynamicParameters sparams, int page, int rows)
+    public void RawPage(StringBuilder sb, DynamicParameters sparams, int page, int rows)
     {
         throw new NotImplementedException();
     }
@@ -1382,7 +1387,7 @@ public partial class SQLiteAdapter : ISqlAdapter
     {
         sb.AppendFormat("\"{0}\" = @{1}{2}", columnName, columnName, suffix);
     }
-    public void Limit(StringBuilder sb, DynamicParameters sparams,int page, int rows)
+    public void RawPage(StringBuilder sb, DynamicParameters sparams,int page, int rows)
     {//offset代表从第几条记录“之后“开始查询，limit表明查询多少条结果
 
         int offset_ = (page - 1) * rows;

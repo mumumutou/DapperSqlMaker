@@ -32,63 +32,7 @@ namespace FW.Common.DapperExt
         }
 
     }
-
-    public partial class LockDapperUtilTest<T, Y> : QueryMaker<T, Y>
-    { 
-        protected override IDbConnection GetCurrentConnection(bool isfirst)
-        {
-            DataBaseConfig.GetSqliteConnection();
-            if (isfirst) return null;
-             
-            SQLiteConnection conn = new SQLiteConnection(DataBaseConfig.LockTestSqlLiteConnectionString);
-            conn.Open();
-            return conn;
-        }
-        // 不能用单例 单例后面的表别名字典会冲突
-        public static LockDapperUtilTest<T, Y> Init() {
-            return new LockDapperUtilTest<T, Y>();
-        }
-
-    }
-
-    public partial class LockDapperUtilTest<T, Y, Z> : QueryMaker<T, Y, Z>
-    {
-        protected override IDbConnection GetCurrentConnection(bool isfirst)
-        {
-            DataBaseConfig.GetSqliteConnection();
-            if (isfirst) return null;
-
-            SQLiteConnection conn = new SQLiteConnection(DataBaseConfig.LockTestSqlLiteConnectionString);
-            conn.Open();
-            return conn;
-        }
-        // 不能用单例 单例后面的表别名字典会冲突
-        public static LockDapperUtilTest<T, Y, Z> Init()
-        {
-            return new LockDapperUtilTest<T, Y, Z>();
-        }
-
-    }
-    public partial class LockDapperUtilTest<T, Y, Z, O> : QueryMaker<T, Y, Z, O>
-    {
-        protected override IDbConnection GetCurrentConnection(bool isfirst)
-        {
-            DataBaseConfig.GetSqliteConnection();
-            if (isfirst) return null;
-
-            SQLiteConnection conn = new SQLiteConnection(DataBaseConfig.LockTestSqlLiteConnectionString);
-            conn.Open();
-            return conn;
-        }
-        // 不能用单例 单例后面的表别名字典会冲突
-        public static LockDapperUtilTest<T, Y, Z, O> Init()
-        {
-            return new LockDapperUtilTest<T, Y, Z, O>();
-        }
-
-    }
-
-
+      
     public partial class LockDapperUtilTest<T> : DapperUtilBase<T>
                                             where T : class, new()
     {
