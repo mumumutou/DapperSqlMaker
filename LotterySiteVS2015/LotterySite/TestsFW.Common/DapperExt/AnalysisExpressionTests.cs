@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using FW.Model;
 using Dapper;
 using System.Data.SQLite;
+using System.Reflection;
 
 namespace FW.Common.DapperExt.Tests
 {
@@ -101,22 +102,7 @@ namespace FW.Common.DapperExt.Tests
             WriteJson(objs);
         }
 
-        [Test]
-        public void Add测试()
-        {
-
-            var efrows = LockDapperUtilTest<LockPers>.New.Insert(p =>
-            {
-                p.Id = Guid.NewGuid().ToString();
-                p.Name = "测试bool添加";
-                p.Content = p.Name;
-                p.InsertTime = DateTime.Now;
-                p.IsDel = false;
-            });
-
-            Console.WriteLine(efrows);
-
-        }
+        
         [Test]
         public void Update测试1()
         {
@@ -574,6 +560,61 @@ namespace FW.Common.DapperExt.Tests
             //    );
 
         }
+
+        [Test]
+        public void 表达式测试() {
+
+
+            LockPers lpmodel = new LockPers() { IsDel = false, Prompt = "测试xxxxxx" };
+            Users umodel = new Users() { UserName = "jiaojiao" };
+
+            //Expression<Func<LockPers, Users, object>> fiesExps = (lp, u) => new { a2 = SM.AppendSql(lp.Prompt), len = "LENGTH(a.Prompt)" };
+            //LambdaExpression fieslambda = fiesExps as LambdaExpression;
+            //Delegate fiesdlg = fieslambda.Compile();
+            //var o = fiesdlg.DynamicInvoke(lpmodel, umodel);
+
+            //ParameterExpression fp1 = fieslambda.Parameters[0];
+
+            //NewExpression fiesnew = fieslambda.Body as NewExpression;
+            //ConstructorInfo fnc = fiesnew.Constructor;
+            //var newargs1 = fiesnew.Arguments.First();
+            //MethodCallExpression method = newargs1 as MethodCallExpression;
+
+            //var methodarg1 = method.Arguments[0];
+            //MemberExpression meb = methodarg1 as MemberExpression;
+
+            //var mebexp1 = meb.Expression;
+            //ParameterExpression param1 = mebexp1 as ParameterExpression;
+
+            // ####################
+             
+
+            Expression<Func<LockPers, Users, bool>> boolExps2 = (lp, u) => SM.AppendSql2(lpmodel.Prompt) && u.UserName == umodel.UserName;
+            LambdaExpression boolambda2 = boolExps2 as LambdaExpression;
+            BinaryExpression bexp2 = boolambda2.Body as BinaryExpression;
+            MethodCallExpression mebleft2 = bexp2.Left as MethodCallExpression;
+            var mebleft2Arg1 = mebleft2.Arguments[0] as MemberExpression;
+            var mebleft2Arg1Params1 =  mebleft2Arg1.Expression as ParameterExpression;
+
+            //AnalysisExpression.GetMemberValue
+
+            // ####################
+
+            //Expression<Func<LockPers, Users, bool>> boolExps= (lp, u) => lp.Prompt == lpmodel.Prompt && u.UserName == umodel.UserName;
+            //LambdaExpression boolambda = boolExps as LambdaExpression;
+            //BinaryExpression bexp = boolambda.Body as BinaryExpression;
+            //BinaryExpression binarygleft = bexp.Left as BinaryExpression;
+
+            //MemberExpression constMember = binarygleft.Right as MemberExpression; //右边变量名 constMember.Member.Name 
+            //MemberExpression constMember2 = constMember.Expression as MemberExpression; //右边变量所在的类
+            //ConstantExpression constant = constMember2.Expression as ConstantExpression; //右边变量所在的类
+            //var constValue = constant.Value.GetType().GetField(constMember2.Member.Name).GetValue(constant.Value);
+
+
+
+            return;
+        }
+
 
         public void Update()
         {

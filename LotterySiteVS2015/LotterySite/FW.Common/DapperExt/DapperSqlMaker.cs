@@ -83,26 +83,18 @@ namespace FW.Common.DapperExt
             Clauses.Add(Clause.New(ClauseType.ActionSelectRowRumberOrderBy, rowRumberOrderBy: columns));
             return this;
         }
-        //public DapperSqlMaker<T, Y, Z, O> LimitCount()
-        //{
-        //    Clauses.Add(Clause.New(ClauseType.ActionSelectCounts, selectCounts: SM.LimitCount));
-        //    return this;
-        //}
-        public DapperSqlMaker<T, Y, Z, O> Column(Expression<Func<T, Y, Z, O, object>> fiesExps)
+        /// <summary>
+        /// 查询指定字段(默认查询*所有字段) 匿名类型传入Fileds t =>  new { t.f1, t.f2, t2.f3 }   ==>   tab1.f1, tab1.f2, tab2.f3
+        /// </summary> 
+        public DapperSqlMaker<T, Y, Z, O> Column(Expression<Func<T, Y, Z, O, object>> fiesExps = null)
         {
-            LambdaExpression fielambda = fiesExps as LambdaExpression;
-            // 2. 解析查询字段
             string columns;
-            if (!(fielambda.Body is NewExpression))
-            { // 查询所有字段
-                columns = " * "; //select 
-            }
-            else
-            { // 查指定字段 
-                NewExpression arryexps = fielambda.Body as NewExpression;
-                Dictionary<string, int> pdic = base.GetLmdparamsDic(fielambda);
-                columns = GetFieldrrExps(arryexps.Arguments, TabAliaceDic, pdic); //"select " +
-            }
+            if (fiesExps == null) { columns = SM.ColumnAll; goto columnsall; }
+
+            LambdaExpression fielambda = fiesExps as LambdaExpression;
+            columns = base.GetColumnStr(fielambda);
+
+        columnsall:
             Clauses.Add(Clause.New(ClauseType.ActionSelectColumn, selectColumn: columns));
             return this;
         }
@@ -194,23 +186,18 @@ namespace FW.Common.DapperExt
             Clauses.Add(Clause.New(ClauseType.ActionSelectRowRumberOrderBy, rowRumberOrderBy: columns));
             return this;
         }
-        public DapperSqlMaker<T, Y, Z> Column(Expression<Func<T, Y, Z, object>> fiesExps)
+        /// <summary>
+        /// 查询指定字段(默认查询*所有字段) 匿名类型传入Fileds t =>  new { t.f1, t.f2, t2.f3 }   ==>   tab1.f1, tab1.f2, tab2.f3
+        /// </summary>
+        public DapperSqlMaker<T, Y, Z> Column(Expression<Func<T, Y, Z, object>> fiesExps = null)
         {
-            LambdaExpression fielambda = fiesExps as LambdaExpression;
-
-            // 2. 解析查询字段
             string columns;
-            if (!(fielambda.Body is NewExpression))
-            { // 查询所有字段
-                columns = " * ";
-            }
-            else
-            { // 查指定字段 
-                Dictionary<string, int> pdic = base.GetLmdparamsDic(fielambda);
-                NewExpression arryexps = fielambda.Body as NewExpression;
-                columns = GetFieldrrExps(arryexps.Arguments, TabAliaceDic, pdic); //
-            }
+            if (fiesExps == null) { columns = SM.ColumnAll; goto columnsall; }
 
+            LambdaExpression fielambda = fiesExps as LambdaExpression;
+            columns = base.GetColumnStr(fielambda);
+
+        columnsall:
             Clauses.Add(Clause.New(ClauseType.ActionSelectColumn, selectColumn: columns));
             return this;
         }
@@ -317,21 +304,18 @@ namespace FW.Common.DapperExt
             Clauses.Add(Clause.New(ClauseType.ActionSelectRowRumberOrderBy, rowRumberOrderBy: columns));
             return this;
         }
-        public DapperSqlMaker<T, Y> Column(Expression<Func<T, Y, object>> fiesExps)
+        /// <summary>
+        /// 查询指定字段(默认查询*所有字段) 匿名类型传入Fileds t =>  new { t.f1, t.f2, t2.f3 }   ==>   tab1.f1, tab1.f2, tab2.f3
+        /// </summary>
+        public DapperSqlMaker<T, Y> Column(Expression<Func<T, Y, object>> fiesExps = null)
         {
-            LambdaExpression fielambda = fiesExps as LambdaExpression;
-
             string columns;
-            if (!(fielambda.Body is NewExpression))
-            { // 查询所有字段
-                columns = " * ";
-            }
-            else
-            {  // 匿名类型传入Fileds   new { t.f1, t.f2, t2.f3 }   ==>   tab1.f1, tab1.f2, tab2.f3
-                Dictionary<string, int> pdic = base.GetLmdparamsDic(fielambda);
-                NewExpression arryexps = fielambda.Body as NewExpression;
-                columns = GetFieldrrExps(arryexps.Arguments, TabAliaceDic, pdic); //sqlMaker.TabAliasName
-            }
+            if (fiesExps == null) { columns = SM.ColumnAll; goto columnsall; }
+
+            LambdaExpression fielambda = fiesExps as LambdaExpression;
+            columns = base.GetColumnStr(fielambda);
+
+        columnsall:
             Clauses.Add(Clause.New(ClauseType.ActionSelectColumn, selectColumn: columns));
             return this;
         }
@@ -429,9 +413,13 @@ namespace FW.Common.DapperExt
     }
 
     public abstract class DapperSqlMaker<T> : DapperSqlMaker
+        where T : class, new()
     {
         protected abstract override IDbConnection GetCurrentConnection(bool isfirst = false);
+        
+        #region 链式查询数据
 
+        // 查询
         public DapperSqlMaker<T> Select()
         {
             // 1. 存表序号和表别名
@@ -458,24 +446,18 @@ namespace FW.Common.DapperExt
             Clauses.Add(Clause.New(ClauseType.ActionSelectRowRumberOrderBy, rowRumberOrderBy: columns));
             return this;
         }
+        /// <summary>
+        /// 查询指定字段(默认查询*所有字段) 匿名类型传入Fileds t =>  new { t.f1, t.f2, t2.f3 }   ==>   tab1.f1, tab1.f2, tab2.f3
+        /// </summary>
         public DapperSqlMaker<T> Column(Expression<Func<T, object>> fiesExps = null)
         {
             string columns;
-
             if (fiesExps == null) { columns = SM.ColumnAll; goto columnsall; }
 
             LambdaExpression fielambda = fiesExps as LambdaExpression;
-            // 2. 解析查询字段
-            if (fielambda.Body is NewExpression)
-            { // 查询指定字段 
-                Dictionary<string, int> pdic = base.GetLmdparamsDic(fielambda);
-                NewExpression arryexps = fielambda.Body as NewExpression;
-                columns = GetFieldrrExps(arryexps.Arguments, TabAliaceDic, pdic); //
-            }
-            else columns = SM.ColumnAll; // 查询所有字段
+            columns = base.GetColumnStr(fielambda);
 
-            columnsall:
-
+        columnsall:
             Clauses.Add(Clause.New(ClauseType.ActionSelectColumn, selectColumn: columns));
             return this;
         }
@@ -507,6 +489,209 @@ namespace FW.Common.DapperExt
             Clauses.Add(Clause.New(ClauseType.ActionSelectOrder, order: columns));
             return this;
         }
+
+        #endregion
+
+        /// <summary>
+        /// 查询所有数据
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<T> GetAll()
+        {
+            //Type type = typeof(T);
+
+            using (var conn = GetCurrentConnection())
+            {
+                var t = conn.GetAll<T>();
+                return t;
+            }
+        }
+
+        #region 添加数据
+        /// <summary>
+        // 添加 返回影响行数 只插入赋值的字段  x.Insert(p => { p.Id = 1; p.Name = "新增"; });
+        /// </summary>  
+        public int Insert(Action<T> entityAcn)
+        {
+            if (entityAcn == null)
+                throw new Exception("entityAcn为空");
+
+            T entity = new T();
+            //writeFiled.SetValue(entity, true); //padd._IsWriteFiled = true;
+            entityAcn(entity);
+
+            using (var conn = GetCurrentConnection()) // GetCurrentConnection() )
+            {
+                var t = conn.InsertWriteField(entity, null, null);
+                return (int)t;
+            }
+        }
+        /// <summary>
+        /// 2.插入记录 返回插入id 外部初始化新实体 只插入赋值的字段
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entity"></param>
+        /// <returns>返回的是最后插入行id (sqlite中是最后一行数+1)</returns>
+        public int Insert(T entity)
+        {
+            if (entity == null)
+                throw new Exception();
+
+            using (var conn = GetCurrentConnection())
+            {
+                var t = conn.InsertWriteField(entity, null, null);
+                return (int)t;
+            }
+        }
+        /// <summary>
+        /// 1.插入记录 返回插入id 只插入赋值的字段  x.Insert(p => { p.Id = 1; p.Name = "新增"; });
+        /// </summary>
+        /// <param name="entityAcn"></param>
+        /// <returns>返回的是最后插入行id (sqlite中是最后一行数+1)</returns>
+        public int InsertGetId(Action<T> entityAcn) // static
+        {
+            if (entityAcn == null)
+                throw new Exception("entityAcn为空");
+
+            //Type type = typeof(T);
+            //var writeFiled = type.GetField("_IsWriteFiled");
+            //if (writeFiled == null)
+            //    throw new Exception("未能找到_IsWriteFiled写入标识字段");
+
+            T entity = new T();
+            //writeFiled.SetValue(entity, true); //padd._IsWriteFiled = true;
+            entityAcn(entity);
+
+            using (var conn = GetCurrentConnection()) // GetCurrentConnection() )
+            {
+                var t = conn.InsertGetIdWriteField(entity, null, null);
+                return (int)t;
+            }
+        }
+
+        /// <summary>
+        /// 2.插入记录 返回插入id 外部初始化新实体 只插入赋值的字段
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entity"></param>
+        /// <returns>返回的是最后插入行id (sqlite中是最后一行数+1)</returns>
+        public int InsertGetId(T entity)
+        {
+            //Type type = typeof(T);
+            if (entity == null)
+                throw new Exception();
+
+            using (var conn = GetCurrentConnection()) //GetCurrentConnection() )
+            {
+                var t = conn.InsertGetIdWriteField(entity, null, null);
+                return (int)t;
+            }
+        }
+        /// <summary>
+        /// 批量插入数据 返回影响行数
+        /// </summary>
+        /// <param name="entitys"></param>
+        /// <returns></returns>
+        public int InsertList(List<T> entitys)
+        {
+            //Type type = typeof(T);
+            if (entitys == null)
+                throw new Exception();
+
+            using (var conn = GetCurrentConnection()) //GetCurrentConnection() )
+            {
+                var t = conn.Insert(entitys, null, null);
+                return (int)t;
+            }
+        }
+
+        #endregion
+
+        #region 更新数据
+
+        /// <summary>
+        /// 2.更新 只更新赋值修改的字段 
+        /// t.Update( s => {  s.IsDel = true; },  w => w.Id == 1);
+        /// </summary>
+        /// <param name="setAcn">给修改的字段赋值</param>
+        /// <param name="wherefunc">where条件</param>
+        /// <returns>返回是否修改成功</returns> 
+        public bool Update(Action<T> setAcn, Expression<Func<T, bool>> whereAcn)  // static
+        {
+            if (setAcn == null)
+                throw new Exception("setAcn为空");
+            if (whereAcn == null)
+                throw new Exception("whereAcn为空");
+
+            T entity = new T(); // 记录赋值字段默认开启了 
+            setAcn(entity);  //
+
+            using (var conn = GetCurrentConnection()) //GetCurrentConnection() )
+            {
+                var t = conn.UpdateWriteField(entity, whereAcn, null, null);
+                return t;
+            }
+
+        }
+        /// <summary>
+        /// 1.2.更新 只更新赋值修改的字段 (外部初始化新实体 并赋值修改过的字段 再传入)
+        /// t.Update(setEntity ,  w => w.Id == 1);
+        /// </summary>
+        /// <param name="setEntity">已修改过字段实体</param>
+        /// <param name="wherefunc">where条件</param>
+        /// <returns>返回是否修改成功</returns> 
+        public bool Update(T setEntity, Expression<Func<T, bool>> whereAcn)  // static
+        {
+            if (setEntity == null)
+                throw new Exception("setEntity为空");
+            if (whereAcn == null)
+                throw new Exception("whereAcn为空");
+
+            using (var conn = GetCurrentConnection()) //GetCurrentConnection() )
+            {
+                var t = conn.UpdateWriteField(setEntity, whereAcn, null, null);
+                return t;
+            }
+
+        }
+
+        /// <summary>
+        /// 3.更新整个实体 根据id字段名 或主键
+        /// </summary> 
+        public bool Update(T entity)
+        {
+            Type type = typeof(T);
+            if (entity == null)
+                throw new Exception();
+            using (var conn = GetCurrentConnection())
+            {
+                var t = conn.Update(entity, null, null);
+                return t;
+            }
+        }
+
+        #endregion
+
+        #region 删除数据
+
+        /// 
+        /// <summary>
+        /// 删除字段 根据where表达式 x.Delete( w => w.Id == 1)
+        /// </summary>
+        /// <param name="whereExps">bool返回值无意义 只是为了连接where表达式</param>
+        /// <returns></returns>
+        public bool Delete(Expression<Func<T, bool>> whereExps) //static
+        {  
+            using (var conn = GetCurrentConnection()) //GetCurrentConnection() )
+            {
+                var t = conn.DeleteWriteField(whereExps, null, null);
+                return t;
+            }
+
+        }
+
+        #endregion
+
 
     }
 
@@ -639,35 +824,114 @@ namespace FW.Common.DapperExt
         /// <param name="tabalis"></param>
         /// <param name="paramsdic">lmb参数名 序号 字典</param>
         /// <returns></returns>
-        protected static string GetFieldrrExps(System.Collections.ObjectModel.ReadOnlyCollection<Expression> fierrExps, Dictionary<string, string> tabalis, Dictionary<string, int> paramsdic)
+        protected static string GetFieldrrExps(System.Collections.ObjectModel.ReadOnlyCollection<Expression> fierrExps, Dictionary<string, string> tabalis, Dictionary<string, int> paramsdic
+            , string[] asnameArr = null) // , System.Collections.ObjectModel.ReadOnlyCollection<System.Reflection.MemberInfo> nmebs = null)
         {
+
+            int i = 0; // 成员序号
             string columns;
             var fiearr = fierrExps.Select(p =>
             {
+                bool isfield_suf = asnameArr != null;
+                string colum = null;   // 字段
+                string field_suf = null; // 字段后缀 (as xxx , desc)
                 MemberExpression meb;
                 ParameterExpression parmexr;
-                if (p.NodeType == ExpressionType.Convert)
-                {
+
+
+                if (p.NodeType == ExpressionType.MemberAccess) {
+                    meb = p as MemberExpression; goto mebexpisnull;
+                }
+                if (p.NodeType == ExpressionType.Constant) {
+                    ConstantExpression const1 = p as ConstantExpression;
+                    if (p.Type.Name.ToLower() != "string") throw new Exception(p.Type.Name + "常量未解析");
+                    colum = const1.Value.ToString();
+                    isfield_suf = false; // 直接写sql 别名也要写在字符串里
+                    goto appendsql;
+                }
+                if (p.NodeType == ExpressionType.Convert) { 
                     UnaryExpression umeb = p as UnaryExpression;
                     meb = umeb.Operand as MemberExpression;
+                    goto mebexpisnull; //Constant;
                 }
-                else
+                //;
+
+                if (p.NodeType == ExpressionType.Call)
                 {
-                    meb = p as MemberExpression;
-                }
+                    MethodCallExpression method = p as MethodCallExpression;
+                    if (method.Method.Name == SM._OrderDesc_Name)
+                    { // 倒序字段 order by xx desc
+                        meb = method.Arguments[0] as MemberExpression;
+                        field_suf = SM.OrderDesc_Sql;
+                        goto callstr;
+                    }
+                    else if (method.Method.Name == SM._Sql_Name) // 插入sql 过时 上面直接判断是否时常量就是
+                    {
+                        meb = method.Arguments[0] as MemberExpression;
+                        if (method.Arguments.FirstOrDefault() is ConstantExpression)
+                        { //
+                            colum = (method.Arguments.FirstOrDefault() as ConstantExpression).Value.ToString();
+                        }
+                        else if (method.Arguments.FirstOrDefault() is MemberExpression)
+                        { // 值 传入的时 变量 
+
+                            colum = AnalysisExpression.GetMemberValue(method.Arguments.FirstOrDefault() as MemberExpression).ToString();
+                        }
+                        else throw new Exception(SM._OrderDesc_Name + "未解析");
+                        isfield_suf = false; // 直接写sql 别名也要写在字符串里
+                        goto appendsql;
+
+                    }
+                    else throw new Exception(method.Method.Name + "未解析");
+                    //Arguments
+                }else throw new Exception(p.NodeType + "--" + p + "未解析");
+
+
+
+                mebexpisnull:
                 if (meb.Expression == null)
-                {
+                { // 特殊sql
                     string fname = meb.Member.DeclaringType.Name + "." + meb.Member.Name;
-                    if (fname == SM._limitcount_Name) return SM.LimitCount;  // 分页字段
+                    if (fname == SM._limitcount_Name) {
+                        colum = SM.LimitCount;  // 分页Count总记录数字段
+                    }else throw new Exception(fname + "未解析");
+                    goto appendsql;
                 }
+
+            callstr: // 方法直接到这
 
                 parmexr = meb.Expression as ParameterExpression;
                 var tkey = parmexr.Type.FullName + paramsdic[parmexr.Name];  // 类名+参数序号
                 var tabalias1 = tabalis[tkey]; // Parmexr1.Name
-                var tabfiled = tabalias1 + "." + meb.Member.Name;  // 表(别名).字段名
-                return tabfiled;
+                colum = tabalias1 + "." + meb.Member.Name;  // 表(别名).字段名
+
+            appendsql: // 字段名 加  后缀(as xxx, desc)
+
+                if (isfield_suf) field_suf = " as " + asnameArr[i++]; // 字段别名
+
+                return colum + field_suf;
             }).ToArray<string>();
             columns = " " + string.Join(", ", fiearr) + " ";
+            return columns;
+        }
+        /// <summary>
+        /// 生成查询 字段列 
+        /// </summary>
+        /// <returns></returns>
+        protected string GetColumnStr(LambdaExpression fielambda) {
+            string columns; 
+            // 2. 解析查询字段
+            if (fielambda.Body is NewExpression)
+            { // 查询指定字段  // 匿名类型传入Fileds   new { t.f1, t.f2, t2.f3 }   ==>   tab1.f1, tab1.f2, tab2.f3
+                Dictionary<string, int> pdic = GetLmdparamsDic(fielambda); //base.
+                NewExpression arryexps = fielambda.Body as NewExpression;
+
+                var asnameArr = arryexps.Members.Select(m => m.Name).ToArray<string>();
+
+                columns = GetFieldrrExps(arryexps.Arguments, TabAliaceDic, pdic, asnameArr); //
+            }
+            else columns = SM.ColumnAll; // 查询所有字段
+
             return columns;
         }
         /// <summary>
@@ -849,7 +1113,7 @@ namespace FW.Common.DapperExt
                 }
             }
             //sb.Append(";");
-
+            if (dparam == null) dparam = new DynamicParameters(); // where 条件为空
             return Tuple.Create(sb, dparam);
         }
 
@@ -902,7 +1166,7 @@ namespace FW.Common.DapperExt
                 }
             }
             //sb.Append(";");
-
+            if (dparam == null) dparam = new DynamicParameters(); // where 条件为空
             return Tuple.Create(sb, dparam, countsb);
         }
 
@@ -920,6 +1184,19 @@ namespace FW.Common.DapperExt
                 return obj;
             }
         }
+
+        public virtual IEnumerable<R> ExcuteSelect<R>()
+        {
+            // Tuple<sql,entity>
+            Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
+
+            using (var conn = GetCurrentConnection())
+            {
+                var obj = conn.Query<R>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
+                return obj;
+            }
+        }
+
 
         /// <summary>
         /// mssql分页
@@ -952,7 +1229,6 @@ namespace FW.Common.DapperExt
             ISqlAdapter adp;
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters, StringBuilder> rawSqlParams = this.RawLimitSqlParams();
-
             using (var conn = GetCurrentConnection())
             {
                 adp = GetSqlAdapter(conn);
@@ -970,6 +1246,22 @@ namespace FW.Common.DapperExt
                 return obj;
             }
         }
+
+
+        /// <summary>
+        /// 动态执行sql
+        /// </summary> 
+        public int Execute(string sql, object entity)
+        {
+            if (entity == null)
+                throw new Exception();
+
+            using (var conn = GetCurrentConnection()) //GetCurrentConnection() )
+            {
+                return conn.Execute(sql, entity);
+            }
+        }
+
 
 
         //public virtual IEnumerable<dynamic> ExcuteSelect() { throw new Exception("子类未重写该方法"); }

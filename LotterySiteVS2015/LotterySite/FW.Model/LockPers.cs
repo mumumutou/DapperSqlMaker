@@ -23,9 +23,12 @@ namespace FW.Model
         //public virtual string IsDel { get; set; }
         //public virtual DateTime? DelTime { get; set; }
         //      public virtual DateTime? UpdateTime { get; set; }
+         
+        public LockPers() {
 
 
-        public LockPers() { }  //this._IsWriteFiled = false; }  
+        }  //this._IsWriteFiled = false; }  
+
         
 
         private string _ContentOld;

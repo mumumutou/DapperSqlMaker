@@ -41,7 +41,7 @@ namespace FW.Model
 		private DateTime? _NoteDate ; 
 		private string _Name ; 
 		private int _UserId ; 
-		private bool? _IsDel ; 
+		private bool _IsDel ; 
         #endregion
 
 		[Key]
@@ -70,7 +70,7 @@ namespace FW.Model
 					if(_IsWriteFiled) _WriteFiled.Add(this.GetType().GetProperty(Field_UserId) ); }
 			get { return _UserId; }
 		}
-		public virtual bool? IsDel { 
+		public virtual bool IsDel { 
 			set { _IsDel = value; 
 					if(_IsWriteFiled) _WriteFiled.Add(this.GetType().GetProperty(Field_IsDel) ); }
 			get { return _IsDel; }
@@ -94,7 +94,7 @@ namespace FW.Model
 		private DateTime? _NoteDate ;
 		private string _Name ;
 		private int _UserId ;
-		private bool? _IsDel ;
+		private bool _IsDel ;
         #endregion
 
 		[Key]
@@ -118,7 +118,7 @@ namespace FW.Model
 			set { _UserId = value; }
 			get { return _UserId; }
 		}
-		public virtual bool? IsDel { 
+		public virtual bool IsDel { 
 			set { _IsDel = value; }
 			get { return _IsDel; }
 		}

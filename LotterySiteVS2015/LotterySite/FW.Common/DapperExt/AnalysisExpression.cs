@@ -55,10 +55,23 @@ namespace FW.Common.DapperExt
         //}
 
         //  直接传入sql
-        public static bool Sql(string str)
-        {
-            return true;
-        }
+
+
+        public static bool AppendSql2(string str) => false;
+
+        /// <summary>
+        /// 直接拼接字符串sql
+        /// </summary> 
+        public static string Sql(string str) => null;
+        public static string _Sql_Name = "Sql";
+       
+
+        /// <summary>
+        /// Order By xxx desc
+        /// </summary>
+        public static string OrderDesc<T>(T field) => null;
+        public static string _OrderDesc_Name = "OrderDesc";
+        public static string OrderDesc_Sql = " desc ";
 
         public static string ColumnAll = " * ";
         public static string LimitSelectCount = " select count(1) counts ";
@@ -556,7 +569,7 @@ namespace FW.Common.DapperExt
             }
         }
 
-        private static object GetMemberValue(MemberExpression ctmber,string mberName = null) //)MethodCallExpression method)
+        public static object GetMemberValue(MemberExpression ctmber,string mberName = null) //)MethodCallExpression method)
         {
             // ctmber.Member.Name
             if (mberName == null) mberName = ctmber.Member.Name;

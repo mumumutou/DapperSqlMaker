@@ -83,7 +83,12 @@ namespace Dapper.Contrib.Extensions
             return explicitKeyProperties;
         }
 
-        private static List<PropertyInfo> KeyPropertiesCache(Type type)
+        /// <summary>
+        /// 获取实体 键字段
+        /// </summary> 
+        /// <param name="idnamekey">默认值false 是否判断名称为id的字段 为(主)键字段</param>
+        /// <returns></returns>
+        private static List<PropertyInfo> KeyPropertiesCache(Type type,bool idnamekey = false)
         {
 
             IEnumerable<PropertyInfo> pi;
@@ -97,8 +102,9 @@ namespace Dapper.Contrib.Extensions
             {
                 return p.GetCustomAttributes(true).Any(a => a is KeyAttribute);
             }).ToList();
-
-            if (keyProperties.Count == 0)
+            
+            //是否判断名称为id的字段 为(主)键字段
+            if (idnamekey && keyProperties.Count == 0)  //
             {
                 var idProp = allProperties.FirstOrDefault(p => p.Name.ToLower() == "id");
                 if (idProp != null && !idProp.GetCustomAttributes(true).Any(a => a is ExplicitKeyAttribute))
@@ -356,7 +362,7 @@ namespace Dapper.Contrib.Extensions
             string sql;
             if (!GetQueries.TryGetValue(cacheType.TypeHandle, out sql))
             {
-                GetSingleKey<T>(nameof(GetAll));
+                // GetSingleKey<T>(nameof(GetAll)); // 检查 主键只能为一列
                 var name = GetTableName(type);
 
                 sql = "select * from " + name;
@@ -487,27 +493,15 @@ namespace Dapper.Contrib.Extensions
             if (wasClosed) connection.Close();
             return returnVal;
         }
-
         /// <summary>
         /// 添加 值插入赋值字段 
         /// </summary> 
         /// <returns></returns>
-        public static long InsertWriteField<T>(this IDbConnection connection, T entityToInsert, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        public static long InsertWriteField<T>(this IDbConnection connection, T entityToInsert, IDbTransaction transaction = null, int? commandTimeout = null)
         {
-            var isList = false;
 
             var type = typeof(T);
-
-            if (type.IsArray)
-            {
-                isList = true;
-                type = type.GetElementType();
-            }
-            else if (type.IsGenericType())
-            {
-                isList = true;
-                type = type.GetGenericArguments()[0];
-            }
+            if (!type.IsClass) throw new Exception("插入数据实体不是clsss");
 
             var name = GetTableName(type);
             var sbColumnList = new StringBuilder(null);
@@ -542,18 +536,61 @@ namespace Dapper.Contrib.Extensions
             int returnVal;
             var wasClosed = connection.State == ConnectionState.Closed;
             if (wasClosed) connection.Open();
+            
+            //returnVal = adapter.Insert(connection, transaction, commandTimeout, name, sbColumnList.ToString(),
+            //    sbParameterList.ToString(), keyProperties, entityToInsert);
 
-            if (!isList)    //single entity
+            //insert of entities
+            var cmd = $"insert into {name} ({sbColumnList}) values ({sbParameterList})";
+            returnVal = connection.Execute(cmd, entityToInsert, transaction, commandTimeout);
+            if (wasClosed) connection.Close();
+            return returnVal;
+
+        }
+        /// <summary>
+        /// 添加 值插入赋值字段 
+        /// </summary> 
+        /// <returns>返回添加数据自增id</returns>
+        public static long InsertGetIdWriteField<T>(this IDbConnection connection, T entityToInsert, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        { 
+
+            var type = typeof(T);
+
+            if (!type.IsClass) throw new Exception("插入数据实体不是clsss");
+
+            var name = GetTableName(type);
+            var sbColumnList = new StringBuilder(null); 
+            var keyProperties = KeyPropertiesCache(type); 
+
+            // 筛选赋值字段  每次插入赋值字段不同  不能读缓存
+            var allWriteFieldProperties = WriteFiledPropertiesCache(type, entityToInsert);
+
+            var adapter = GetFormatter(connection);
+
+            for (var i = 0; i < allWriteFieldProperties.Count; i++)
             {
-                returnVal = adapter.Insert(connection, transaction, commandTimeout, name, sbColumnList.ToString(),
+                var property = allWriteFieldProperties.ElementAt(i);
+                adapter.AppendColumnName(sbColumnList, property.Name);  //fix for issue #336
+                if (i < allWriteFieldProperties.Count - 1)
+                    sbColumnList.Append(", ");
+            }
+
+            var sbParameterList = new StringBuilder(null);
+            for (var i = 0; i < allWriteFieldProperties.Count; i++)
+            {
+                var property = allWriteFieldProperties.ElementAt(i);
+                sbParameterList.AppendFormat("@{0}", property.Name);
+                if (i < allWriteFieldProperties.Count - 1)
+                    sbParameterList.Append(", ");
+            }
+
+            int returnVal;
+            var wasClosed = connection.State == ConnectionState.Closed;
+            if (wasClosed) connection.Open();
+
+            //single entity 
+            returnVal = adapter.InsertGetId(connection, transaction, commandTimeout, name, sbColumnList.ToString(),
                     sbParameterList.ToString(), keyProperties, entityToInsert);
-            }
-            else
-            {
-                //insert list of entities
-                var cmd = $"insert into {name} ({sbColumnList}) values ({sbParameterList})";
-                returnVal = connection.Execute(cmd, entityToInsert, transaction, commandTimeout);
-            }
             if (wasClosed) connection.Close();
             return returnVal;
         }
@@ -566,11 +603,10 @@ namespace Dapper.Contrib.Extensions
         /// <param name="connection">Open SqlConnection</param>
         /// <param name="entityToUpdate">Entity to be updated</param>
         /// <param name="transaction">The transaction to run under, null (the default) if none</param>
-        /// <param name="commandTimeout">Number of seconds before command execution timeout</param>
-        /// <param name="isWriteField">是否只写入赋值的字段</param>
+        /// <param name="commandTimeout">Number of seconds before command execution timeout</param> 
         /// <returns>true if updated, false if not found or not modified (tracked entities)</returns>
         public static bool Update<T>(this IDbConnection connection, T entityToUpdate, IDbTransaction transaction = null, int? commandTimeout = null
-            , bool isWriteField = false) where T : class
+            ) where T : class,new()
         {
             var proxy = entityToUpdate as IProxy;
             if (proxy != null)
@@ -589,7 +625,7 @@ namespace Dapper.Contrib.Extensions
                 type = type.GetGenericArguments()[0];
             }
 
-            var keyProperties = KeyPropertiesCache(type).ToList();  //added ToList() due to issue #418, must work on a list copy
+            var keyProperties = KeyPropertiesCache(type,true).ToList();  //added ToList() due to issue #418, must work on a list copy
             var explicitKeyProperties = ExplicitKeyPropertiesCache(type);
             if (!keyProperties.Any() && !explicitKeyProperties.Any())
                 throw new ArgumentException("Entity must have at least one [Key] or [ExplicitKey] property");
@@ -603,32 +639,23 @@ namespace Dapper.Contrib.Extensions
             keyProperties.AddRange(explicitKeyProperties);
             var computedProperties = ComputedPropertiesCache(type);
             var nonIdProps = allProperties.Except(keyProperties.Union(computedProperties)).ToList();
-
-            // 筛选赋值字段
-            if (isWriteField)
-            {
-                var wfdProsList = WriteFiledPropertiesCache(type, entityToUpdate);
-                if (wfdProsList.Count > 0) allProperties = allProperties.Intersect(wfdProsList).ToList<PropertyInfo>();
-            }
-            // where字段赋值到entity
-
-
+               
             var adapter = GetFormatter(connection);
 
             for (var i = 0; i < nonIdProps.Count; i++)
             {
-                var suffix = "_s" + i;
+                //var suffix = "_s" + i;
                 var property = nonIdProps.ElementAt(i);
-                adapter.AppendColumnNameEqualsValue(sb, property.Name, suffix);  //fix for issue #336
+                adapter.AppendColumnNameEqualsValue(sb, property.Name); //, suffix);  //fix for issue #336
                 if (i < nonIdProps.Count - 1)
                     sb.AppendFormat(", ");
             }
             sb.Append(" where ");
             for (var i = 0; i < keyProperties.Count; i++)
             {
-                var suffix = "_w" + i;
+                //var suffix = "_w" + i;
                 var property = keyProperties.ElementAt(i);
-                adapter.AppendColumnNameEqualsValue(sb, property.Name, suffix);  //fix for issue #336
+                adapter.AppendColumnNameEqualsValue(sb, property.Name); //, suffix);  //fix for issue #336
                 if (i < keyProperties.Count - 1)
                     sb.AppendFormat(" and ");
             }
@@ -827,51 +854,51 @@ namespace Dapper.Contrib.Extensions
             return deleted > 0;
         }
         
-        /// <summary>
-        /// 根据部分字段删除数据 无法执行有重复条件的删除sql 需要改成表达式的形式
-        /// </summary> 
-        /// <returns></returns>
-        public static bool DeleteWriteField<T>(this IDbConnection connection, T entityToDelete, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
-        {
-            if (entityToDelete == null)
-                throw new ArgumentException("Cannot Delete null Object", nameof(entityToDelete));
+        ///// <summary>
+        ///// 根据部分字段删除数据 无法执行有重复条件的删除sql 需要改成表达式的形式
+        ///// </summary> 
+        ///// <returns></returns>
+        //public static bool DeleteWriteField<T>(this IDbConnection connection, T entityToDelete, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        //{
+        //    if (entityToDelete == null)
+        //        throw new ArgumentException("Cannot Delete null Object", nameof(entityToDelete));
 
-            var type = typeof(T);
+        //    var type = typeof(T);
 
-            if (type.IsArray)
-            {
-                type = type.GetElementType();
-            }
-            else if (type.IsGenericType())
-            {
-                type = type.GetGenericArguments()[0];
-            }
+        //    if (type.IsArray)
+        //    {
+        //        type = type.GetElementType();
+        //    }
+        //    else if (type.IsGenericType())
+        //    {
+        //        type = type.GetGenericArguments()[0];
+        //    }
 
-            //var keyProperties = KeyPropertiesCache(type).ToList();  //added ToList() due to issue #418, must work on a list copy
-            //var explicitKeyProperties = ExplicitKeyPropertiesCache(type);
+        //    //var keyProperties = KeyPropertiesCache(type).ToList();  //added ToList() due to issue #418, must work on a list copy
+        //    //var explicitKeyProperties = ExplicitKeyPropertiesCache(type);
           
-            // 筛选 删除赋值字段
-            var allWriteFieldProperties = WriteFiledPropertiesCache(type, entityToDelete);
-            if (!allWriteFieldProperties.Any()) throw new ArgumentException("删除数据where条件不能为空");
+        //    // 筛选 删除赋值字段
+        //    var allWriteFieldProperties = WriteFiledPropertiesCache(type, entityToDelete);
+        //    if (!allWriteFieldProperties.Any()) throw new ArgumentException("删除数据where条件不能为空");
 
-            var name = GetTableName(type);
-            //keyProperties.AddRange(explicitKeyProperties);
+        //    var name = GetTableName(type);
+        //    //keyProperties.AddRange(explicitKeyProperties);
 
-            var sb = new StringBuilder();
-            sb.AppendFormat("delete from {0} where ", name);
+        //    var sb = new StringBuilder();
+        //    sb.AppendFormat("delete from {0} where ", name);
 
-            var adapter = GetFormatter(connection);
+        //    var adapter = GetFormatter(connection);
 
-            for (var i = 0; i < allWriteFieldProperties.Count; i++)
-            {
-                var property = allWriteFieldProperties.ElementAt(i);
-                adapter.AppendColumnNameEqualsValue(sb, property.Name);  //fix for issue #336
-                if (i < allWriteFieldProperties.Count - 1)
-                    sb.AppendFormat(" and ");
-            }
-            var deleted = connection.Execute(sb.ToString(), entityToDelete, transaction, commandTimeout);
-            return deleted > 0;
-        }
+        //    for (var i = 0; i < allWriteFieldProperties.Count; i++)
+        //    {
+        //        var property = allWriteFieldProperties.ElementAt(i);
+        //        adapter.AppendColumnNameEqualsValue(sb, property.Name);  //fix for issue #336
+        //        if (i < allWriteFieldProperties.Count - 1)
+        //            sb.AppendFormat(" and ");
+        //    }
+        //    var deleted = connection.Execute(sb.ToString(), entityToDelete, transaction, commandTimeout);
+        //    return deleted > 0;
+        //}
 
         /// <summary>
         /// 根据表达式删除字段 
@@ -1116,7 +1143,9 @@ namespace Dapper.Contrib.Extensions
     public class KeyAttribute : Attribute
     {
     }
-
+    /// <summary>
+    /// 外键?
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
     public class ExplicitKeyAttribute : Attribute
     {
@@ -1150,8 +1179,17 @@ namespace Dapper.Contrib.Extensions
 /// </summary>
 public partial interface ISqlAdapter
 {
+    /// <summary>
+    /// 添加一条记录 返回受影响行数
+    /// </summary> 
     int Insert(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert);
     
+    /// <summary>
+    /// 添加一条记录 返回自增id
+    /// </summary> 
+    int InsertGetId(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert);
+
+
     //new methods for issue #336
     void AppendColumnName(StringBuilder sb, string columnName);
 
@@ -1180,9 +1218,9 @@ public partial interface ISqlAdapter
 
 public partial class SqlServerAdapter : ISqlAdapter
 {
-    public int Insert(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
+    public int InsertGetId(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
     {
-        var cmd = $"insert into {tableName} ({columnList}) values ({parameterList});select @@IDENTITY;";
+        var cmd = $"insert into {tableName} ({columnList}) values ({parameterList});select SCOPE_IDENTITY() id";
         var multi = connection.QueryMultiple(cmd, entityToInsert, transaction, commandTimeout);
 
         var first = multi.Read().FirstOrDefault();
@@ -1219,6 +1257,11 @@ public partial class SqlServerAdapter : ISqlAdapter
         sb.Append("  ) x  where rownum between (@pageIndex - 1) * @pageSize + 1 and @pageIndex * @pageSize ");
         sparams.Add("@pageIndex", page);
         sparams.Add("@pageSize", rows);
+    }
+
+    public int Insert(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
+    {
+        throw new NotImplementedException();
     }
 }
 
@@ -1259,6 +1302,11 @@ public partial class SqlCeServerAdapter : ISqlAdapter
     {
         throw new NotImplementedException();
     }
+
+    public int InsertGetId(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 public partial class MySqlAdapter : ISqlAdapter
@@ -1294,6 +1342,11 @@ public partial class MySqlAdapter : ISqlAdapter
         sb.AppendFormat("`{0}` = @{1}{2}", columnName, columnName, suffix);
     }
     public void RawPage(StringBuilder sb, DynamicParameters sparams, int page, int rows)
+    {
+        throw new NotImplementedException();
+    }
+
+    public int InsertGetId(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
     {
         throw new NotImplementedException();
     }
@@ -1355,11 +1408,16 @@ public partial class PostgresAdapter : ISqlAdapter
     {
         throw new NotImplementedException();
     }
+
+    public int InsertGetId(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 public partial class SQLiteAdapter : ISqlAdapter
 {
-    public int Insert(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
+    public int InsertGetId(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
     {
         var cmd = $"INSERT INTO {tableName} ({columnList}) VALUES ({parameterList}); SELECT last_insert_rowid() id";
         var multi = connection.QueryMultiple(cmd, entityToInsert, transaction, commandTimeout);
@@ -1396,4 +1454,11 @@ public partial class SQLiteAdapter : ISqlAdapter
         sparams.Add("@offset_", offset_);
         sparams.Add("@limit_", limit_);
     }
+
+    public int Insert(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
+    {
+        throw new NotImplementedException();
+    }
+
+
 }

@@ -64,7 +64,9 @@
   </Choose>
   <ItemGroup>
     <Compile Include="DapperExt\AnalysisExpressionTests.cs" />
+    <Compile Include="DapperExt\DeleteDapperSqlMakerTest.cs" />
     <Compile Include="DapperExt\InsertDapperSqlMakerTest.cs" />
+    <Compile Include="DapperExt\UpdateDapperSqlMakerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DapperExt\SelectDapperSqlMakerTest.cs" />
   </ItemGroup>

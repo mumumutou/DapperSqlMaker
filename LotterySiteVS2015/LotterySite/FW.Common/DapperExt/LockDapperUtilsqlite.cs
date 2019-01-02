@@ -7,12 +7,19 @@ namespace FW.Common.DapperExt
     /// <summary>
     /// Sqlite库1
     /// </summary>
-    public partial class LockDapperUtilsqlite 
-    {    
-    }
-
-    public partial class LockDapperUtilsqlite<T, Y> : DapperSqlMaker<T, Y>
+    public partial class LockDapperUtilsqlite : DapperSqlMaker
     {
+
+        private LockDapperUtilsqlite() { }
+
+        private readonly static LockDapperUtilsqlite _New = new LockDapperUtilsqlite();
+        public static LockDapperUtilsqlite New() {
+            return _New;
+        }
+        public IDbConnection GetCurrentConnectionSign(bool isfirst) {
+            return this.GetCurrentConnection(isfirst);
+        }
+
         protected override IDbConnection GetCurrentConnection(bool isfirst)
         {
             DataBaseConfig.GetSqliteConnection();
@@ -22,10 +29,35 @@ namespace FW.Common.DapperExt
             conn.Open();
             return conn;
         }
-        //public static LockDapperUtilsqlite<T, Y> Init() {
-        //    return new LockDapperUtilsqlite<T, Y>();
-        //}
 
+    }
+
+    public partial class LockDapperUtilsqlite<T> : DapperSqlMaker<T>
+                                         where T : class, new()
+    {
+        protected override IDbConnection GetCurrentConnection(bool isfirst)
+        {
+            return LockDapperUtilsqlite.New().GetCurrentConnectionSign(isfirst);
+        }
+
+        public static DapperSqlMaker<T> Selec()
+        {
+            return new LockDapperUtilsqlite<T>().Select();
+        }
+
+        /// <summary>
+        /// 增删改
+        /// </summary>
+        public readonly static DapperSqlMaker<T> Cud = new LockDapperUtilsqlite<T>();
+
+    }
+    public partial class LockDapperUtilsqlite<T, Y> : DapperSqlMaker<T, Y>
+    {
+        protected override IDbConnection GetCurrentConnection(bool isfirst)
+        {
+            return LockDapperUtilsqlite.New().GetCurrentConnectionSign(isfirst);
+        }
+         
         // 不能用单例 单例后面的表别名字典会冲突
         public static DapperSqlMaker<T, Y> Selec()
         {
@@ -37,12 +69,7 @@ namespace FW.Common.DapperExt
     {
         protected override IDbConnection GetCurrentConnection(bool isfirst)
         {
-            DataBaseConfig.GetSqliteConnection();
-            if (isfirst) return null;
-
-            SQLiteConnection conn = new SQLiteConnection(DataBaseConfig.LockTestSqlLiteConnectionString);
-            conn.Open();
-            return conn;
+            return LockDapperUtilsqlite.New().GetCurrentConnectionSign(isfirst);
         }
         // 不能用单例 单例后面的表别名字典会冲突
 
@@ -56,12 +83,7 @@ namespace FW.Common.DapperExt
     {
         protected override IDbConnection GetCurrentConnection(bool isfirst)
         {
-            DataBaseConfig.GetSqliteConnection();
-            if (isfirst) return null;
-
-            SQLiteConnection conn = new SQLiteConnection(DataBaseConfig.LockTestSqlLiteConnectionString);
-            conn.Open();
-            return conn;
+            return LockDapperUtilsqlite.New().GetCurrentConnectionSign(isfirst);
         }
         // 不能用单例 单例后面的表别名字典会冲突
 
@@ -71,23 +93,6 @@ namespace FW.Common.DapperExt
         }
     }
 
-    public partial class LockDapperUtilsqlite<T> : DapperSqlMaker<T>
-    {
-        protected override IDbConnection GetCurrentConnection(bool isfirst)
-        {
-            DataBaseConfig.GetSqliteConnection();
-            if (isfirst) return null;
-
-            SQLiteConnection conn = new SQLiteConnection(DataBaseConfig.LockTestSqlLiteConnectionString);
-            conn.Open();
-            return conn;
-        }
-
-        public static DapperSqlMaker<T> Selec()
-        {
-            return new LockDapperUtilsqlite<T>().Select();
-        }
-    }
 
 
 }
