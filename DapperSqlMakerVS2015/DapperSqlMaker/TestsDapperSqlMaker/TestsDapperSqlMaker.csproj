@@ -65,9 +65,13 @@
   <ItemGroup>
     <Compile Include="DapperSqlMaker.Test\DeleteDapperSqlMakerTest.cs" />
     <Compile Include="DapperSqlMaker.Test\InsertDapperSqlMakerTest.cs" />
-    <Compile Include="DapperSqlMaker.Test\UpdateDapperSqlMakerTest.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DapperSqlMaker.Test\SelectDapperSqlMakerTest.cs" />
+    <Compile Include="DapperSqlMaker.Test\UpdateDapperSqlMakerTest.cs" />
+    <Compile Include="DbDapperSqlMaker\DataBaseConfig.cs" />
+    <Compile Include="DbDapperSqlMaker\LockDapperUtilmssql.cs" />
+    <Compile Include="DbDapperSqlMaker\LockDapperUtilsqlite.cs" />
+    <Compile Include="DbDapperSqlMaker\Template_DapperSqlMaker.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="db\Lock.db" />
@@ -86,6 +90,7 @@
       <Name>FW.Model</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

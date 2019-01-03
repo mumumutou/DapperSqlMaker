@@ -46,8 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TemplateDal.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DapperSqlMaker\DapperSqlMaker.csproj">

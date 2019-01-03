@@ -5,7 +5,7 @@ using System.Text;
 
 namespace FW.Dal
 {
-    public class Class1
+    class TemplateDal
     {
     }
 }
