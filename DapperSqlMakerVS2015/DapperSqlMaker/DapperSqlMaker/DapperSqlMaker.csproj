@@ -58,10 +58,7 @@
     <Compile Include="Dapper-1.50.2\Dapper.Contrib\SqlMapperExtensions.cs" />
     <Compile Include="DapperExt\AnalysisExpression.cs" />
     <Compile Include="DapperExt\DapperSqlMaker.cs" />
-    <Compile Include="DapperExt\DapperUtil.cs" />
-    <Compile Include="DapperExt\DapperUtilBase.cs" />
     <Compile Include="DapperExt\DataBaseConfig.cs" />
-    <Compile Include="DapperExt\LockDapperUtil.cs" />
     <Compile Include="Dapper-1.50.2\Dapper\CommandDefinition.cs" />
     <Compile Include="Dapper-1.50.2\Dapper\CommandFlags.cs" />
     <Compile Include="Dapper-1.50.2\Dapper\CustomPropertyTypeMap.cs" />
@@ -109,7 +106,6 @@
     <Compile Include="Dapper-1.50.2\Dapper\XmlHandlers.cs" />
     <Compile Include="DapperExt\LockDapperUtilmssql.cs" />
     <Compile Include="DapperExt\LockDapperUtilsqlite.cs" />
-    <Compile Include="DapperExt\LockDapperUtilTest.cs" />
     <Compile Include="DapperExt\上下文DapperSqlMaker模板类.cs" />
     <Compile Include="DataToModel.cs" />
     <Compile Include="LockEncrypt.cs" />
