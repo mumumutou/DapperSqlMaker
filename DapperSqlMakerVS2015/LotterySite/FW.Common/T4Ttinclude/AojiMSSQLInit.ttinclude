@@ -1,0 +1,16 @@
+﻿<#@ include file=".\MSSQLSchemaReader.ttinclude" #>
+<#  // 初始化文件 一个库对应一个ttinclude文件 
+	// Settings  初始化配置 
+	ConnectionString = @"server=192.168.0.151;database=dbintranet;uid=www;pwd=AoJi@2017$Dev;";  // 连接串
+	TableFilter = "  AND TABLE_NAME IN ('view_StudentStatus_FollowGetVisaSchool')"; // ,'Student_SigningBeforeInfo','tblStudentStatus_VisaApplication','tblStudentStatus_FollowGetVisaSchool','tblStudentStatus_FollowGetVisa', 'tbl_CustomerAbroad','tblApplyRecordPre', 'tblApplyRecord','tblApply_Supplement','tblApply_Offer','tblApply_School_COE_Course','tblApply_School_COE') ";  // 过滤表
+	TopNamespace = "FW";  // 顶级命名空间
+	ClassPrefix = ""; 
+	ClassSuffix = "";
+    IncludeViews = true;
+	ExcludeTablePrefixes = new string[]{"aspnet_","webpages_"}; 
+    
+	// Read schema
+	var tables = LoadTables();
+
+#>
+		 

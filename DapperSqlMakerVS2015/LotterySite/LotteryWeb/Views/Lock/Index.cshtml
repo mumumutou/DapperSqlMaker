@@ -1,0 +1,309 @@
+﻿@{
+    Layout = null;
+}
+@using System.Collections.Generic
+@using FW.Model
+@model List<LockPers>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Hello MUI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!--标准mui.css-->
+    <link href="~/Content/mui-examples/hello-mui/css/mui.min.css" rel="stylesheet" />
+    <!--App自定义的css-->
+    <link href="~/Content/mui-examples/hello-mui/css/app.css" rel="stylesheet" />
+    <style>
+        .mui-table h4, .mui-table h5, .mui-table .mui-h5, .mui-table .mui-h6, .mui-table p {
+            margin-top: 0;
+        }
+
+        .mui-table h4 {
+            line-height: 21px;
+            font-weight: 500;
+        }
+
+        .mui-table .oa-icon {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+        }
+
+        .mui-table .oa-icon-star-filled {
+            color: #f14e41;
+        }
+    </style>
+
+    <style>
+        .title {
+            margin: 20px 15px 10px;
+            color: #6d6d72;
+            font-size: 15px;
+        }
+
+        .oa-contact-cell.mui-table .mui-table-cell {
+            padding: 11px 0;
+            vertical-align: middle;
+        }
+
+        .oa-contact-cell {
+            position: relative;
+            margin: -11px 0;
+        }
+
+        .oa-contact-avatar {
+            width: 75px;
+        }
+
+            .oa-contact-avatar img {
+                border-radius: 50%;
+            }
+
+        .oa-contact-content {
+            width: 100%;
+        }
+
+        .oa-contact-name {
+            margin-right: 20px;
+        }
+
+        .oa-contact-name, oa-contact-position {
+            float: left;
+        }
+    </style>
+    <style>
+        h5 {
+            margin: 5px 7px;
+        }
+
+        wordwrap {
+            word-break: break-all;
+            word-wrap: break-word;
+        }
+    </style>
+    <script type="text/javascript" src="http://zeptojs.com/zepto.min.js" ></script>
+</head>
+<body>
+    <header class="mui-bar mui-bar-nav">
+        <h1 class="mui-title">MM ^o^&nbsp;&nbsp;<span id="sptitle"> </span></h1>
+    </header>
+    <nav class="mui-bar mui-bar-tab" >
+        <a id="a-tabbar-list" class="mui-tab-item mui-active" href="#tabbar-list" data-type="list">
+            <span class="mui-icon mui-icon-contact"></span>
+            <span class="mui-tab-label">列表</span>
+        </a>
+        <a id="a-tabbar-add" class="mui-tab-item" href="#tabbar-add" data-type="add">
+            <span class="mui-icon mui-icon-paperplane"></span>
+            <span class="mui-tab-label">新增</span>
+        </a>
+    </nav>
+
+    <div class="mui-content">
+        <div id="tabbar-list" class="mui-control-content mui-active">
+
+            <ul class="mui-table-view mui-table-view-striped mui-table-view-condensed">
+
+                @if (ViewData.Model != null && ViewData.Model.Count > 0)
+            {
+                foreach (LockPers item in ViewData.Model)
+                {
+
+                        <li class="mui-table-view-cell mui-collapse">
+                            <a class="" href="#">
+
+                                <div class="mui-slider-right mui-disabled">
+                                    <a onclick="editLock('@item.Id',this)" data-name="@item.Name" data-prompt="@item.Prompt" class="mui-btn mui-btn-yellow mui-icon mui-icon-compose"></a>
+                                    <a onclick="deleteLock('@item.Id')" class="mui-btn mui-btn-red mui-icon mui-icon-trash"></a>
+                                </div>
+                                <div class="mui-table mui-slider-handle">
+                                    <div class="mui-table-cell mui-col-xs-10">
+                                        <h4 class="mui-ellipsis">@item.Name </h4>
+                                        @*<h5>@item.Content</h5>*@
+                                        <p class="mui-h6 mui-ellipsis">提示: @item.Prompt</p>
+                                    </div>
+                                    <div class="mui-table-cell mui-col-xs-2 mui-text-right">
+                                        <span class="mui-h5">@item.InsertTime</span>
+                                    </div>
+                                </div>
+                            </a>
+                            <div class="mui-collapse-content">
+                                <div class="mui-input-row" style="margin: 10px 5px;">
+                                    <textarea rows="3" readonly>提示:@item.Prompt</textarea>
+                                </div>
+                                <form class="mui-input-group">
+                                    <div class="mui-input-row">
+                                        <input id="bth_@item.Id" type="password" class="mui-input-password" placeholder="输入验证秘钥">
+                                    </div>
+                                    <div class="mui-button-row">
+                                        <button onclick="checkContent('@item.Id','bth_@item.Id')" class="mui-btn mui-btn-primary" type="button">点击验证</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </li>
+                    }
+
+                }
+
+            </ul>
+        </div>
+        <div id="tabbar-add" class="mui-control-content mui-content">
+            <form id="fmAdd">
+                <div class="mui-content-padded" style="margin: 5px;">
+                    <h5>标题：</h5>
+                    <div class="mui-input-row">
+                        <input id="tbname" type="text">
+                    </div>
+                    <div id="dvcontentold" style="display:none">
+                        <h5>旧秘钥：</h5>
+                        <div class="mui-input-row mui-password">
+                            <input id="tbcontentold" type="password" class="mui-input-password">
+                        </div>
+                    </div>
+                    <h5>秘钥：</h5>
+                    <div class="mui-input-row mui-password">
+                        <input id="tbcontent" type="password" class="mui-input-password">
+                    </div>
+                    <h5>确认秘钥：</h5>
+                    <div class="mui-input-row mui-password">
+                        <input id="tbcontent2" type="password" class="mui-input-password">
+                    </div>
+                    <h5>备注：</h5>
+                    <div class="mui-input-row" style="margin: 10px 5px;">
+                        <textarea id="tbprompt" rows="5"></textarea>
+                    </div>
+                    <div class="mui-button-row">
+                        <button type="button" data-id="-1" id="btnSave" class="mui-btn mui-btn-primary" onclick="addLock()">点击提交</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="~/Content/mui-examples/hello-mui/js/mui.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        mui.init({
+            swipeBack: false //启用右滑关闭功能
+        });
+        function my$(id) {
+            return document.getElementById(id);
+        }
+
+        function checkContent(dId, btnId) {
+            var data = { Id: dId, Content: my$(btnId).value };
+            //var data = "?Id=" + dId + "&Content=" + my$(btnId).value;
+            console.log(data);
+            $.post('@Url.Action("Check", "Lock")', data, function (r) {
+                mui.toast(r == "1" ? "匹配成功" : "匹配失败"); 
+            });
+            @*mui.get('@Url.Action("Check", "Lock")' + data, function (r) {
+                mui.toast(r == "1" ? "匹配成功" : "匹配失败");
+            });*@ 
+        }
+
+        function addLock() {
+            @*//if ($('#btnSave').data('id') != '-1') {
+            //    mui.toast('提交成功'); return;
+            //}*@
+
+            if (my$('tbname').value == '') { mui.toast("名称不能为空"); return false; }
+            if (my$('tbcontent').value == '') { mui.toast("秘钥不能为空"); return false; }
+            if (my$('tbprompt').value == '') { mui.toast("备注不能为空"); return false; }
+            if (my$('tbcontent').value != my$('tbcontent2').value) {
+                mui.toast("两次输入秘钥不相同");
+                return false;
+            }
+
+            var postdate = {
+                Name: $('#tbname').val(), Content: $('#tbcontent').val(),
+                Prompt: $('#tbprompt').val(), Id: $('#btnSave').data('id')
+                , ContentOld: $('#tbcontentold').val()
+            };
+            $.post('@Url.Action("AddUpdate", "Lock")', postdate, function (r) {
+                if (r == "1") mui.toast("保存成功");
+                else if (r == "0") mui.toast("保存失败");
+                else if (r == "-1") mui.toast("旧内容不真确");
+
+            });
+
+            @*var data = "?Name=" + my$('tbname').value + "&Content=" + my$('tbcontent').value + "&Prompt=" + my$('tbprompt').value;
+            mui.get('@Url.Action("Add", "Lock")' + data, function (r) {
+                mui.toast(r == "1" ? "添加成功" : "添加失败");
+            });*@
+        }
+
+        function editLock(eId, e) {
+
+            $('#tbname').val($(e).data('name'));
+            $('#tbprompt').text($(e).data('prompt'));
+            $('#dvcontentold').css('display', 'block'); // 隐藏就密码框
+            $('#sptitle').text('修改'); // 隐藏就密码框
+            $('#btnSave').data('id', eId);
+
+            // list
+            $(e).css('transform', 'translate(0px, 0px)')
+                .next().css('transform', 'translate(0px, 0px)')
+                .parent().removeClass('mui-selected')
+                .next().css('transform', 'translate(0px, 0px)')
+                .parent().removeClass('mui-selected');
+            // tab
+            $('#a-tabbar-list').removeClass('mui-active');
+            $('#a-tabbar-add').addClass('mui-active');
+            $('#tabbar-list').removeClass('mui-active')
+            $('#tabbar-add').addClass('mui-active')
+
+
+        }
+        function deleteLock(dId) {
+            // mui.toast("删除");
+
+            mui.post('@Url.Action("Delete", "Lock")', { Id: dId }, function (r) {
+                mui.toast(r == "1" ? "删除成功" : "删除失败");
+            }, 'json');
+
+        }
+        // mui.trigger($('.mui-bar-tab').children()[1], 'tap');  // 手动触发事件
+        mui('.mui-bar-tab').on('tap', '.mui-tab-item', function (e) {
+            // this 当前选中的tab
+
+            var type = $(this).data('type');
+            if (type == 'add') {
+                $('#dvcontentold').css('display', 'none'); // 隐藏旧密码框
+                $('#sptitle').text('新增');
+                clearFormElements('#fmAdd');
+                $('#btnSave').data('id', '-1');
+            } else {
+                $('#sptitle').text('');
+            }
+
+        })
+        mui(".mui-slider-right").on('tap', '.mui-btn', function () { return false; }); // 取消编辑删除按钮冒泡事件
+        @* // mui(".mui-slider-right").on('tap', '.mui-btn', function () { return false; }); // 取消编辑删除按钮冒泡事件 *@
+
+        function clearFormElements(fId) {
+            $.each($(fId + ' input'), function (k, v) {
+                console.log(v.type + '-' + v.id)
+                if (v.type == 'button') return;
+                //if (v.type == 'text' || v.type == 'hidden') {
+                this.value = '';
+            });
+            $.each($(fId + ' textarea'), function (k, v) {
+                console.log(v.type + '-' + v.id)
+                this.innerText = '';
+            });
+            @*  // if (v.type == 'select-one') {
+            //     $(v).val('');
+            //     return;
+            // }
+            // if (v.type == 'radio') {
+            //     $(this).prop('checked', false);
+            // }*@
+        }
+
+
+    </script>
+     
+</body>
+</html>
