@@ -97,6 +97,32 @@ namespace DapperSqlMaker.DapperExt
         }
     }
 
+    public partial class XxxxDapperSqlMakerXxxx<T, Y, Z, O, P> : DapperSqlMaker<T, Y, Z, O, P>
+    {
+        protected override IDbConnection GetCurrentConnection(bool isfirst)
+        {
+            return XxxxDapperSqlMakerXxxx.New().GetCurrentConnectionSign(isfirst);
+        }
+        // 不能用单例 单例后面的表别名字典会冲突
+
+        public static DapperSqlMaker<T, Y, Z, O, P> Selec()
+        {
+            return new XxxxDapperSqlMakerXxxx<T, Y, Z, O, P>().Select();
+        }
+    }
+    public partial class XxxxDapperSqlMakerXxxx<T, Y, Z, O, P, Q> : DapperSqlMaker<T, Y, Z, O, P, Q>
+    {
+        protected override IDbConnection GetCurrentConnection(bool isfirst)
+        {
+            return XxxxDapperSqlMakerXxxx.New().GetCurrentConnectionSign(isfirst);
+        }
+        // 不能用单例 单例后面的表别名字典会冲突
+
+        public static DapperSqlMaker<T, Y, Z, O, P, Q> Selec()
+        {
+            return new XxxxDapperSqlMakerXxxx<T, Y, Z, O, P, Q>().Select();
+        }
+    }
 
 
 }

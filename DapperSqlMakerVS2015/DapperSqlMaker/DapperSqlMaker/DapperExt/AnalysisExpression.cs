@@ -651,6 +651,29 @@ namespace DapperSqlMaker.DapperExt
         public static Expression<Func<T,Y, bool>> WhereStart<T,Y>() { return (f,y) => SM.WhereStartIgnore(); }
         public static Expression<Func<T, Y, Z, bool>> WhereStart<T, Y, Z>() { return (f, y, z) => SM.WhereStartIgnore(); }
         public static Expression<Func<T, Y, Z, O, bool>> WhereStart<T, Y, Z, O>() { return (f, y, z, o) => SM.WhereStartIgnore(); }
+        public static Expression<Func<T, Y, Z, O, P, bool>> WhereStart<T, Y, Z, O, P>() { return (f, y, z, o, p) => SM.WhereStartIgnore(); }
+        public static Expression<Func<T, Y, Z, O, P, Q, bool>> WhereStart<T, Y, Z, O, P, Q>() { return (f, y, z, o, p, q) => SM.WhereStartIgnore(); }
+
+
+        public static Expression<Func<T, Y, Z, O, P, Q, bool>> And<T, Y, Z, O, P, Q>(this Expression<Func<T, Y, Z, O, P, Q, bool>> first, Expression<Func<T, Y, Z, O, P, Q, bool>> second)
+        {
+            return first.Compose(second, Expression.AndAlso);
+        }
+        public static Expression<Func<T, Y, Z, O, P, Q, bool>> Or<T, Y, Z, O, P, Q>(this Expression<Func<T, Y, Z, O, P, Q, bool>> first, Expression<Func<T, Y, Z, O, P, Q, bool>> second)
+        {
+            return first.Compose(second, Expression.AndAlso);
+        }
+
+
+        public static Expression<Func<T, Y, Z, O, P, bool>> And<T, Y, Z, O, P>(this Expression<Func<T, Y, Z, O, P, bool>> first, Expression<Func<T, Y, Z, O, P, bool>> second)
+        {
+            return first.Compose(second, Expression.AndAlso);
+        }
+        public static Expression<Func<T, Y, Z, O, P, bool>> Or<T, Y, Z, O, P>(this Expression<Func<T, Y, Z, O, P, bool>> first, Expression<Func<T, Y, Z, O, P, bool>> second)
+        {
+            return first.Compose(second, Expression.AndAlso);
+        }
+
         //public static Expression<Func<T, bool>> True<T>() { return f => true; }
         //public static Expression<Func<T, bool>> False<T>() { return f => false; }
         public static Expression<Func<T, Y, Z, O, bool>> And<T, Y, Z, O>(this Expression<Func<T, Y, Z, O, bool>> first, Expression<Func<T, Y, Z, O, bool>> second)

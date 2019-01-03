@@ -91,6 +91,32 @@ namespace DapperSqlMaker.DapperExt
             return new LockDapperUtilsqlite<T, Y, Z, O>().Select();
         }
     }
+    public partial class LockDapperUtilsqlite<T, Y, Z, O, P> : DapperSqlMaker<T, Y, Z, O, P>
+    {
+        protected override IDbConnection GetCurrentConnection(bool isfirst)
+        {
+            return LockDapperUtilsqlite.New().GetCurrentConnectionSign(isfirst);
+        }
+        // 不能用单例 单例后面的表别名字典会冲突
+
+        public static DapperSqlMaker<T, Y, Z, O, P> Selec()
+        {
+            return new LockDapperUtilsqlite<T, Y, Z, O, P>().Select();
+        }
+    }
+    public partial class LockDapperUtilsqlite<T, Y, Z, O, P, Q> : DapperSqlMaker<T, Y, Z, O, P, Q>
+    {
+        protected override IDbConnection GetCurrentConnection(bool isfirst)
+        {
+            return LockDapperUtilsqlite.New().GetCurrentConnectionSign(isfirst);
+        }
+        // 不能用单例 单例后面的表别名字典会冲突
+
+        public static DapperSqlMaker<T, Y, Z, O, P, Q> Selec()
+        {
+            return new LockDapperUtilsqlite<T, Y, Z, O, P, Q>().Select();
+        }
+    }
 
 
 
