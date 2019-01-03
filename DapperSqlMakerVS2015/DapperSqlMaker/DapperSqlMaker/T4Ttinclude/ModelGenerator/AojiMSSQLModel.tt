@@ -1,0 +1,188 @@
+﻿<#@ template hostspecific="True" #>
+<#@ include file="EF.Utility.CS.ttinclude"#> 
+<#@  include file="$(SolutionDir)\DapperSqlMaker\T4Ttinclude\AojiMSSQLInit.ttinclude" #>  
+//  include file="..\AojiMSSQLInit.ttinclude"
+<#@ assembly name="EnvDTE" #>
+<#@ assembly name="System.Data" #>
+<#@ assembly name="System.Data.Entity.Design" #>
+<#@ assembly name="System.Xml" #>
+<#@ assembly name="System.Configuration" #> 
+
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Data" #>
+<#@ import namespace="System.Data.Common" #>
+<#@ import namespace="System.Diagnostics" #>
+<#@ import namespace="System.Globalization" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Text.RegularExpressions" #>
+<#@ import namespace="System.Configuration" #> 
+<#@ import namespace="System.Data.SqlClient" #>
+<#@ output extension=".cst"#>  
+
+
+<# 
+	Namespace = TopNamespace + ".Model";
+    // Read schema 
+	
+	EntityFrameworkTemplateFileManager fileManager = EntityFrameworkTemplateFileManager.Create(this); // 多文件生成
+/*
+	// Tweak Schema
+	tables["tablename"].Ignore = true;							// To ignore a table
+	tables["tablename"].ClassName = "newname";					// To change the class name of a table
+	tables["tablename"]["columnname"].Ignore = true;			// To ignore a column
+	tables["tablename"]["columnname"].PropertyName="newname";	// To change the property name of a column
+	tables["tablename"]["columnname"].PropertyType="bool";		// To change the property type of a column
+*/
+#>
+
+<# fileManager.StartHeader(); #>
+
+using System;
+using Dapper;
+using Dapper.Contrib.Extensions;
+
+namespace <#=Namespace #>
+{
+
+<# fileManager.EndBlock(); #>
+
+
+<#
+foreach(Table tbl in from t in tables where !t.Ignore select t){
+		if(IsExcluded(tbl.Name, ExcludeTablePrefixes)) continue;
+		 
+		fileManager.StartNewFile(tbl.Name+".cs"); // 新建文件
+#>
+    /// <summary>
+    /// A class which represents the <#=tbl.Name#> <#=(tbl.IsView)?"view":"table"#>.
+    /// </summary>
+	[Table("[<#=tbl.Name#>]")]
+	public partial class <#=tbl.ClassName#>
+	{
+
+	public <#=tbl.ClassName#>() : base("<#=tbl.Name#>") { }
+
+	   /* <#foreach(Column col in from c in tbl.Columns where !c.Ignore select c) {#> <#=col.PropertyName #> <#}#> */ 
+
+<#foreach(Column col in from c in tbl.Columns where !c.Ignore select c)
+{#>
+	private <#=col.PropertyType #> _<#=col.PropertyName #>;
+	/// <summary>
+	/// <#=col.ColumnDesc #>
+	/// </summary>
+    public <#=col.PropertyType #> <#=col.PropertyName #>
+    {
+        get { return _<#=col.PropertyName #>; }
+        set {
+            _<#=col.PropertyName #> = value; }
+    }
+
+
+<#}#>
+// #######################################################################################################
+<#foreach(Column col in from c in tbl.Columns where !c.Ignore select c)
+{#>
+	private <#=col.PropertyType #> _<#=col.PropertyName #>;
+	/// <summary>
+	/// <#=col.ColumnDesc #>
+	/// </summary>
+    public <#=col.PropertyType #> <#=col.PropertyName #>
+    {
+        get { return _<#=col.PropertyName #>; }
+        set {
+            this.OnPropertyValueChange(_.<#=col.PropertyName #>, _<#=col.PropertyName #>, value);
+            _<#=col.PropertyName #> = value; }
+    }
+
+
+<#}#>
+
+        public override Field[] GetFields()
+        {
+            return new Field[] {
+<#foreach(Column col in from c in tbl.Columns where !c.Ignore select c)
+{#>
+				_.<#=col.PropertyName #>, 
+<#}#>
+			 };
+        }
+		
+        public override object[] GetValues()
+        {
+            return new object[] {				
+<#foreach(Column col in from c in tbl.Columns where !c.Ignore select c)
+{#>
+				this._<#=col.PropertyName #>, 
+<#}#>
+			 };
+        }
+		
+        public override void SetPropertyValues(IDataReader reader)
+        {
+<#foreach(Column col in from c in tbl.Columns where !c.Ignore select c)
+{#>
+			this._<#=col.PropertyName #> = DataUtils.ConvertValue<<#=col.PropertyType #>>(reader["<#=col.PropertyName #>"]);
+<#}#> 
+        }
+		
+        public override void SetPropertyValues(DataRow row)
+        {
+<#foreach(Column col in from c in tbl.Columns where !c.Ignore select c)
+{#>
+            this._<#=col.PropertyName #> = DataUtils.ConvertValue<<#=col.PropertyType #>>(row["<#=col.PropertyName #>"]);
+<#}#> 
+        }
+
+        public class _
+        {
+<#foreach(Column col in from c in tbl.Columns where !c.Ignore select c)
+{#>
+            public readonly static Field <#=col.PropertyName #> = new Field("<#=col.PropertyName #>", "<#=tbl.Name#>", "<#=col.PropertyName #>");
+<#}#> 
+        }
+
+	}// class
+	 
+	 /* 
+	 <# int i = 0;
+foreach(Column col in from c in tbl.Columns where !c.Ignore select c)
+{ i++; #>
+
+<# if(i % 2 != 0) { #>
+	<div class="clearfix" style="clear: both"></div>
+    <div class="row">
+        <div class="span6">
+            <div class="input-group">
+                <span class="input-group-addon ie_widthauto ie_font">aaaaaaa：</span>
+                <asp:TextBox ID="tb<#=col.PropertyName #>" runat="server" CssClass="form-control ie_width300px"></asp:TextBox>
+            </div>
+        </div>
+    <# } else { #>
+        <div class="span6">
+            <div class="input-group">
+                <span class="input-group-addon ie_widthauto ie_font">aaaaaaa：</span>
+                <asp:TextBox ID="tb<#=col.PropertyName #>" runat="server" CssClass="form-control ie_width300px"></asp:TextBox>
+            </div>
+        </div>
+    </div>
+    <# } #>
+<#}#>
+	 */
+
+	 /* 
+<# foreach(Column col in from c in tbl.Columns where !c.Ignore select c) { #>
+	 <tr> <td>aaaaaaaaaaa：</td>
+        <td> <input id="tb<#=col.PropertyName #>" type="text" maxlength="200"  name="<#=col.PropertyName #>" runat="server"></td>
+    </tr>
+<#}#>
+	 */
+
+<#}#>
+
+<# fileManager.StartFooter(); #>
+} // namespace
+<# fileManager.EndBlock(); #>
+<# fileManager.Process(true); #> 
+ 
