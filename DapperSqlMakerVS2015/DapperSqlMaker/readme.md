@@ -73,11 +73,17 @@ public void 更新部分字段测试lt()
 > 1. svn提交到github时 不要再解决方案内复制文件 直接当作新文件添加进来 
 > 
 > 
-> 调试打印dapper查询sql
+> 2.调试打印dapper查询sql
 > 方法: Dapper.SqlMapper.QueryImpl
 > 取消注释: // Console.WriteLine(cmd.CommandText);  
 > 
-> where条件
+> 3.where条件
 > 可变参数 比较时 先转成值类型
 > 
-> 实体表明后缀不要是数字
+> 4.实体表明后缀不要是数字
+>
+> 5.七联表以上待扩展 只需copy已实现的 修改3个文件
+>  DapperSqlMaker 
+>  Template_DapperSqlMaker 上下文类
+>  PredicateBuilder        条件拼接类
+>

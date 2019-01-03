@@ -28,8 +28,10 @@ namespace TestsDapperSqlMaker
                 WriteJson(name + " -- " + resultsqlparams.Item2.Get<object>(name)); // 参数 -- 值
             }
         }
-
+         
         #region SQLite联表分页查询
+        //数据库上下文类 LockDapperUtilsqlite
+
         [Test]
         public void 六表联表分页测试()
         {
@@ -251,8 +253,10 @@ namespace TestsDapperSqlMaker
 
         #endregion
 
-
         #region MSSQL联表分页查询
+
+        //数据库上下文类 LockDapperUtilmssql
+
         [Test]
         public void 六表联表分页测试MS()
         {
