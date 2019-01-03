@@ -110,7 +110,6 @@
     <Compile Include="DapperExt\LockDapperUtilmssql.cs" />
     <Compile Include="DapperExt\LockDapperUtilsqlite.cs" />
     <Compile Include="DapperExt\LockDapperUtilTest.cs" />
-    <Compile Include="DapperExt\QueryMaker.cs" />
     <Compile Include="DapperExt\上下文DapperSqlMaker模板类.cs" />
     <Compile Include="DataToModel.cs" />
     <Compile Include="LockEncrypt.cs" />
