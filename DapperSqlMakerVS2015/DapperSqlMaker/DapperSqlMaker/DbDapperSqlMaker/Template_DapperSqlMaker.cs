@@ -5,7 +5,7 @@ using System.Data.SQLite;
 namespace DapperSqlMaker.DapperExt
 {
     /// <summary>
-    /// Sqlite库1
+    /// DapperSqlMaker上下文模板类
     /// </summary>
     public partial class XxxxDapperSqlMakerXxxx : DapperSqlMaker
     {
