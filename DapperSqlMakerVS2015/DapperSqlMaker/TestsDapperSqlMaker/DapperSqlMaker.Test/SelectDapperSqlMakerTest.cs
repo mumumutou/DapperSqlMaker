@@ -25,7 +25,7 @@ namespace TestsDapperSqlMaker
             Console.WriteLine(resultsqlparams.Item1.ToString()); // sql
             foreach (var name in resultsqlparams.Item2.ParameterNames)
             {
-                WriteJson(name + " -- " + resultsqlparams.Item2.Get<object>(name)); // 参数 -- 值
+                WriteJson(name + " -- " + Newtonsoft.Json.JsonConvert.SerializeObject( resultsqlparams.Item2.Get<object>(name) ) ); // 参数 -- 值
             }
         }
          
@@ -131,20 +131,22 @@ namespace TestsDapperSqlMaker
         [Test]
         public void 三表联表分页测试()
         {
-            string uall = "b.*";
-            LockPers lpmodel = new LockPers() { Name = "%蛋蛋%", IsDel = false};
+            var arruser = new int[2] { 1,2 };  // 
+            string uall = "b.*", pn1 = "%蛋蛋%", pn2 = "%m%";
+            LockPers lpmodel = new LockPers() { IsDel = false};
             Users umodel = new Users() { UserName = "jiaojiao" };
-            SynNote snmodel = new SynNote() { Name = "%木头%" };
+            SynNote snmodel = new SynNote() { Name = "木头" };
             Expression<Func<LockPers, Users, SynNote, bool>> where = PredicateBuilder.WhereStart<LockPers, Users, SynNote>();
-            where = where.And((lpw, uw, sn) => lpw.Name.Contains(lpmodel.Name));
+            where = where.And((l, u, s) => ( l.Name.Contains(pn1) || l.Name.Contains(pn2) ));
             where = where.And((lpw, uw, sn) => lpw.IsDel == lpmodel.IsDel);
-            where = where.And((lpw, uw, sn) => uw.UserName == umodel.UserName);
-            where = where.And((lpw, uw, sn) => sn.Name.Contains(snmodel.Name));
+            where = where.And((l, u, s) => u.UserName == umodel.UserName);
+            where = where.And((l, u, s) => s.Name == snmodel.Name );
+            where = where.And((l, u, s) => SM.In(u.Id, arruser));
 
             DapperSqlMaker<LockPers, Users, SynNote> query = LockDapperUtilsqlite<LockPers, Users, SynNote>
                 .Selec()
                 .Column((lp, u, s) => //null)  //查询所有字段
-                    new { lp.Name, lpid = lp.Id, a = "LENGTH(a.Prompt) as plen", b = SM.Sql(uall), scontent = s.Content, sname = s.Name })
+                    new { lp.Name, lpid = lp.Id, x = "LENGTH(a.Prompt) as len", b = SM.Sql(uall), scontent = s.Content, sname = s.Name })
                 .FromJoin(JoinType.Left, (lpp, uu, snn) => uu.Id == lpp.UserId
                         , JoinType.Inner, (lpp, uu, snn) => uu.Id == snn.UserId)
                 .Where(where)

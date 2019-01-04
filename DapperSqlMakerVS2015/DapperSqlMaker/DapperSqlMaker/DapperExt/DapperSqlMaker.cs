@@ -1142,8 +1142,8 @@ namespace DapperSqlMaker.DapperExt
 
             appendsql: // 字段名 加  后缀(as xxx, desc)
 
-                if (isfield_suf) field_suf = " as " + asnameArr[i++]; // 字段别名
-
+                if (isfield_suf) field_suf = " as " + asnameArr[i]; // 字段别名
+                i++;
                 return colum + field_suf;
             }).ToArray<string>();
             columns = " " + string.Join(", ", fiearr) + " ";

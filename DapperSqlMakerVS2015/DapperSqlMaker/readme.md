@@ -18,28 +18,29 @@
 
 ##### 1.查询-联表查询,分页
 
-```csharp
-[Test]
+```csharp 
 public void 三表联表分页测试()
 {
-    string uall = "b.*";
-    LockPers lpmodel = new LockPers() { Name = "%蛋蛋%", IsDel = false};
+    var arruser = new int[2] { 1,2 };  // 
+    string uall = "b.*", pn1 = "%蛋蛋%", pn2 = "%m%";
+    LockPers lpmodel = new LockPers() { IsDel = false};
     Users umodel = new Users() { UserName = "jiaojiao" };
-    SynNote snmodel = new SynNote() { Name = "%木头%" };
+    SynNote snmodel = new SynNote() { Name = "木头" };
     Expression<Func<LockPers, Users, SynNote, bool>> where = PredicateBuilder.WhereStart<LockPers, Users, SynNote>();
-    where = where.And((lpw, uw, sn) => lpw.Name.Contains(lpmodel.Name));
+    where = where.And((l, u, s) => ( l.Name.Contains(pn1) || l.Name.Contains(pn2) ));
     where = where.And((lpw, uw, sn) => lpw.IsDel == lpmodel.IsDel);
-    where = where.And((lpw, uw, sn) => uw.UserName == umodel.UserName);
-    where = where.And((lpw, uw, sn) => sn.Name.Contains(snmodel.Name));
+    where = where.And((l, u, s) => u.UserName == umodel.UserName);
+    where = where.And((l, u, s) => s.Name == snmodel.Name );
+    where = where.And((l, u, s) => SM.In(u.Id, arruser));
 
     DapperSqlMaker<LockPers, Users, SynNote> query = LockDapperUtilsqlite<LockPers, Users, SynNote>
         .Selec()
         .Column((lp, u, s) => //null)  //查询所有字段
-            new { lp.Name, lpid = lp.Id, a = "LENGTH(a.Prompt) as plen", b = SM.Sql(uall), scontent = s.Content, sname = s.Name })
+            new { lp.Name, lpid = lp.Id, x = "LENGTH(a.Prompt) as len", b = SM.Sql(uall), scontent = s.Content, sname = s.Name })
         .FromJoin(JoinType.Left, (lpp, uu, snn) => uu.Id == lpp.UserId
                 , JoinType.Inner, (lpp, uu, snn) => uu.Id == snn.UserId)
         .Where(where)
-        .Order((lp, w, sn) => new { lp.EditCount, lp.Name, sn.Content });
+        .Order((lp, w, sn) => new { lp.EditCount, x = SM.OrderDesc(lp.Name), sn.Content });
 
     var result = query.ExcuteSelect();
     WriteJson(result); //  查询结果
@@ -55,20 +56,20 @@ public void 三表联表分页测试()
 *生成的sql* :
 ```sql
 select  a.Name as Name, a.Id as lpid
-    , LENGTH(a.Prompt) as plen, b.*
-    , c.Content as a, c.Name as b  
+	, LENGTH(a.Prompt) as len, b.*
+	, c.Content as scontent, c.Name as sname  
 from LockPers a  
-left join  Users b on  b.Id = a.UserId   
-inner join  SynNote c on  b.Id = c.UserId  
-where  a.Name like @Name0  and  a.IsDel = @IsDel1  
-	   and  b.UserName = @UserName2  and  c.Name like @Name3  
+	left join  Users b on  b.Id = a.UserId   
+	inner join  SynNote c on  b.Id = c.UserId  
+where  (  a.Name like @Name0  or  a.Name like @Name1  )  
+	and  a.IsDel = @IsDel2  and  b.UserName = @UserName3  
+	and  c.Name = @Name4  and  b.Id in @Id 
 order by  a.EditCount, a.Name desc , c.Content 
 ```
 
 ##### 2.更新-更新部分字段
 
 ```csharp
-[Test]
 public void 更新部分字段测试lt()
 {
     var issucs = LockDapperUtilsqlite<LockPers>.Cud.Update(
