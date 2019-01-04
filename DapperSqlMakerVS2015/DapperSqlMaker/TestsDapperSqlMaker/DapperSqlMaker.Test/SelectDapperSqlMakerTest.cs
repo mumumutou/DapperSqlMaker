@@ -148,7 +148,7 @@ namespace TestsDapperSqlMaker
                 .FromJoin(JoinType.Left, (lpp, uu, snn) => uu.Id == lpp.UserId
                         , JoinType.Inner, (lpp, uu, snn) => uu.Id == snn.UserId)
                 .Where(where)
-                .Order((lp, w, sn) => new { lp.EditCount, lp.Name, sn.Content });
+                .Order((lp, w, sn) => new { lp.EditCount, x = SM.OrderDesc(lp.Name), sn.Content });
 
             var result = query.ExcuteSelect();
             WriteJson(result); //  查询结果

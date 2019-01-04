@@ -54,15 +54,15 @@
 ```
 *生成的sql* :
 ```sql
- select  a.Name as Name, a.Id as lpid
-	, LENGTH(a.Prompt) as plen, b.*
-	, c.Content as a, c.Name as b  
-	from LockPers a  
-	left join  Users b on  b.Id = a.UserId   
-	inner join  SynNote c on  b.Id = c.UserId  
-	where  a.Name like @Name0  and  a.IsDel = @IsDel1  
-		   and  b.UserName = @UserName2  and  c.Name like @Name3  
-    order by  a.EditCount, a.Name, c.Content 
+select  a.Name as Name, a.Id as lpid
+    , LENGTH(a.Prompt) as plen, b.*
+    , c.Content as a, c.Name as b  
+from LockPers a  
+left join  Users b on  b.Id = a.UserId   
+inner join  SynNote c on  b.Id = c.UserId  
+where  a.Name like @Name0  and  a.IsDel = @IsDel1  
+	   and  b.UserName = @UserName2  and  c.Name like @Name3  
+order by  a.EditCount, a.Name desc , c.Content 
 ```
 
 ##### 2.更新-更新部分字段
