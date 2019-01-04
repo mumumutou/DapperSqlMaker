@@ -114,7 +114,7 @@ namespace TestsDapperSqlMaker.DapperExt
         {
             //return;
 
-            var list3old = LockDapperUtilsqlite<LockPers_>.Cud.GetAll();
+            var list3old = LockDapperUtilsqlite.New().GetAll<LockPers_>();
             List<LockPers_ms_> list3new = new List<LockPers_ms_>();
             foreach (var item in list3old)
             {
@@ -127,7 +127,7 @@ namespace TestsDapperSqlMaker.DapperExt
 
             return;
 
-            var list2old = LockDapperUtilsqlite<SynNote>.Cud.GetAll();
+            var list2old = LockDapperUtilsqlite.New().GetAll<SynNote>();
             foreach (var item in list2old)
             {
                 var model = CopyModelHelper.MapperWrite<SynNote_ms, SynNote>(item);
@@ -135,7 +135,7 @@ namespace TestsDapperSqlMaker.DapperExt
                 //newlist.Add ( );
             }
 
-            var list1old = LockDapperUtilsqlite<Users>.Cud.GetAll();
+            var list1old = LockDapperUtilsqlite.New().GetAll<Users>();
             foreach (var item in list1old)
             {
                 var model = CopyModelHelper.MapperWrite<Users_ms, Users>(item);

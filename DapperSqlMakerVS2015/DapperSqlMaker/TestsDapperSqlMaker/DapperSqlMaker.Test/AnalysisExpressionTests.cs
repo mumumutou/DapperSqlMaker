@@ -651,6 +651,45 @@ namespace DapperSqlMaker.DapperExt.Tests
         }
 
 
+        #region 混淆数据
 
+        [Test]
+        public void Test()
+        {
+            //string txt = "多排序字段升序降序";
+            //mixtxt(txt);
+
+            int i = 0;
+            var list3old = LockDapperUtilsqlite.New().GetAll<LockPers>();
+            foreach (var item in list3old)
+            {
+                Random r = new Random(DateTime.Now.Millisecond);
+                int x = r.Next(1, 5);
+                if (x < 3) continue;
+
+                item.Name = "蛋蛋" + item.Name;
+                //item.Name = mixtxt(item.Name);
+                //item.Content = mixtxt(item.Content);
+                //item.Prompt = mixtxt(item.Prompt);
+                LockDapperUtilsqlite<LockPers>.Cud.Update(item);
+                i++;
+            }
+
+            Console.WriteLine(i + " 修改");
+
+        }
+
+        private static string mixtxt(string txt)
+        {
+            if (txt == null) return null;
+            Random r = new Random(DateTime.Now.Second);
+            char[] txtarr = txt.ToCharArray();
+            for (int i = 0; i < txtarr.Length; i++)
+            {
+                txtarr[i] = (char)((int)(txtarr[i]) - r.Next(1, 10));
+            }
+            return string.Join("", txtarr);
+        } 
+        #endregion
     }
 }

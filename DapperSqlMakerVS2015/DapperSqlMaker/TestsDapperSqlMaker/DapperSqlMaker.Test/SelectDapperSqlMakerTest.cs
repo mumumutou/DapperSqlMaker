@@ -524,6 +524,7 @@ namespace TestsDapperSqlMaker
              
         }
 
+
         //动态sql
         #region Dapper已有方法
         [Test]

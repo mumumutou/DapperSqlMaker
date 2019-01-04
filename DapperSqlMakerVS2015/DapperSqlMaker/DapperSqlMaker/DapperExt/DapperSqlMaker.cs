@@ -740,20 +740,6 @@ namespace DapperSqlMaker.DapperExt
 
         #endregion
 
-        /// <summary>
-        /// 查询所有数据
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<T> GetAll()
-        {
-            //Type type = typeof(T);
-
-            using (var conn = GetCurrentConnection())
-            {
-                var t = conn.GetAll<T>();
-                return t;
-            }
-        }
 
         #region 添加数据
         /// <summary>
@@ -1434,14 +1420,14 @@ namespace DapperSqlMaker.DapperExt
             }
         }
 
-        public virtual IEnumerable<R> ExcuteSelect<R>()
+        public virtual IEnumerable<Y> ExcuteSelect<Y>()
         {
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
 
             using (var conn = GetCurrentConnection())
             {
-                var obj = conn.Query<R>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
+                var obj = conn.Query<Y>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
                 return obj;
             }
         }
@@ -1555,7 +1541,18 @@ namespace DapperSqlMaker.DapperExt
                 return obj;
             }
         }
-
+        /// <summary>
+        /// 查询所有数据
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<T> GetAll<T>() where T: class, new()
+        {  
+            using (var conn = GetCurrentConnection())
+            {
+                var t = conn.GetAll<T>();
+                return t;
+            }
+        }
         #endregion
 
 
