@@ -16,41 +16,55 @@
 	
 ##### 简单栗子：
 
-###### 1.查询-联表查询,分页
+##### 1.查询-联表查询,分页
 
 ```csharp
 [Test]
-public void 三表联表分页测试()
-{
-    LockPers lpmodel = new LockPers() { Name = "%蛋蛋%", IsDel = false};
-    Users umodel = new Users() { UserName = "jiaojiao" };
-    SynNote snmodel = new SynNote() { Name = "%木头%" };
-    Expression<Func<LockPers, Users, SynNote, bool>> where = PredicateBuilder.WhereStart<LockPers, Users, SynNote>();
-    where = where.And((lpw, uw, sn) => lpw.Name.Contains(lpmodel.Name));
-    where = where.And((lpw, uw, sn) => lpw.IsDel == lpmodel.IsDel);
-    where = where.And((lpw, uw, sn) => uw.UserName == umodel.UserName);
-    where = where.And((lpw, uw, sn) => sn.Name.Contains(snmodel.Name));
+        public void 三表联表分页测试()
+        {
+            string uall = "b.*";
+            LockPers lpmodel = new LockPers() { Name = "%蛋蛋%", IsDel = false};
+            Users umodel = new Users() { UserName = "jiaojiao" };
+            SynNote snmodel = new SynNote() { Name = "%木头%" };
+            Expression<Func<LockPers, Users, SynNote, bool>> where = PredicateBuilder.WhereStart<LockPers, Users, SynNote>();
+            where = where.And((lpw, uw, sn) => lpw.Name.Contains(lpmodel.Name));
+            where = where.And((lpw, uw, sn) => lpw.IsDel == lpmodel.IsDel);
+            where = where.And((lpw, uw, sn) => uw.UserName == umodel.UserName);
+            where = where.And((lpw, uw, sn) => sn.Name.Contains(snmodel.Name));
 
-    DapperSqlMaker<LockPers, Users, SynNote> query = LockDapperUtilsqlite<LockPers, Users, SynNote>
-        .Selec()
-        .Column((lp, u, s) =>		// null) //查询所有字段
-            new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName, s.Content, s.Name })
-        .FromJoin(JoinType.Left, (lpp, uu, snn) => uu.Id == lpp.UserId
-                , JoinType.Inner, (lpp, uu, snn) => uu.Id == snn.UserId)
-        .Where(where)
-        .Order((lp, w, sn) => new { lp.EditCount, lp.Name, sn.Content });
+            DapperSqlMaker<LockPers, Users, SynNote> query = LockDapperUtilsqlite<LockPers, Users, SynNote>
+                .Selec()
+                .Column((lp, u, s) => //null)  //查询所有字段
+                    new { lp.Name, lpid = lp.Id, a = "LENGTH(a.Prompt) as plen", b = SM.Sql(uall), scontent = s.Content, sname = s.Name })
+                .FromJoin(JoinType.Left, (lpp, uu, snn) => uu.Id == lpp.UserId
+                        , JoinType.Inner, (lpp, uu, snn) => uu.Id == snn.UserId)
+                .Where(where)
+                .Order((lp, w, sn) => new { lp.EditCount, lp.Name, sn.Content });
 
-    var result = query.ExcuteSelect(); //1. 执行查询
-    WriteJson(result); //  打印查询结果
+            var result = query.ExcuteSelect();
+            WriteJson(result); //  查询结果
 
-    Tuple<StringBuilder, DynamicParameters> resultsqlparams = query.RawSqlParams();
-    WriteSqlParams(resultsqlparams);  // 打印生成sql和参数 
+            Tuple<StringBuilder, DynamicParameters> resultsqlparams = query.RawSqlParams();
+            WriteSqlParams(resultsqlparams); // 打印sql和参数
 
-    int page = 2, rows = 3, records;
-    var result2 = query.LoadPagelt(page, rows, out records); //2. 分页查询
-    WriteJson(result2); //  查询结果
-}
+            int page = 2, rows = 3, records;
+            var result2 = query.LoadPagelt(page, rows, out records);
+            WriteJson(result2); //  查询结果
+        }
 ```
+*生成的sql* :
+```sql
+ select  a.Name as Name, a.Id as lpid
+	, LENGTH(a.Prompt) as plen, b.*
+	, c.Content as a, c.Name as b  
+	from LockPers a  
+	left join  Users b on  b.Id = a.UserId   
+	inner join  SynNote c on  b.Id = c.UserId  
+	where  a.Name like @Name0  and  a.IsDel = @IsDel1  
+		   and  b.UserName = @UserName2  and  c.Name like @Name3  
+    order by  a.EditCount, a.Name, c.Content 
+```
+
 ##### 2.更新-更新部分字段
 
 ```csharp
@@ -71,26 +85,24 @@ public void 更新部分字段测试lt()
 ```
 
 
+ 
 
-> //########################################  
-> 
-> 注意：
->1. svn提交到github时 不要再解决方案内复制文件 直接当作新文件添加进来 
-> 
-> 
->2.调试打印dapper查询sql
-> 方法: Dapper.SqlMapper.QueryImpl
-> 取消注释: // Console.WriteLine(cmd.CommandText);  
-> 
->3.where条件
-> 可变参数 比较时 先转成值类型
-> 
->4.实体表明后缀不要是数字
->
->5.七联表以上待扩展 只需copy已实现的 修改3个文件
->  DapperSqlMaker 
->  Template_DapperSqlMaker 上下文类
->  PredicateBuilder        条件拼接类
-> 
->6.[实体生成T4模板使用方法点我](https://www.cnblogs.com/cl-blogs/p/7205954.html)
+-----
+
+ 
+ 注意：
+> 1. svn提交到github时 不要再解决方案内复制文件 直接当作新文件添加进来 
+> 2. 调试打印dapper查询sql  
+   方法: Dapper.SqlMapper.QueryImpl  
+    取消注释: // Console.WriteLine(cmd.CommandText);  
+> 3. where条件
+     可变参数 比较时 先转成值类型
+> 4. 实体表明后缀不要是数字
+> 5. 表别名按 a,b,c... 顺序类推
+> 6. 七联表以上待扩展       
+    只需copy已实现的 修改3个文件            
+    DapperSqlMaker              
+    Template_DapperSqlMaker 上下文类         
+    PredicateBuilder        条件拼接类
+> 7. [实体生成T4模板使用方法点我](https://www.cnblogs.com/cl-blogs/p/7205954.html)
 >

@@ -131,6 +131,7 @@ namespace TestsDapperSqlMaker
         [Test]
         public void 三表联表分页测试()
         {
+            string uall = "b.*";
             LockPers lpmodel = new LockPers() { Name = "%蛋蛋%", IsDel = false};
             Users umodel = new Users() { UserName = "jiaojiao" };
             SynNote snmodel = new SynNote() { Name = "%木头%" };
@@ -143,7 +144,7 @@ namespace TestsDapperSqlMaker
             DapperSqlMaker<LockPers, Users, SynNote> query = LockDapperUtilsqlite<LockPers, Users, SynNote>
                 .Selec()
                 .Column((lp, u, s) => //null)  //查询所有字段
-                    new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName, s.Content, s.Name })
+                    new { lp.Name, lpid = lp.Id, a = "LENGTH(a.Prompt) as plen", b = SM.Sql(uall), scontent = s.Content, sname = s.Name })
                 .FromJoin(JoinType.Left, (lpp, uu, snn) => uu.Id == lpp.UserId
                         , JoinType.Inner, (lpp, uu, snn) => uu.Id == snn.UserId)
                 .Where(where)
@@ -153,7 +154,7 @@ namespace TestsDapperSqlMaker
             WriteJson(result); //  查询结果
 
             Tuple<StringBuilder, DynamicParameters> resultsqlparams = query.RawSqlParams();
-            WriteSqlParams(resultsqlparams);
+            WriteSqlParams(resultsqlparams); // 打印sql和参数
 
             int page = 2, rows = 3, records;
             var result2 = query.LoadPagelt(page, rows, out records);
