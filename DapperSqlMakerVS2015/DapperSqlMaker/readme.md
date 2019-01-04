@@ -1,13 +1,16 @@
 **DapperSqlMaker 链式查询扩展** 
+
+[Gihub地址](https://github.com/mumumutou/DapperSqlMaker)
+
 ###### 基于(已引入源码):
 	Dapper-1.50.2\Dapper
 	Dapper-1.50.2\Dapper.Contrib
 ###### Demo:
-	查询 TestsDapperSqlMaker\DapperExt\SelectDapperSqlMakerTest.cs
-	添加 TestsDapperSqlMaker\DapperExt\InsertDapperSqlMakerTest.cs
-	更新 TestsDapperSqlMaker\DapperExt\UpdateDapperSqlMakerTest.cs
-	删除 TestsDapperSqlMaker\DapperExt\DeleteDapperSqlMakerTest.cs
-	上下文类      DapperSqlMaker\DapperExt\LockDapperUtilsqlite.cs
+	查询       TestsDapperSqlMaker\DapperSqlMaker.Test\  SelectDapperSqlMakerTest.cs
+	添加       TestsDapperSqlMaker\DapperSqlMaker.Test\  InsertDapperSqlMakerTest.cs
+	更新       TestsDapperSqlMaker\DapperSqlMaker.Test\  UpdateDapperSqlMakerTest.cs
+	删除       TestsDapperSqlMaker\DapperSqlMaker.Test\  DeleteDapperSqlMakerTest.cs
+	上下文类   TestsDapperSqlMaker\DbDapperSqlMaker\     LockDapperUtilsqlite.cs
 	
 ##### 简单栗子：
 
@@ -36,10 +39,10 @@ public void 三表联表分页测试()
         .Order((lp, w, sn) => new { lp.EditCount, lp.Name, sn.Content });
 
     var result = query.ExcuteSelect(); //1. 执行查询
-    WriteJson(result); //  查询结果
+    WriteJson(result); //  打印查询结果
 
     Tuple<StringBuilder, DynamicParameters> resultsqlparams = query.RawSqlParams();
-    WriteSqlParams(resultsqlparams);
+    WriteSqlParams(resultsqlparams);  // 打印生成sql和参数 
 
     int page = 2, rows = 3, records;
     var result2 = query.LoadPagelt(page, rows, out records); //2. 分页查询
