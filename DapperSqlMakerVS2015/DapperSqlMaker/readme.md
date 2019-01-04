@@ -20,37 +20,37 @@
 
 ```csharp
 [Test]
-        public void 三表联表分页测试()
-        {
-            string uall = "b.*";
-            LockPers lpmodel = new LockPers() { Name = "%蛋蛋%", IsDel = false};
-            Users umodel = new Users() { UserName = "jiaojiao" };
-            SynNote snmodel = new SynNote() { Name = "%木头%" };
-            Expression<Func<LockPers, Users, SynNote, bool>> where = PredicateBuilder.WhereStart<LockPers, Users, SynNote>();
-            where = where.And((lpw, uw, sn) => lpw.Name.Contains(lpmodel.Name));
-            where = where.And((lpw, uw, sn) => lpw.IsDel == lpmodel.IsDel);
-            where = where.And((lpw, uw, sn) => uw.UserName == umodel.UserName);
-            where = where.And((lpw, uw, sn) => sn.Name.Contains(snmodel.Name));
+public void 三表联表分页测试()
+{
+    string uall = "b.*";
+    LockPers lpmodel = new LockPers() { Name = "%蛋蛋%", IsDel = false};
+    Users umodel = new Users() { UserName = "jiaojiao" };
+    SynNote snmodel = new SynNote() { Name = "%木头%" };
+    Expression<Func<LockPers, Users, SynNote, bool>> where = PredicateBuilder.WhereStart<LockPers, Users, SynNote>();
+    where = where.And((lpw, uw, sn) => lpw.Name.Contains(lpmodel.Name));
+    where = where.And((lpw, uw, sn) => lpw.IsDel == lpmodel.IsDel);
+    where = where.And((lpw, uw, sn) => uw.UserName == umodel.UserName);
+    where = where.And((lpw, uw, sn) => sn.Name.Contains(snmodel.Name));
 
-            DapperSqlMaker<LockPers, Users, SynNote> query = LockDapperUtilsqlite<LockPers, Users, SynNote>
-                .Selec()
-                .Column((lp, u, s) => //null)  //查询所有字段
-                    new { lp.Name, lpid = lp.Id, a = "LENGTH(a.Prompt) as plen", b = SM.Sql(uall), scontent = s.Content, sname = s.Name })
-                .FromJoin(JoinType.Left, (lpp, uu, snn) => uu.Id == lpp.UserId
-                        , JoinType.Inner, (lpp, uu, snn) => uu.Id == snn.UserId)
-                .Where(where)
-                .Order((lp, w, sn) => new { lp.EditCount, lp.Name, sn.Content });
+    DapperSqlMaker<LockPers, Users, SynNote> query = LockDapperUtilsqlite<LockPers, Users, SynNote>
+        .Selec()
+        .Column((lp, u, s) => //null)  //查询所有字段
+            new { lp.Name, lpid = lp.Id, a = "LENGTH(a.Prompt) as plen", b = SM.Sql(uall), scontent = s.Content, sname = s.Name })
+        .FromJoin(JoinType.Left, (lpp, uu, snn) => uu.Id == lpp.UserId
+                , JoinType.Inner, (lpp, uu, snn) => uu.Id == snn.UserId)
+        .Where(where)
+        .Order((lp, w, sn) => new { lp.EditCount, lp.Name, sn.Content });
 
-            var result = query.ExcuteSelect();
-            WriteJson(result); //  查询结果
+    var result = query.ExcuteSelect();
+    WriteJson(result); //  查询结果
 
-            Tuple<StringBuilder, DynamicParameters> resultsqlparams = query.RawSqlParams();
-            WriteSqlParams(resultsqlparams); // 打印sql和参数
+    Tuple<StringBuilder, DynamicParameters> resultsqlparams = query.RawSqlParams();
+    WriteSqlParams(resultsqlparams); // 打印sql和参数
 
-            int page = 2, rows = 3, records;
-            var result2 = query.LoadPagelt(page, rows, out records);
-            WriteJson(result2); //  查询结果
-        }
+    int page = 2, rows = 3, records;
+    var result2 = query.LoadPagelt(page, rows, out records);
+    WriteJson(result2); //  查询结果
+}
 ```
 *生成的sql* :
 ```sql
