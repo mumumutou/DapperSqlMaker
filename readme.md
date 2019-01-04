@@ -67,7 +67,6 @@ public void 更新部分字段测试lt()
 
 
 
-
 > //########################################  
 > 
 > 注意：
@@ -87,4 +86,6 @@ public void 更新部分字段测试lt()
 >  DapperSqlMaker 
 >  Template_DapperSqlMaker 上下文类
 >  PredicateBuilder        条件拼接类
+> 
+> 6.[实体生成T4模板使用方法点我](https://www.cnblogs.com/cl-blogs/p/7205954.html)
 >

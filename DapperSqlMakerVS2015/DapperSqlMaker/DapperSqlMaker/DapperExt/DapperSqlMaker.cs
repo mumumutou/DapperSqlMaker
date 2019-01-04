@@ -1497,8 +1497,9 @@ namespace DapperSqlMaker.DapperExt
         }
 
 
+        #region sql执行Dapper已有方法
         /// <summary>
-        /// 动态执行sql
+        /// 增删改 返回影响行数
         /// </summary> 
         public int Execute(string sql, object entity)
         {
@@ -1510,6 +1511,52 @@ namespace DapperSqlMaker.DapperExt
                 return conn.Execute(sql, entity);
             }
         }
+        /// <summary>
+        /// 查询
+        /// </summary> 
+        public IEnumerable<dynamic> Query(string sql, object entity)
+        {
+            using (var conn = GetCurrentConnection())
+            {
+                var obj = conn.Query<dynamic>(sql, entity);
+                return obj;
+            }
+        }
+        /// <summary>
+        /// 查询
+        /// </summary> 
+        public IEnumerable<T> Query<T>(string sql, object entity)
+        {
+            using (var conn = GetCurrentConnection())
+            {
+                var obj = conn.Query<T>(sql, entity);
+                return obj;
+            }
+        }
+        /// <summary>
+        /// 查询首行
+        /// </summary> 
+        public T QueryFirst<T>(string sql, object entity)
+        {
+            using (var conn = GetCurrentConnection())
+            {
+                var obj = conn.QueryFirst<T>(sql, entity);
+                return obj;
+            }
+        }
+        /// <summary>
+        /// 查询首行
+        /// </summary> 
+        public T ExecuteScalar<T>(string sql, object entity)
+        {
+            using (var conn = GetCurrentConnection())
+            {
+                var obj = conn.ExecuteScalar<T>(sql, entity);
+                return obj;
+            }
+        }
+
+        #endregion
 
 
 

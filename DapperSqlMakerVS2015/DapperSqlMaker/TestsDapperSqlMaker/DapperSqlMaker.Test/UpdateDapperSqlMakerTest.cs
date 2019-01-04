@@ -65,21 +65,8 @@ namespace TestsDapperSqlMaker.DapperExt
 
         #endregion
 
-        [Test]
-        public void 直接执行sql修改() {
 
-            SynNote_ sn = new SynNote_();
-            sn.Content = "备注333";
-            sn.IsDel = false;
-            sn.Name = "棉花多读懂多多多多";
-            sn.NoteDate = DateTime.Now;
-            sn.UserId = 2;
-            sn.Id = 3;
-            string updatesql = "update SynNote set \"Content\" = @Content, \"NoteDate\" = @NoteDate, \"Name\" = @Name, \"UserId\" = @UserId, \"IsDel\" = @IsDel where \"Id\" = @Id";
-            var ef = LockDapperUtilsqlite.New().Execute(updatesql, sn);
-            Console.WriteLine(ef);
-
-        }
+        
 
     }
 }
