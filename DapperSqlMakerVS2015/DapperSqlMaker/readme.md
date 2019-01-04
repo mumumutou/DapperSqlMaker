@@ -1,28 +1,28 @@
-**DapperSqlMaker é“¾å¼æŸ¥è¯¢æ‰©å±•** 
+**DapperSqlMaker Á´Ê½²éÑ¯À©Õ¹** 
 
-[Gihubåœ°å€](https://github.com/mumumutou/DapperSqlMaker)
+[GihubµØÖ·](https://github.com/mumumutou/DapperSqlMaker)
 
-###### åŸºäº(å·²å¼•å…¥æºç ):
+###### »ùÓÚ(ÒÑÒıÈëÔ´Âë):
 	Dapper-1.50.2\Dapper
 	Dapper-1.50.2\Dapper.Contrib
 ###### Demo:
-	æŸ¥è¯¢       TestsDapperSqlMaker\DapperSqlMaker.Test\  SelectDapperSqlMakerTest.cs
-	æ·»åŠ        TestsDapperSqlMaker\DapperSqlMaker.Test\  InsertDapperSqlMakerTest.cs
-	æ›´æ–°       TestsDapperSqlMaker\DapperSqlMaker.Test\  UpdateDapperSqlMakerTest.cs
-	åˆ é™¤       TestsDapperSqlMaker\DapperSqlMaker.Test\  DeleteDapperSqlMakerTest.cs
-	ä¸Šä¸‹æ–‡ç±»   TestsDapperSqlMaker\DbDapperSqlMaker\     LockDapperUtilsqlite.cs
+	²éÑ¯       TestsDapperSqlMaker\DapperSqlMaker.Test\  SelectDapperSqlMakerTest.cs
+	Ìí¼Ó       TestsDapperSqlMaker\DapperSqlMaker.Test\  InsertDapperSqlMakerTest.cs
+	¸üĞÂ       TestsDapperSqlMaker\DapperSqlMaker.Test\  UpdateDapperSqlMakerTest.cs
+	É¾³ı       TestsDapperSqlMaker\DapperSqlMaker.Test\  DeleteDapperSqlMakerTest.cs
+	ÉÏÏÂÎÄÀà   TestsDapperSqlMaker\DbDapperSqlMaker\     LockDapperUtilsqlite.cs
 	
-##### ç®€å•æ —å­ï¼š
+##### ¼òµ¥Àõ×Ó£º
 
-###### 1.æŸ¥è¯¢-è”è¡¨æŸ¥è¯¢,åˆ†é¡µ
+###### 1.²éÑ¯-Áª±í²éÑ¯,·ÖÒ³
 
 ```csharp
 [Test]
-public void ä¸‰è¡¨è”è¡¨åˆ†é¡µæµ‹è¯•()
+public void Èı±íÁª±í·ÖÒ³²âÊÔ()
 {
-    LockPers lpmodel = new LockPers() { Name = "%è›‹è›‹%", IsDel = false};
+    LockPers lpmodel = new LockPers() { Name = "%µ°µ°%", IsDel = false};
     Users umodel = new Users() { UserName = "jiaojiao" };
-    SynNote snmodel = new SynNote() { Name = "%æœ¨å¤´%" };
+    SynNote snmodel = new SynNote() { Name = "%Ä¾Í·%" };
     Expression<Func<LockPers, Users, SynNote, bool>> where = PredicateBuilder.WhereStart<LockPers, Users, SynNote>();
     where = where.And((lpw, uw, sn) => lpw.Name.Contains(lpmodel.Name));
     where = where.And((lpw, uw, sn) => lpw.IsDel == lpmodel.IsDel);
@@ -31,38 +31,38 @@ public void ä¸‰è¡¨è”è¡¨åˆ†é¡µæµ‹è¯•()
 
     DapperSqlMaker<LockPers, Users, SynNote> query = LockDapperUtilsqlite<LockPers, Users, SynNote>
         .Selec()
-        .Column((lp, u, s) =>		// null) //æŸ¥è¯¢æ‰€æœ‰å­—æ®µ
+        .Column((lp, u, s) =>		// null) //²éÑ¯ËùÓĞ×Ö¶Î
             new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName, s.Content, s.Name })
         .FromJoin(JoinType.Left, (lpp, uu, snn) => uu.Id == lpp.UserId
                 , JoinType.Inner, (lpp, uu, snn) => uu.Id == snn.UserId)
         .Where(where)
         .Order((lp, w, sn) => new { lp.EditCount, lp.Name, sn.Content });
 
-    var result = query.ExcuteSelect(); //1. æ‰§è¡ŒæŸ¥è¯¢
-    WriteJson(result); //  æ‰“å°æŸ¥è¯¢ç»“æœ
+    var result = query.ExcuteSelect(); //1. Ö´ĞĞ²éÑ¯
+    WriteJson(result); //  ´òÓ¡²éÑ¯½á¹û
 
     Tuple<StringBuilder, DynamicParameters> resultsqlparams = query.RawSqlParams();
-    WriteSqlParams(resultsqlparams);  // æ‰“å°ç”Ÿæˆsqlå’Œå‚æ•° 
+    WriteSqlParams(resultsqlparams);  // ´òÓ¡Éú³ÉsqlºÍ²ÎÊı 
 
     int page = 2, rows = 3, records;
-    var result2 = query.LoadPagelt(page, rows, out records); //2. åˆ†é¡µæŸ¥è¯¢
-    WriteJson(result2); //  æŸ¥è¯¢ç»“æœ
+    var result2 = query.LoadPagelt(page, rows, out records); //2. ·ÖÒ³²éÑ¯
+    WriteJson(result2); //  ²éÑ¯½á¹û
 }
 ```
-##### 2.æ›´æ–°-æ›´æ–°éƒ¨åˆ†å­—æ®µ
+##### 2.¸üĞÂ-¸üĞÂ²¿·Ö×Ö¶Î
 
 ```csharp
 [Test]
-public void æ›´æ–°éƒ¨åˆ†å­—æ®µæµ‹è¯•lt()
+public void ¸üĞÂ²¿·Ö×Ö¶Î²âÊÔlt()
 {
     var issucs = LockDapperUtilsqlite<LockPers>.Cud.Update(
         s =>
         {
-            s.Name = "æµ‹è¯•boolä¿®æ”¹1";
-            s.Content = "updateæ–¹æ³•å†…èµ‹å€¼ä¿®æ”¹å­—æ®µ";
+            s.Name = "²âÊÔboolĞŞ¸Ä1";
+            s.Content = "update·½·¨ÄÚ¸³ÖµĞŞ¸Ä×Ö¶Î";
             s.IsDel = true;
         },
-        w => w.Name == "æµ‹è¯•boolä¿®æ”¹1" && w.IsDel == true
+        w => w.Name == "²âÊÔboolĞŞ¸Ä1" && w.IsDel == true
         );
     Console.WriteLine(issucs);
 }
@@ -72,23 +72,23 @@ public void æ›´æ–°éƒ¨åˆ†å­—æ®µæµ‹è¯•lt()
 
 > //########################################  
 > 
-> æ³¨æ„ï¼š
->1. svnæäº¤åˆ°githubæ—¶ ä¸è¦å†è§£å†³æ–¹æ¡ˆå†…å¤åˆ¶æ–‡ä»¶ ç›´æ¥å½“ä½œæ–°æ–‡ä»¶æ·»åŠ è¿›æ¥ 
+> ×¢Òâ£º
+>1. svnÌá½»µ½githubÊ± ²»ÒªÔÙ½â¾ö·½°¸ÄÚ¸´ÖÆÎÄ¼ş Ö±½Óµ±×÷ĞÂÎÄ¼şÌí¼Ó½øÀ´ 
 > 
 > 
->2.è°ƒè¯•æ‰“å°dapperæŸ¥è¯¢sql
-> æ–¹æ³•: Dapper.SqlMapper.QueryImpl
-> å–æ¶ˆæ³¨é‡Š: // Console.WriteLine(cmd.CommandText);  
+>2.µ÷ÊÔ´òÓ¡dapper²éÑ¯sql
+> ·½·¨: Dapper.SqlMapper.QueryImpl
+> È¡Ïû×¢ÊÍ: // Console.WriteLine(cmd.CommandText);  
 > 
->3.whereæ¡ä»¶
-> å¯å˜å‚æ•° æ¯”è¾ƒæ—¶ å…ˆè½¬æˆå€¼ç±»å‹
+>3.whereÌõ¼ş
+> ¿É±ä²ÎÊı ±È½ÏÊ± ÏÈ×ª³ÉÖµÀàĞÍ
 > 
->4.å®ä½“è¡¨æ˜åç¼€ä¸è¦æ˜¯æ•°å­—
+>4.ÊµÌå±íÃ÷ºó×º²»ÒªÊÇÊı×Ö
 >
->5.ä¸ƒè”è¡¨ä»¥ä¸Šå¾…æ‰©å±• åªéœ€copyå·²å®ç°çš„ ä¿®æ”¹3ä¸ªæ–‡ä»¶
+>5.ÆßÁª±íÒÔÉÏ´ıÀ©Õ¹ Ö»ĞècopyÒÑÊµÏÖµÄ ĞŞ¸Ä3¸öÎÄ¼ş
 >  DapperSqlMaker 
->  Template_DapperSqlMaker ä¸Šä¸‹æ–‡ç±»
->  PredicateBuilder        æ¡ä»¶æ‹¼æ¥ç±»
+>  Template_DapperSqlMaker ÉÏÏÂÎÄÀà
+>  PredicateBuilder        Ìõ¼şÆ´½ÓÀà
 > 
->6.[å®ä½“ç”ŸæˆT4æ¨¡æ¿ä½¿ç”¨æ–¹æ³•ç‚¹æˆ‘](https://www.cnblogs.com/cl-blogs/p/7205954.html)
+>6.[ÊµÌåÉú³ÉT4Ä£°åÊ¹ÓÃ·½·¨µãÎÒ](https://www.cnblogs.com/cl-blogs/p/7205954.html)
 >
