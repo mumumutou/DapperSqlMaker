@@ -64,20 +64,45 @@ namespace DapperSqlMaker.DapperExt
         /// </summary> 
         public static string Sql(string str) => null;
         public static string _Sql_Name = "Sql";
-       
+
+        #region 标记方法
 
         /// <summary>
-        /// Order By xxx desc
+        /// 倒序标记方法 Order By xxx desc
         /// </summary>
         public static string OrderDesc<T>(T field) => null;
         public static string _OrderDesc_Name = "OrderDesc";
         public static string OrderDesc_Sql = " desc ";
 
+
+
+        #endregion
+
+        #region 特定sql值和标记
+        /// <summary>
+        /// (内部调用)分页 
+        /// </summary>
         public static string ColumnAll = " * ";
+        /// <summary>
+        /// SQLite分页总记录 特定sql值 (SQLite分页方法内部调用)
+        /// </summary>
         public static string LimitSelectCount = " select count(1) counts ";
+        /// <summary>
+        /// MSSql分页总记录 特定sql值和标记 (MSQL分页查询时 Column()方法中显示标记)
+        /// </summary>
         public static string LimitCount = " count(1) over() as counts ";
+        /// <summary>
+        /// (内部调用)
+        /// </summary>
         public static string _limitcount_Name = "SM.LimitCount";
+        /// <summary>
+        /// (内部调用)MSSql分页
+        /// </summary>
         public static string LimitRowNumber_Sql = " row_number() over(order by {0}) as rownum, ";
+
+        #endregion
+
+         
         public static bool WhereStartIgnore() => true;
 
 
