@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>0.0.1</version>
+    <title>DapperSqlMaker</title>
+    <authors>CC</authors>
+    <owners>$author$</owners>
+    <licenseUrl>http://LICENSE_URL_HERE_OR_DELETE_THIS_LINE</licenseUrl>
+    <projectUrl>https://github.com/mumumutou/DapperSqlMaker</projectUrl>
+    <iconUrl>https://files-cdn.cnblogs.com/files/cl-blogs/Su-35Flanker.ico</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>CC.DapperSqlMaker Dapper链式查询扩展</description>
+    <releaseNotes>CC.DapperSqlMaker Dapper链式查询扩展</releaseNotes>
+    <copyright>Copyright 2019</copyright>
+    <tags>Dapper 链式查询</tags>
+  </metadata>
+</package>
