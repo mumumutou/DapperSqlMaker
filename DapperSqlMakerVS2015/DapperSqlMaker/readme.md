@@ -1,5 +1,5 @@
 **DapperSqlMaker 链式查询扩展** 
-###### 基于:
+###### 基于(已引入源码):
 	Dapper-1.50.2\Dapper
 	Dapper-1.50.2\Dapper.Contrib
 ###### Demo:
