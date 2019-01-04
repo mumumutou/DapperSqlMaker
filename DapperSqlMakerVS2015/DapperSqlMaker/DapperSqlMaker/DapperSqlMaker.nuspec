@@ -2,8 +2,8 @@
 <package >
   <metadata>
     <id>$id$</id>
-    <version>0.0.1</version>
-    <title>DapperSqlMaker</title>
+    <version>0.0.2</version>
+    <title>Dapper.SqlMaker</title>
     <authors>CC</authors>
     <owners>$author$</owners>
     <licenseUrl>http://LICENSE_URL_HERE_OR_DELETE_THIS_LINE</licenseUrl>
