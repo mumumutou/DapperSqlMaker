@@ -457,11 +457,11 @@ namespace TestsDapperSqlMaker
         #endregion
 
         [Test]
-        public void 字段别名和Column直接拼接sql()
+        public void 字段别名和Column中直接拼接sql()
         {
             //1. 字段别名 为 匿名类型成员名
-            //2. Column和Order 直接拼接sql  用SM.Sql 或者直接写入 字符串值
-            //2. (2)的字段别名 也要写在字符串里 注意:不是匿名类型成员们 
+            //2. (Column和Order)中直接拼接sql 用SM.Sql 或者直接写入 字符串值
+            //3. (2)的字段别名 也要写在字符串里 注意:这里匿名类型成员名只是为了符合语法,不会被解析成别名 
             string umodelall = "b.*";
             LockPers lpmodel = new LockPers() { IsDel = false };
             Users umodel = new Users() { UserName = "jiaojiao" }; 
@@ -472,7 +472,7 @@ namespace TestsDapperSqlMaker
 
             DapperSqlMaker<LockPers, Users> query = LockDapperUtilsqlite<LockPers, Users>
                 .Selec()
-                .Column((lp, u) => new { a="LENGTH(a.Prompt)",b=SM.Sql(umodelall), lpid = lp.Id, lp.Name, lp.Prompt })
+                .Column((lp, u) => new { a="LENGTH(a.Prompt) as len",b=SM.Sql(umodelall), lpid = lp.Id, lp.Name, lp.Prompt })
                 .FromJoin(JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId)
                 .Where(where)
                 .Order((lp, w) => new { a = SM.OrderDesc(lp.EditCount), lp.Id });
