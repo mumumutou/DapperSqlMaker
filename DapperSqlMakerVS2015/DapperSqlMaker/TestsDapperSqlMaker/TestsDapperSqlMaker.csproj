@@ -67,6 +67,7 @@
     <Compile Include="DapperSqlMaker.Test\InsertDapperSqlMakerTest.cs" />
     <Compile Include="DapperSqlMaker.Test\SelectDapperSqlMakerTest.cs" />
     <Compile Include="DapperSqlMaker.Test\UpdateDapperSqlMakerTest.cs" />
+    <Compile Include="DbDapperSqlMaker\CopyModelHelper.cs" />
     <Compile Include="DbDapperSqlMaker\DataBaseConfig.cs" />
     <Compile Include="DbDapperSqlMaker\LockDapperUtilmssql.cs" />
     <Compile Include="DbDapperSqlMaker\LockDapperUtilsqlite.cs" />
