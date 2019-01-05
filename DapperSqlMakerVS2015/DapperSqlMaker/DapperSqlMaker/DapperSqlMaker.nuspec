@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>DapperSqlMaker</id>
-    <version>0.0.6</version>
+    <version>0.0.7</version>
     <title>DapperSqlMaker</title>
     <authors>CC</authors>
     <owners>$author$</owners>
@@ -14,8 +14,8 @@
     <releaseNotes>CC.DapperSqlMaker Dapper链式查询扩展</releaseNotes>
     <copyright>Copyright 2019</copyright>
     <tags>Dapper 链式查询</tags>
-    <dependencies>
+    <!--<dependencies>
       <dependency id="NUnit" version="3.11.0" />
-    </dependencies>
+    </dependencies>-->
   </metadata>
 </package>
