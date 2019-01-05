@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>$id$</id>
-    <version>0.0.2</version>
-    <title>Dapper.SqlMaker</title>
+    <id>1FC19318-1C01-4DAE-8935-2660218453CD</id>
+    <version>0.0.3</version>
+    <title>DapperSqlMaker</title>
     <authors>CC</authors>
     <owners>$author$</owners>
     <licenseUrl>http://LICENSE_URL_HERE_OR_DELETE_THIS_LINE</licenseUrl>
