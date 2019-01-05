@@ -846,54 +846,30 @@ namespace DapperSqlMaker.DapperExt
 
         #region 添加数据
         /// <summary>
-        // 添加 返回影响行数 只插入赋值的字段  x.Insert(p => { p.Id = 1; p.Name = "新增"; });
-        /// </summary>  
-        public int Insert(Action<T> entityAcn)
-        {
-            if (entityAcn == null)
-                throw new Exception("entityAcn为空");
-
-            T entity = new T();
-            //writeFiled.SetValue(entity, true); //padd._IsWriteFiled = true;
-            entityAcn(entity);
-
-            using (var conn = GetCurrentConnection()) // GetCurrentConnection() )
-            {
-                var t = conn.InsertWriteField(entity, null, null);
-                return (int)t;
-            }
-        }
-        /// <summary>
-        /// 2.插入记录 返回插入id 外部初始化新实体 只插入赋值的字段
+        /// 1.添加一行记录 返回影响行数 外部初始化新实体 只插入赋值的字段
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entity"></param>
-        /// <returns>返回的是最后插入行id (sqlite中是最后一行数+1)</returns>
-        public int Insert(T entity)
+        /// <returns>返回影响行数</returns>
+        public int Insert(T entity, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             if (entity == null)
                 throw new Exception();
 
             using (var conn = GetCurrentConnection())
             {
-                var t = conn.InsertWriteField(entity, null, null);
+                var t = conn.InsertWriteField(entity, transaction, commandTimeout);
                 return (int)t;
             }
         }
         /// <summary>
-        /// 1.插入记录 返回插入id 只插入赋值的字段  x.Insert(p => { p.Id = 1; p.Name = "新增"; });
-        /// </summary>
-        /// <param name="entityAcn"></param>
-        /// <returns>返回的是最后插入行id (sqlite中是最后一行数+1)</returns>
-        public int InsertGetId(Action<T> entityAcn) // static
+        /// 2.添加一行记录 返回影响行数返回影响行数 只插入赋值的字段  x.Insert(p => { p.Id = 1; p.Name = "新增"; });
+        /// </summary>  
+        /// <returns>返回影响行数</returns>
+        public int Insert(Action<T> entityAcn, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             if (entityAcn == null)
                 throw new Exception("entityAcn为空");
-
-            //Type type = typeof(T);
-            //var writeFiled = type.GetField("_IsWriteFiled");
-            //if (writeFiled == null)
-            //    throw new Exception("未能找到_IsWriteFiled写入标识字段");
 
             T entity = new T();
             //writeFiled.SetValue(entity, true); //padd._IsWriteFiled = true;
@@ -901,18 +877,17 @@ namespace DapperSqlMaker.DapperExt
 
             using (var conn = GetCurrentConnection()) // GetCurrentConnection() )
             {
-                var t = conn.InsertGetIdWriteField(entity, null, null);
+                var t = conn.InsertWriteField(entity, transaction, commandTimeout);
                 return (int)t;
             }
         }
-
         /// <summary>
-        /// 2.插入记录 返回插入id 外部初始化新实体 只插入赋值的字段
+        /// 3.添加一行记录 返回插入id 外部初始化新实体 只插入赋值的字段
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entity"></param>
         /// <returns>返回的是最后插入行id (sqlite中是最后一行数+1)</returns>
-        public int InsertGetId(T entity)
+        public int InsertGetId(T entity, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             //Type type = typeof(T);
             if (entity == null)
@@ -920,10 +895,31 @@ namespace DapperSqlMaker.DapperExt
 
             using (var conn = GetCurrentConnection()) //GetCurrentConnection() )
             {
-                var t = conn.InsertGetIdWriteField(entity, null, null);
+                var t = conn.InsertGetIdWriteField(entity, transaction, commandTimeout);
                 return (int)t;
             }
         }
+        /// <summary>
+        /// 4.添加一行记录 返回插入id 只插入赋值的字段  x.Insert(p => { p.Id = 1; p.Name = "新增"; });
+        /// </summary>
+        /// <param name="entityAcn"></param>
+        /// <returns>返回的是最后插入行id (sqlite中是最后一行数+1)</returns>
+        public int InsertGetId(Action<T> entityAcn, IDbTransaction transaction = null, int? commandTimeout = null) // static
+        {
+            if (entityAcn == null)
+                throw new Exception("entityAcn为空"); 
+
+            T entity = new T();
+            //writeFiled.SetValue(entity, true); //padd._IsWriteFiled = true;
+            entityAcn(entity);
+
+            using (var conn = GetCurrentConnection()) // GetCurrentConnection() )
+            {
+                var t = conn.InsertGetIdWriteField(entity, transaction, commandTimeout);
+                return (int)t;
+            }
+        }
+
         
 
         #endregion
@@ -931,13 +927,34 @@ namespace DapperSqlMaker.DapperExt
         #region 更新数据
 
         /// <summary>
+        /// 1.更新 只更新赋值修改的字段 (外部初始化新实体 并赋值修改过的字段 再传入)
+        /// t.Update(setEntity ,  w => w.Id == 1);
+        /// </summary>
+        /// <param name="setEntity">已修改过字段实体</param>
+        /// <param name="wherefunc">where条件</param>
+        /// <returns>返回是否修改成功</returns> 
+        public bool Update(T setEntity, Expression<Func<T, bool>> whereAcn, IDbTransaction transaction = null, int? commandTimeout = null)  // static
+        {
+            if (setEntity == null)
+                throw new Exception("setEntity为空");
+            if (whereAcn == null)
+                throw new Exception("whereAcn为空");
+
+            using (var conn = GetCurrentConnection()) //GetCurrentConnection() )
+            {
+                var t = conn.UpdateWriteField(setEntity, whereAcn, transaction, commandTimeout);
+                return t;
+            }
+
+        }
+        /// <summary>
         /// 2.更新 只更新赋值修改的字段 
         /// t.Update( s => {  s.IsDel = true; },  w => w.Id == 1);
         /// </summary>
         /// <param name="setAcn">给修改的字段赋值</param>
         /// <param name="wherefunc">where条件</param>
         /// <returns>返回是否修改成功</returns> 
-        public bool Update(Action<T> setAcn, Expression<Func<T, bool>> whereAcn)  // static
+        public bool Update(Action<T> setAcn, Expression<Func<T, bool>> whereAcn, IDbTransaction transaction = null, int? commandTimeout = null)  // static
         {
             if (setAcn == null)
                 throw new Exception("setAcn为空");
@@ -949,33 +966,11 @@ namespace DapperSqlMaker.DapperExt
 
             using (var conn = GetCurrentConnection()) //GetCurrentConnection() )
             {
-                var t = conn.UpdateWriteField(entity, whereAcn, null, null);
+                var t = conn.UpdateWriteField(entity, whereAcn, transaction, commandTimeout);
                 return t;
             }
 
         }
-        /// <summary>
-        /// 1.2.更新 只更新赋值修改的字段 (外部初始化新实体 并赋值修改过的字段 再传入)
-        /// t.Update(setEntity ,  w => w.Id == 1);
-        /// </summary>
-        /// <param name="setEntity">已修改过字段实体</param>
-        /// <param name="wherefunc">where条件</param>
-        /// <returns>返回是否修改成功</returns> 
-        public bool Update(T setEntity, Expression<Func<T, bool>> whereAcn)  // static
-        {
-            if (setEntity == null)
-                throw new Exception("setEntity为空");
-            if (whereAcn == null)
-                throw new Exception("whereAcn为空");
-
-            using (var conn = GetCurrentConnection()) //GetCurrentConnection() )
-            {
-                var t = conn.UpdateWriteField(setEntity, whereAcn, null, null);
-                return t;
-            }
-
-        }
-          
         #endregion
 
         #region 删除数据
@@ -986,11 +981,11 @@ namespace DapperSqlMaker.DapperExt
         /// </summary>
         /// <param name="whereExps">bool返回值无意义 只是为了连接where表达式</param>
         /// <returns></returns>
-        public bool Delete(Expression<Func<T, bool>> whereExps) //static
+        public bool Delete(Expression<Func<T, bool>> whereExps, IDbTransaction transaction = null, int? commandTimeout = null) //static
         {  
             using (var conn = GetCurrentConnection()) //GetCurrentConnection() )
             {
-                var t = conn.DeleteWriteField(whereExps, null, null);
+                var t = conn.DeleteWriteField(whereExps, transaction, commandTimeout);
                 return t;
             }
 

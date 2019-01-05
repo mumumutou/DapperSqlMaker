@@ -751,12 +751,11 @@ namespace Dapper.Contrib.Extensions
         /// <typeparam name="T"></typeparam>
         /// <param name="connection"></param>
         /// <param name="entityToUpdate"></param>
-        /// <param name="expression"></param>
-        /// <param name="spars"></param>
+        /// <param name="expression"></param> 
         /// <param name="transaction"></param>
         /// <param name="commandTimeout"></param> 
         /// <returns></returns>
-        public static bool UpdateWriteField<T>(this IDbConnection connection, T entityToUpdate, Expression<Func<T, bool>> expression, List<IDataParameter> spars, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static bool UpdateWriteField<T>(this IDbConnection connection, T entityToUpdate, Expression<Func<T, bool>> expression, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             var proxy = entityToUpdate as IProxy;
             if (proxy != null)
