@@ -114,7 +114,7 @@ namespace TestsDapperSqlMaker.DapperExt
         {
             //return;
 
-            var list3old = LockDapperUtilsqlite.New().GetAll<LockPers_>();
+            var list3old = LockDapperUtilsqlite<LockPers_>.Cud.GetAll();
             List<LockPers_ms_> list3new = new List<LockPers_ms_>();
             foreach (var item in list3old)
             {
@@ -122,12 +122,12 @@ namespace TestsDapperSqlMaker.DapperExt
 
                 list3new.Add(CopyModelHelper.Mapper<LockPers_ms_, LockPers_>(item));
             }
-            var efrow = LockDapperUtilmssql<LockPers_ms_>.Cud.InsertList(list3new);
+            var efrow = LockDapperUtilmssql<LockPers_ms_>.Cud.InserList(list3new);
             Console.WriteLine("影响行数-" + efrow);
 
             return;
 
-            var list2old = LockDapperUtilsqlite.New().GetAll<SynNote>();
+            var list2old = LockDapperUtilsqlite<SynNote>.Cud.GetAll();
             foreach (var item in list2old)
             {
                 var model = CopyModelHelper.Mapper<SynNote_ms, SynNote>(item);
@@ -135,7 +135,7 @@ namespace TestsDapperSqlMaker.DapperExt
                 //newlist.Add ( );
             }
 
-            var list1old = LockDapperUtilsqlite.New().GetAll<Users>();
+            var list1old = LockDapperUtilsqlite<Users>.Cud.GetAll();
             foreach (var item in list1old)
             {
                 var model = CopyModelHelper.Mapper<Users_ms, Users>(item);

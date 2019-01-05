@@ -54,7 +54,7 @@ namespace TestsDapperSqlMaker.DapperExt
             model.ContentOld = "忽略Write(false)标记字段";
             model.Prompt = "xxxxxxxxxxx";
 
-            var issucs = LockDapperUtilsqlite<LockPers>.Cud.Update(model);
+            var issucs = LockDapperUtilsqlite<LockPers>.Cud.Updat(model);
             Console.WriteLine(issucs);
              
         }

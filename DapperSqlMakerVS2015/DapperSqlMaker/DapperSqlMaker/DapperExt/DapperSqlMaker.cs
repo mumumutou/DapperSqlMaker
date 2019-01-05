@@ -741,6 +741,109 @@ namespace DapperSqlMaker.DapperExt
         #endregion
 
 
+        #region Dapper.Contrib简单curd 
+        /// <summary>
+        /// 获取一条数据根据主键标识字段 (Dapper.Contrib)
+        /// </summary> 
+        /// <returns></returns>
+        public T Get(int id, IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+
+            using (var conn = GetCurrentConnection())
+            {
+                var t = conn.Get<T>(id, transaction, commandTimeout);
+                return t;
+            }
+        }
+        /// <summary>
+        /// 获取一条数据根据主键标识字段 (Dapper.Contrib) 
+        /// </summary> 
+        /// <returns></returns>
+        public T Get(string id, IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+
+            using (var conn = GetCurrentConnection())
+            {
+                var t = conn.Get<T>(id, transaction, commandTimeout);
+                return t;
+            }
+        }
+        /// <summary>
+        /// 查询所有数据 (Dapper.Contrib) 
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<T> GetAll(IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+            using (var conn = GetCurrentConnection())
+            {
+                var t = conn.GetAll<T>(transaction, commandTimeout);
+                return t;
+            }
+        }
+        /// <summary>
+        /// 更新整个实体根据主键标识字段 (Dapper.Contrib) 
+        /// </summary>  
+        /// <param name="efrowOrId">true返回影响行数 false返回插入id</param> 
+        /// <returns></returns>
+        public int Inser(T entity,bool efrowOrId = true, IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+            Type type = typeof(T);
+            if (entity == null)
+                throw new Exception();
+            using (var conn = GetCurrentConnection())
+            {
+                var t = conn.Insert(entity, efrowOrId, transaction, commandTimeout);
+                return (int)t;
+            }
+        }
+        /// <summary>
+        /// 批量插入数据 返回影响行数 (Dapper.Contrib) 
+        /// </summary> 
+        /// <returns></returns>
+        public int InserList(List<T> entitys, IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+            //Type type = typeof(T);
+            if (entitys == null)
+                throw new Exception();
+
+            using (var conn = GetCurrentConnection()) //GetCurrentConnection() )
+            {
+                var t = conn.Insert(entitys,false, transaction, commandTimeout);
+                return (int)t;
+            }
+        }
+        /// <summary>
+        /// 更新整个实体根据主键标识字段 (Dapper.Contrib) 
+        /// </summary> 
+        public bool Updat(T entity, IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+            Type type = typeof(T);
+            if (entity == null)
+                throw new Exception();
+            using (var conn = GetCurrentConnection())
+            {
+                var t = conn.Update(entity, transaction, commandTimeout);
+                return t;
+            }
+        }
+        /// <summary>
+        /// 更新整个实体根据主键标识字段 (Dapper.Contrib) 
+        /// </summary> 
+        public bool Delet(T entity, IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+            Type type = typeof(T);
+            if (entity == null)
+                throw new Exception();
+            using (var conn = GetCurrentConnection())
+            {
+                var t = conn.Delete(entity, transaction, commandTimeout);
+                return t;
+            }
+        }
+
+
+        #endregion
+
         #region 添加数据
         /// <summary>
         // 添加 返回影响行数 只插入赋值的字段  x.Insert(p => { p.Id = 1; p.Name = "新增"; });
@@ -821,23 +924,7 @@ namespace DapperSqlMaker.DapperExt
                 return (int)t;
             }
         }
-        /// <summary>
-        /// 批量插入数据 返回影响行数
-        /// </summary>
-        /// <param name="entitys"></param>
-        /// <returns></returns>
-        public int InsertList(List<T> entitys)
-        {
-            //Type type = typeof(T);
-            if (entitys == null)
-                throw new Exception();
-
-            using (var conn = GetCurrentConnection()) //GetCurrentConnection() )
-            {
-                var t = conn.Insert(entitys, null, null);
-                return (int)t;
-            }
-        }
+        
 
         #endregion
 
@@ -888,22 +975,7 @@ namespace DapperSqlMaker.DapperExt
             }
 
         }
-
-        /// <summary>
-        /// 3.更新整个实体 根据id字段名 或主键
-        /// </summary> 
-        public bool Update(T entity)
-        {
-            Type type = typeof(T);
-            if (entity == null)
-                throw new Exception();
-            using (var conn = GetCurrentConnection())
-            {
-                var t = conn.Update(entity, null, null);
-                return t;
-            }
-        }
-
+          
         #endregion
 
         #region 删除数据
@@ -1541,18 +1613,7 @@ namespace DapperSqlMaker.DapperExt
                 return obj;
             }
         }
-        /// <summary>
-        /// 查询所有数据
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<T> GetAll<T>() where T: class, new()
-        {  
-            using (var conn = GetCurrentConnection())
-            {
-                var t = conn.GetAll<T>();
-                return t;
-            }
-        }
+        
         #endregion
 
 
