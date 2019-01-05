@@ -130,7 +130,7 @@ namespace TestsDapperSqlMaker.DapperExt
             var list2old = LockDapperUtilsqlite.New().GetAll<SynNote>();
             foreach (var item in list2old)
             {
-                var model = CopyModelHelper.MapperWrite<SynNote_ms, SynNote>(item);
+                var model = CopyModelHelper.Mapper<SynNote_ms, SynNote>(item);
                 LockDapperUtilmssql<SynNote_ms>.Cud.Insert(model);
                 //newlist.Add ( );
             }
@@ -138,7 +138,7 @@ namespace TestsDapperSqlMaker.DapperExt
             var list1old = LockDapperUtilsqlite.New().GetAll<Users>();
             foreach (var item in list1old)
             {
-                var model = CopyModelHelper.MapperWrite<Users_ms, Users>(item);
+                var model = CopyModelHelper.Mapper<Users_ms, Users>(item);
                 LockDapperUtilmssql<Users_ms>.Cud.Insert(model);
             }
         }
