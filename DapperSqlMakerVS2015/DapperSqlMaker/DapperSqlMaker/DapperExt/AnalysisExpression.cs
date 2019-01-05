@@ -139,6 +139,18 @@ namespace DapperSqlMaker.DapperExt
                     {
                         MemberExpression Member = method.Object as MemberExpression;
                         ConstantExpression constant = method.Arguments.FirstOrDefault() as ConstantExpression;
+
+                        object ctvalue;
+                        if (method.Arguments.FirstOrDefault() is ConstantExpression)
+                        { //
+                            ctvalue = (method.Arguments.FirstOrDefault() as ConstantExpression).Value;
+                        }
+                        else if (method.Arguments.FirstOrDefault() is MemberExpression)
+                        { // 值 传入的时 变量 
+                            ctvalue = GetMemberValue(method.Arguments.FirstOrDefault() as MemberExpression);
+                        }
+                        else throw new Exception("Contains未解析");
+
                         spars.Add(Member.Member.Name + num, constant.Value); //.ToString());
                         sb.AppendFormat(" {0} like @{0}{1} ", Member.Member.Name, num);
                     }
@@ -244,7 +256,7 @@ namespace DapperSqlMaker.DapperExt
                         && (binary.Right.NodeType != ExpressionType.OrElse || binary.Right.NodeType != ExpressionType.AndAlso))
                     { sb.Append(" ) "); }
 
-                    if (spars.ParameterNames.Count() > 0)
+                    if (spars.ParameterNames.Count() > 0 || sb.Length > 0)
                     { //  where拼接条件开始 判断忽略解析WhereStartIgnore方法 
                         sb.Append(expression.NodeType == ExpressionType.OrElse ? " or " : " and ");
                     }
@@ -307,9 +319,10 @@ namespace DapperSqlMaker.DapperExt
                         MemberExpression Member = binaryg.Left as MemberExpression;
 
                         MemberExpression constMember = binaryg.Right as MemberExpression; //右边变量名 constMember.Member.Name 
-                        ConstantExpression constant = constMember.Expression as ConstantExpression; //右边变量所在的类
-                        var constValue = constant.Value.GetType().GetField(constMember.Member.Name).GetValue(constant.Value);
-
+                        //ConstantExpression constant = constMember.Expression as ConstantExpression; //右边变量所在的类 
+                        //var constValue = constant.Value.GetType().GetField(constMember.Member.Name).GetValue(constant.Value);
+                         
+                        object constValue = GetMemberValue(constMember);
                         spars.Add(Member.Member.Name + num, constValue); //.ToString());
                         sb.AppendFormat(" {0} {2} @{0}{1} ", Member.Member.Name, num, exgl);
                     }

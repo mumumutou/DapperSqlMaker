@@ -59,6 +59,25 @@ namespace TestsDapperSqlMaker.DapperExt
              
         }
 
+        [Test]
+        public void 先查再修改指定字段()
+        {
+            LockPers p = new LockPers() {  Id = "028e7910-6431-4e95-a50f-b9190801933b" };
+
+            var query = LockDapperUtilsqlite<LockPers>
+                        .Selec().Column(c => new { c.Content, c.EditCount }).From().Where(m => m.Id == p.Id);
+
+            var old = query.ExcuteSelect<LockPers>().FirstOrDefault();
+
+            old._IsWriteFiled = true; // 标记开始记录赋值字段 注意上面查询LockPers 要再默认构造函数里把 标识改为false 查出的数据不要记录赋值字段 
+            old.Name = "蛋蛋蛋蛋H$E22222";
+            old.Prompt = "好多多读都多大";
+            old.UpdateTime = DateTime.Now;
+
+            var id = old.Id;
+            var t = LockDapperUtilsqlite<LockPers>.Cud.Update(old, w => w.Id == p.Id);
+        }
+
         #endregion
 
         #region MS 修改数据测试
