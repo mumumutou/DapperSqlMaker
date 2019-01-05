@@ -4,7 +4,7 @@
 ###### Gihub地址：
 >[https://github.com/mumumutou/DapperSqlMaker](https://github.com/mumumutou/DapperSqlMaker)   欢迎dalao加入来完善
 ###### Nuget安装:  
-	Install-Package DapperSqlMaker -Version 0.1.0
+	Install-Package DapperSqlMaker -Version 0.1.1
 
 ###### 基于(已引入源码):
 	Dapper-1.50.2\Dapper
@@ -108,4 +108,7 @@ public void 更新部分字段测试lt()
     Template_DapperSqlMaker 上下文类         
     PredicateBuilder        条件拼接类
 > 7. [实体生成T4模板使用方法点我](https://www.cnblogs.com/cl-blogs/p/7205954.html)
->
+> 
+
+> 待测：
+> 1. SM这几个方法Like In Convert 值参数为 A.B.C.val VisitExpression和JoinExpression中
