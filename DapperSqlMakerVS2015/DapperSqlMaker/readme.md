@@ -1,6 +1,8 @@
+
 **DapperSqlMaker 链式查询扩展** 
 
-[Gihub地址](https://github.com/mumumutou/DapperSqlMaker)
+###### Gihub地址：
+>[https://github.com/mumumutou/DapperSqlMaker](https://github.com/mumumutou/DapperSqlMaker)   欢迎dalao加入来完善
 ###### Nuget安装:  
 	Install-Package DapperSqlMaker -Version 0.0.7
 
