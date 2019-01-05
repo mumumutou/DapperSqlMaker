@@ -4,7 +4,7 @@
 ###### Gihub地址：
 >[https://github.com/mumumutou/DapperSqlMaker](https://github.com/mumumutou/DapperSqlMaker)   欢迎dalao加入来完善
 ###### Nuget安装:  
-	Install-Package DapperSqlMaker -Version 0.0.9
+	Install-Package DapperSqlMaker -Version 0.1.0
 
 ###### 基于(已引入源码):
 	Dapper-1.50.2\Dapper
