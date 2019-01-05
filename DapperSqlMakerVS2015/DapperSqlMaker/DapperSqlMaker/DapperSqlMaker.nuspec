@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>1FC19318-1C01-4DAE-8935-2660218453CD</id>
+    <id>DapperSqlMaker</id>
     <version>0.0.3</version>
     <title>DapperSqlMaker</title>
     <authors>CC</authors>
