@@ -865,6 +865,7 @@ namespace DapperSqlMaker.DapperExt
         /// <summary>
         /// 2.添加一行记录 返回影响行数返回影响行数 只插入赋值的字段  x.Insert(p => { p.Id = 1; p.Name = "新增"; });
         /// </summary>  
+        /// <param name="entityAcn"> 记录赋值字段默认关闭,手动开启s._IsWriteFiled = true;  </param>
         /// <returns>返回影响行数</returns>
         public int Insert(Action<T> entityAcn, IDbTransaction transaction = null, int? commandTimeout = null)
         {
@@ -900,9 +901,9 @@ namespace DapperSqlMaker.DapperExt
             }
         }
         /// <summary>
-        /// 4.添加一行记录 返回插入id 只插入赋值的字段  x.Insert(p => { p.Id = 1; p.Name = "新增"; });
+        /// 4.添加一行记录 返回插入id 只插入赋值的字段  x.Insert(p => { s._IsWriteFiled = true;  p.Id = 1; p.Name = "新增"; });
         /// </summary>
-        /// <param name="entityAcn"></param>
+        /// <param name="entityAcn"> 记录赋值字段默认关闭,手动开启s._IsWriteFiled = true;  </param>
         /// <returns>返回的是最后插入行id (sqlite中是最后一行数+1)</returns>
         public int InsertGetId(Action<T> entityAcn, IDbTransaction transaction = null, int? commandTimeout = null) // static
         {
@@ -949,9 +950,9 @@ namespace DapperSqlMaker.DapperExt
         }
         /// <summary>
         /// 2.更新 只更新赋值修改的字段 
-        /// t.Update( s => {  s.IsDel = true; },  w => w.Id == 1);
+        /// t.Update( s => { s._IsWriteFiled = true; s.IsDel = true; },  w => w.Id == 1);
         /// </summary>
-        /// <param name="setAcn">给修改的字段赋值</param>
+        /// <param name="setAcn">记录赋值字段默认关闭,手动开启s._IsWriteFiled = true; </param>
         /// <param name="wherefunc">where条件</param>
         /// <returns>返回是否修改成功</returns> 
         public bool Update(Action<T> setAcn, Expression<Func<T, bool>> whereAcn, IDbTransaction transaction = null, int? commandTimeout = null)  // static
@@ -961,7 +962,7 @@ namespace DapperSqlMaker.DapperExt
             if (whereAcn == null)
                 throw new Exception("whereAcn为空");
 
-            T entity = new T(); // 记录赋值字段默认开启了 
+            T entity = new T(); // 记录赋值字段默认关闭了 del._IsWriteFiled = true
             setAcn(entity);  //
 
             using (var conn = GetCurrentConnection()) //GetCurrentConnection() )
@@ -1522,6 +1523,27 @@ namespace DapperSqlMaker.DapperExt
                 return obj;
             }
         }
+        /// <summary>
+        /// mssql分页 T实体里声明records接受总记录数;
+        /// </summary>  
+        public virtual IEnumerable<T> LoadPagems<T>(int page, int rows)
+        { 
+            ISqlAdapter adp;
+            // Tuple<sql,entity>
+            Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
+            using (var conn = GetCurrentConnection())
+            {
+                adp = GetSqlAdapter(conn);
+
+                // 生成分页sql
+                adp.RawPage(rawSqlParams.Item1, rawSqlParams.Item2, page, rows);
+                // 查询分页数据
+                var obj = conn.Query<T>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
+                //var first = obj.FirstOrDefault();
+                //if (first != null) records = int.Parse("0" + first.counts);
+                return obj;
+            }
+        }
 
         /// <summary>
         /// sqlite分页
@@ -1538,6 +1560,31 @@ namespace DapperSqlMaker.DapperExt
                 adp.RawPage(rawSqlParams.Item1, rawSqlParams.Item2, page, rows);
                 // 查询分页数据
                 var obj = conn.Query<dynamic>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
+
+                rawSqlParams.Item3.Insert(0, SM.LimitSelectCount);
+                var objrecords = conn.ExecuteScalar(rawSqlParams.Item3.ToString(), rawSqlParams.Item2);
+
+                // 查询总记录数
+                //Clauses.Insert(0, Clause.New(ClauseType.ActionSelectColumn, selectColumn: ));
+                records = int.Parse(objrecords.ToString());
+                return obj;
+            }
+        }
+        /// <summary>
+        /// sqlite分页
+        /// </summary> 
+        public virtual IEnumerable<T> LoadPagelt<T>(int page, int rows, out int records)
+        {
+            ISqlAdapter adp;
+            // Tuple<sql,entity>
+            Tuple<StringBuilder, DynamicParameters, StringBuilder> rawSqlParams = this.RawLimitSqlParams();
+            using (var conn = GetCurrentConnection())
+            {
+                adp = GetSqlAdapter(conn);
+
+                adp.RawPage(rawSqlParams.Item1, rawSqlParams.Item2, page, rows);
+                // 查询分页数据
+                var obj = conn.Query<T>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
 
                 rawSqlParams.Item3.Insert(0, SM.LimitSelectCount);
                 var objrecords = conn.ExecuteScalar(rawSqlParams.Item3.ToString(), rawSqlParams.Item2);
