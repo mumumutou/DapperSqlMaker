@@ -17,8 +17,28 @@
 	上下文类   TestsDapperSqlMaker\DbDapperSqlMaker\     LockDapperUtilsqlite.cs
 	
 ##### 简单栗子：
+##### 1.单表查询
+```csharp
+ public ActionResult Load(int page, int rows ,string serh)
+{
+	serh = $"%{serh}%";
+	int records;
+	var where = PredicateBuilder.WhereStart<LockPers>();
+	where = where.And( m => m.IsDel != true );
+	if (!string.IsNullOrWhiteSpace(serh)) {
+		where = where.And( m => (m.Name.Contains(serh) || m.Prompt.Contains(serh) ) );
+	}
+	var query = LockDapperUtilsqlite<LockPers>
+		.Selec().Column(p => new { t = "datetime(a.InsertTime) as InsertTimestr"
+			, p.Id, p.Name, p.Content, p.Prompt, p.EditCount, p.CheckCount})
+		.From().Where(where).Order(m => new { m.Name });
+	var list = query.LoadPagelt(page, rows, out records);
+	var resultjson = JsonConvert.SerializeObject(new { data = list, records = records});
+	return Content(resultjson);
+}
+```
 
-##### 1.查询-联表查询,分页
+##### 2.查询-联表查询,分页
 
 ```csharp 
 public void 三表联表分页测试()
@@ -69,7 +89,7 @@ where  (  a.Name like @Name0  or  a.Name like @Name1  )
 order by  a.EditCount, a.Name desc , c.Content 
 ```
 
-##### 2.更新-更新部分字段
+##### 3.更新-更新部分字段
 
 ```csharp
 public void 更新部分字段测试lt()
