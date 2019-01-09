@@ -119,7 +119,7 @@ public void 更新部分字段测试lt()
    方法: Dapper.SqlMapper.QueryImpl  
     取消注释: // Console.WriteLine(cmd.CommandText);  
 > 3. where条件
-     可变参数 比较时 先转成值类型
+     可空类型参数 比较时 先转成值类型
 > 4. 实体表明后缀不要是数字
 > 5. 表别名按 a,b,c... 顺序类推
 > 6. 七联表以上待扩展       
