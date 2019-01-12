@@ -214,44 +214,6 @@ namespace TestsDapperSqlMaker
             WriteJson(result2); //  查询结果
         }
 
-        [Test]
-        public void 查询所有数据() {
-            // 4表
-            DapperSqlMaker<LockPers, Users, SynNote, SynNote> query4 = 
-                LockDapperUtilsqlite<LockPers, Users, SynNote, SynNote>
-                .Selec()
-                .Column()  // null查询所有字段 // (lp, u, s, sn) =>  new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName, s.Content, s.Name })
-                .FromJoin(JoinType.Left, (lpp, uu, snn, snnn) => uu.Id == lpp.UserId
-                        , JoinType.Inner, (lpp, uu, snn, snnn) => uu.Id == snn.UserId && snn.Id == snn.UserId
-                        , JoinType.Inner, (lpp, uu, snn, snnn) => snnn.Id == snn.UserId);
-            var result4 = query4.ExcuteSelect();
-            WriteJson(result4); //  查询结果
-            // 3表
-            DapperSqlMaker<LockPers, Users, SynNote> query3 = 
-                LockDapperUtilsqlite<LockPers, Users, SynNote>
-               .Selec()
-               .Column() //null 查询所有字段 // (lp, u, s) => new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName, s.Content, s.Name })
-               .FromJoin(JoinType.Left, (lpp, uu, snn) => uu.Id == lpp.UserId
-                       , JoinType.Inner, (lpp, uu, snn) => uu.Id == snn.UserId);
-            var result3 = query3.ExcuteSelect();
-            WriteJson(result3); //  查询结果
-
-            // 2表
-            DapperSqlMaker<LockPers, Users> query2 = LockDapperUtilsqlite<LockPers, Users>
-               .Selec()
-               .Column() //null 查询所有字段 //(lp, u) => new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName }) //null查询所有字段
-               .FromJoin(JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId);
-            var result2 = query2.ExcuteSelect();
-            WriteJson(result2); //  查询结果
-
-            // 1 表
-            DapperSqlMaker<LockPers> query = LockDapperUtilsqlite<LockPers>
-               .Selec()
-               .Column() // null查询所有字段// lp => new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel }) 
-               .From();
-            var result = query.ExcuteSelect();
-            WriteJson(result); //  查询结果
-        }
 
 
         #endregion
@@ -457,7 +419,45 @@ namespace TestsDapperSqlMaker
         #endregion
 
         [Test]
-        public void 字段别名和Column中直接拼接sql()
+        public void 查询所有数据() {
+            // 4表
+            DapperSqlMaker<LockPers, Users, SynNote, SynNote> query4 = 
+                LockDapperUtilsqlite<LockPers, Users, SynNote, SynNote>
+                .Selec()
+                .Column()  // null查询所有字段 // (lp, u, s, sn) =>  new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName, s.Content, s.Name })
+                .FromJoin(JoinType.Left, (lpp, uu, snn, snnn) => uu.Id == lpp.UserId
+                        , JoinType.Inner, (lpp, uu, snn, snnn) => uu.Id == snn.UserId && snn.Id == snn.UserId
+                        , JoinType.Inner, (lpp, uu, snn, snnn) => snnn.Id == snn.UserId);
+            var result4 = query4.ExcuteSelect();
+            WriteJson(result4); //  查询结果
+            // 3表
+            DapperSqlMaker<LockPers, Users, SynNote> query3 = 
+                LockDapperUtilsqlite<LockPers, Users, SynNote>
+               .Selec()
+               .Column() //null 查询所有字段 // (lp, u, s) => new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName, s.Content, s.Name })
+               .FromJoin(JoinType.Left, (lpp, uu, snn) => uu.Id == lpp.UserId
+                       , JoinType.Inner, (lpp, uu, snn) => uu.Id == snn.UserId);
+            var result3 = query3.ExcuteSelect();
+            WriteJson(result3); //  查询结果
+
+            // 2表
+            DapperSqlMaker<LockPers, Users> query2 = LockDapperUtilsqlite<LockPers, Users>
+               .Selec()
+               .Column() //null 查询所有字段 //(lp, u) => new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName }) //null查询所有字段
+               .FromJoin(JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId);
+            var result2 = query2.ExcuteSelect();
+            WriteJson(result2); //  查询结果
+
+            // 1 表
+            DapperSqlMaker<LockPers> query = LockDapperUtilsqlite<LockPers>
+               .Selec()
+               .Column() // null查询所有字段// lp => new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel }) 
+               .From();
+            var result = query.ExcuteSelect();
+            WriteJson(result); //  查询结果
+        }
+        [Test]
+        public void 字段别名和查询字段中直接拼接sql()
         {
             //1. 查询的实体类 字段别名 为匿名类型成员名
             //2. (Column和Order)中直接拼接sql 用SM.Sql 或者直接写入 字符串值
@@ -528,6 +528,27 @@ namespace TestsDapperSqlMaker
              
         }
 
+        [Test]
+        public void Like查询条件() {
+
+            LockPers lpm = new LockPers();
+            Users um = new Users();
+            um.UserName = "%jiaojiao%";
+            lpm.Users = um;
+            PredicateBuilder.WhereStart<LockPers, Users>();
+
+            var lpnobj = new { UserName = "%jiaojiao%" };
+
+
+            var query =  LockDapperUtilsqlite<LockPers, Users>
+                .Selec().Column().FromJoin(JoinType.Left, (p, u) => p.UserId == u.Id)
+                .Where((p, u) => u.UserName.Contains(lpnobj.UserName));
+            var rawsqlparms = query.RawSqlParams();
+            WriteSqlParams(rawsqlparms); //打印sql和参数
+
+            var re = query.ExcuteSelect();
+
+        }
 
         //动态sql
         #region Dapper已有方法
@@ -573,5 +594,25 @@ namespace TestsDapperSqlMaker
 
 
         #endregion
+
+        [Test]
+        public void lock下拉刷新分页测试() {
+            //m.IsDel != true  m.Name != "xx"
+            string name = "%a%";
+            var nobj = new { name = name  };
+            int records;
+            int page = 2, rows = 20;
+            string rownm = " (SELECT COUNT(*) FROM LockPers AS t2  WHERE t2.Name < a.Name ) + (SELECT COUNT(*) FROM LockPers AS t3 WHERE t3.Name = a.Name AND t3.rowid < a.rowid  ) +1 AS rowNum";
+
+            var query = LockDapperUtilsqlite<LockPers>
+               .Selec().Column(p => new { t = "datetime(a.InsertTime) as InsertTimestr", b = SM.Sql(rownm), p.Id, p.Name, p.Content, p.Prompt, p.EditCount })
+               .From().Where(m => m.IsDel != true && m.Name.Contains(nobj.name)).Order(m => new { m.Name });
+            //Tuple<StringBuilder, Dapper.DynamicParameters> ru = query.RawSqlParams();
+            //var list = query.ExcuteSelect<LockPers>();
+
+            Tuple<StringBuilder, DynamicParameters, StringBuilder> ru = query.RawLimitSqlParams();
+            var list = query.LoadPagelt(page, rows, out records);
+
+        }
     }
 }

@@ -40,7 +40,8 @@ namespace FW.Model
                 // _WriteFiled.Add(this.GetType().GetProperty("ContentOld") );  // 非库字段无需记录
             }
         }
-
+        [Write(false)]
+        public Users Users { get; set; }
 
     }
      

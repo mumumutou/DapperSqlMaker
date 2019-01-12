@@ -781,7 +781,7 @@ namespace DapperSqlMaker.DapperExt
             }
         }
         /// <summary>
-        /// 更新整个实体根据主键标识字段 (Dapper.Contrib) 
+        /// 批量插入数据 忽略主键标识字段 (Dapper.Contrib) 
         /// </summary>  
         /// <param name="efrowOrId">true返回影响行数 false返回插入id</param> 
         /// <returns></returns>

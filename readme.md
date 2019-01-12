@@ -4,7 +4,7 @@
 ###### Gihub地址：
 >[https://github.com/mumumutou/DapperSqlMaker](https://github.com/mumumutou/DapperSqlMaker)   欢迎dalao加入来完善
 ###### Nuget安装:  
-	Install-Package DapperSqlMaker -Version 0.1.2
+	Install-Package DapperSqlMaker -Version 0.1.3
 
 ###### 基于(已引入源码):
 	Dapper-1.50.2\Dapper
@@ -132,3 +132,4 @@ public void 更新部分字段测试lt()
 
 > 待测：
 > 1. SM这几个方法Like In Convert 值参数为 A.B.C.val VisitExpression和JoinExpression中
+	 Like方法用
