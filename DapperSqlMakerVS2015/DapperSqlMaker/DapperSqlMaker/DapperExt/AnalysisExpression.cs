@@ -361,9 +361,10 @@ namespace DapperSqlMaker.DapperExt
             {
                 case ExpressionType.Call://执行方法
                     MethodCallExpression method = expression as MethodCallExpression;
-                    if (method.Method.Name == "WhereStartIgnore") break;
-                    // where拼接条件开始 忽略解析该方法  
-                    else if (method.Method.Name == "Contains")
+                    //if (method.Method.Name == "WhereStartIgnore") break;
+                    //// where拼接条件开始 忽略解析该方法  
+                    //else 
+                    if (method.Method.Name == "Contains")
                     {
                         MemberExpression Member = method.Object as MemberExpression;
                         ParameterExpression Parmexr = Member.Expression as ParameterExpression;
@@ -490,6 +491,16 @@ namespace DapperSqlMaker.DapperExt
                     //else
                     //{
                     // sql串联or会补上内嵌括号 不影响  调试时c#串联or的表达式也会自动补上内嵌括号
+
+                    //where拼接条件开始 忽略解析该方法  
+                    if (binary.Left.NodeType == ExpressionType.Call) {
+                        MethodCallExpression startmethod = binary.Left as MethodCallExpression;
+                        if (startmethod.Method.Name == "WhereStartIgnore") {
+                            JoinExpression(binary.Right, tabAliasName, ref sb, ref spars, paramsdic);
+                        }
+                        return;
+                    }
+
                     if (binary.Left.NodeType == ExpressionType.OrElse
                             && (binary.Right.NodeType != ExpressionType.OrElse || binary.Right.NodeType != ExpressionType.AndAlso))
                     { sb.Append(" ( "); }
@@ -699,7 +710,7 @@ namespace DapperSqlMaker.DapperExt
         }
         public static Expression<Func<T, Y, Z, O, P, Q, bool>> Or<T, Y, Z, O, P, Q>(this Expression<Func<T, Y, Z, O, P, Q, bool>> first, Expression<Func<T, Y, Z, O, P, Q, bool>> second)
         {
-            return first.Compose(second, Expression.AndAlso);
+            return first.Compose(second, Expression.OrElse);
         }
 
 
@@ -709,7 +720,7 @@ namespace DapperSqlMaker.DapperExt
         }
         public static Expression<Func<T, Y, Z, O, P, bool>> Or<T, Y, Z, O, P>(this Expression<Func<T, Y, Z, O, P, bool>> first, Expression<Func<T, Y, Z, O, P, bool>> second)
         {
-            return first.Compose(second, Expression.AndAlso);
+            return first.Compose(second, Expression.OrElse);
         }
 
         //public static Expression<Func<T, bool>> True<T>() { return f => true; }
@@ -720,7 +731,7 @@ namespace DapperSqlMaker.DapperExt
         }
         public static Expression<Func<T, Y, Z, O, bool>> Or<T, Y, Z, O>(this Expression<Func<T, Y, Z, O, bool>> first, Expression<Func<T, Y, Z, O, bool>> second)
         {
-            return first.Compose(second, Expression.AndAlso);
+            return first.Compose(second, Expression.OrElse);
         }
 
 
@@ -730,7 +741,7 @@ namespace DapperSqlMaker.DapperExt
         }
         public static Expression<Func<T, Y, Z, bool>> Or<T, Y, Z>(this Expression<Func<T, Y, Z, bool>> first, Expression<Func<T, Y, Z, bool>> second)
         {
-            return first.Compose(second, Expression.AndAlso);
+            return first.Compose(second, Expression.OrElse);
         }
 
         public static Expression<Func<T,Y, bool>> And<T,Y>(this Expression<Func<T,Y, bool>> first, Expression<Func<T,Y, bool>> second)
@@ -739,7 +750,7 @@ namespace DapperSqlMaker.DapperExt
         }
         public static Expression<Func<T, Y, bool>> Or<T, Y>(this Expression<Func<T, Y, bool>> first, Expression<Func<T, Y, bool>> second)
         {
-            return first.Compose(second, Expression.AndAlso);
+            return first.Compose(second, Expression.OrElse);
         }
 
         public static Expression<Func<T, bool>> And<T>(this Expression<Func<T, bool>> first, Expression<Func<T, bool>> second)

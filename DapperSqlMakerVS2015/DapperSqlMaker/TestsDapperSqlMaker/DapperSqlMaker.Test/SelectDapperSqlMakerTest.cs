@@ -550,6 +550,34 @@ namespace TestsDapperSqlMaker
 
         }
 
+
+        [Test]
+        public void Or开头查询条件()
+        {
+
+            LockPers lpmodel = new LockPers();
+            lpmodel.IsDel = false;
+            Users umodel = new Users();
+            umodel.UserName = "jiaojiao";
+
+            Expression<Func<LockPers, Users, bool>> where = PredicateBuilder.WhereStart<LockPers, Users>();
+            where = where.And((lpw, uw) => lpw.IsDel == lpmodel.IsDel);
+            where = where.And((lpw, uw) => uw.UserName == umodel.UserName);
+
+            DapperSqlMaker<LockPers, Users> query = LockDapperUtilsqlite<LockPers, Users>
+                .Selec()
+                .Column()
+                .FromJoin(JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId)
+                .Where(where)
+                .Order((lp, w) => new { a = SM.OrderDesc(lp.EditCount), lp.Id });
+            var rawsqlparms = query.RawSqlParams();
+            WriteSqlParams(rawsqlparms); //打印sql和参数
+
+            var result = query.ExcuteSelect();
+            WriteJson(result); //  查询结果
+        }
+
+
         //动态sql
         #region Dapper已有方法
         [Test]
