@@ -33,6 +33,8 @@ namespace DapperSqlMaker.DapperExt
         public static bool In<T>(int name, List<T> list) => true;
         public static bool In<T>(int? name, List<T> list) => true;
         public static bool In<T>(string name, List<T> list) => true;
+        public static bool In<T,Y>(Y name, T[] arr) => true;
+        public static bool In<T,Y>(Y name, List<T> list) => true;
 
         //
         //public static DateTime DateStr(DateTime date) => date;
@@ -173,8 +175,8 @@ namespace DapperSqlMaker.DapperExt
                             var constValue = constMember2.Value.GetType().GetField(member2.Member.Name).GetValue(constMember2.Value);
 
                             //var arr = (member2.Expression as ConstantExpression).Value;
-                            spars.Add(Member.Member.Name, constValue);//arr);
-                            sb.AppendFormat(" {0} in @{0}", Member.Member.Name);
+                            spars.Add(Member.Member.Name + num, constValue);//arr);
+                            sb.AppendFormat(" {0} in @{0}", Member.Member.Name + num);
                             break;
                         }
                         NewArrayExpression constant = method.Arguments[1] as NewArrayExpression;  //第2种 表达式内构建数组
@@ -409,8 +411,8 @@ namespace DapperSqlMaker.DapperExt
                             var constValue = constMember2.Value.GetType().GetField(member2.Member.Name).GetValue(constMember2.Value);
 
                             //var arr = (member2.Expression as ConstantExpression).Value;
-                            spars.Add(Member.Member.Name, constValue);//arr);
-                            sb.AppendFormat(" {0} in @{1}", mberName, Member.Member.Name);
+                            spars.Add(Member.Member.Name + num, constValue);//arr);
+                            sb.AppendFormat(" {0} in @{1}", mberName, Member.Member.Name + num);
                             break;
                         }
                         NewArrayExpression constant = method.Arguments[1] as NewArrayExpression;  //第2种 表达式内构建数组
