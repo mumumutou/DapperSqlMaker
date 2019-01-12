@@ -499,8 +499,8 @@ namespace DapperSqlMaker.DapperExt
                         MethodCallExpression startmethod = binary.Left as MethodCallExpression;
                         if (startmethod.Method.Name == "WhereStartIgnore") {
                             JoinExpression(binary.Right, tabAliasName, ref sb, ref spars, paramsdic);
-                        }
-                        return;
+                            return;
+                        }// like in 其他方法继续
                     }
 
                     if (binary.Left.NodeType == ExpressionType.OrElse

@@ -555,21 +555,26 @@ namespace TestsDapperSqlMaker
         public void Or开头查询条件()
         {
 
+
+
+
             LockPers lpmodel = new LockPers();
             lpmodel.IsDel = false;
             Users umodel = new Users();
             umodel.UserName = "jiaojiao";
+            string serh = "%%";
+            Expression<Func<LockPers, bool>> where = PredicateBuilder.WhereStart<LockPers>();
+            //where = where.Or((lpw, uw) => lpw.IsDel == lpmodel.IsDel);
+            //where = where.Or((lpw, uw) => uw.UserName == umodel.UserName);
+            where = where.And(m => m.IsDel != true);
+            where = where.And(m => (m.Name.Contains(serh) || m.Prompt.Contains(serh)));
 
-            Expression<Func<LockPers, Users, bool>> where = PredicateBuilder.WhereStart<LockPers, Users>();
-            where = where.Or((lpw, uw) => lpw.IsDel == lpmodel.IsDel);
-            where = where.Or((lpw, uw) => uw.UserName == umodel.UserName);
-
-            DapperSqlMaker<LockPers, Users> query = LockDapperUtilsqlite<LockPers, Users>
+            DapperSqlMaker<LockPers> query = LockDapperUtilsqlite<LockPers>
                 .Selec()
                 .Column()
-                .FromJoin(JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId)
+                .From()
                 .Where(where)
-                .Order((lp, w) => new { a = SM.OrderDesc(lp.EditCount), lp.Id });
+                .Order((lp) => new { a = SM.OrderDesc(lp.EditCount), lp.Id });
             var rawsqlparms = query.RawSqlParams();
             WriteSqlParams(rawsqlparms); //打印sql和参数
 
