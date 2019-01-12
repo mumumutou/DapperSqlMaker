@@ -561,8 +561,8 @@ namespace TestsDapperSqlMaker
             umodel.UserName = "jiaojiao";
 
             Expression<Func<LockPers, Users, bool>> where = PredicateBuilder.WhereStart<LockPers, Users>();
-            where = where.And((lpw, uw) => lpw.IsDel == lpmodel.IsDel);
-            where = where.And((lpw, uw) => uw.UserName == umodel.UserName);
+            where = where.Or((lpw, uw) => lpw.IsDel == lpmodel.IsDel);
+            where = where.Or((lpw, uw) => uw.UserName == umodel.UserName);
 
             DapperSqlMaker<LockPers, Users> query = LockDapperUtilsqlite<LockPers, Users>
                 .Selec()
