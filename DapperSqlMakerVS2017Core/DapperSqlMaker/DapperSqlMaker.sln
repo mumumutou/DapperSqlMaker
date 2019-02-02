@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.329
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DapperSqlMaker", "DapperSqlMaker\DapperSqlMaker.csproj", "{08BAA18F-3FDA-4EB3-9E87-7BE1B0A0939C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestsDapperSqlMaker", "TestsDapperSqlMaker\TestsDapperSqlMaker.csproj", "{6CA2F3F4-0149-4A22-BE8C-0A44E302538F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{08BAA18F-3FDA-4EB3-9E87-7BE1B0A0939C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08BAA18F-3FDA-4EB3-9E87-7BE1B0A0939C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08BAA18F-3FDA-4EB3-9E87-7BE1B0A0939C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08BAA18F-3FDA-4EB3-9E87-7BE1B0A0939C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CA2F3F4-0149-4A22-BE8C-0A44E302538F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CA2F3F4-0149-4A22-BE8C-0A44E302538F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CA2F3F4-0149-4A22-BE8C-0A44E302538F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CA2F3F4-0149-4A22-BE8C-0A44E302538F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {42EB155A-2E23-46EA-A303-C2025DE2C2F5}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="DapperSqlMaker.Test\AnalysisExpressionTests.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="db\Lock.db" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="db\Lock.db" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="nunit" Version="3.10.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.10.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.109.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DapperSqlMaker\DapperSqlMaker.csproj" />
+  </ItemGroup>
+
+</Project>

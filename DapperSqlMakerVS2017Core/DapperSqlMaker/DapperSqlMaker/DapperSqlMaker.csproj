@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="DapperExt\**" />
+    <EmbeddedResource Remove="DapperExt\**" />
+    <None Remove="DapperExt\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="DapperExt\AnalysisExpression.cs" />
+    <Compile Include="DapperExt\DapperSqlMaker.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="1.50.2" />
+  </ItemGroup>
+
+</Project>
