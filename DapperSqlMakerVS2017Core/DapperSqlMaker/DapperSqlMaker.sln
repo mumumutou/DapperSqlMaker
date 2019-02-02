@@ -3,9 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.329
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DapperSqlMaker", "DapperSqlMaker\DapperSqlMaker.csproj", "{08BAA18F-3FDA-4EB3-9E87-7BE1B0A0939C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DapperSqlMaker", "DapperSqlMaker\DapperSqlMaker.csproj", "{08BAA18F-3FDA-4EB3-9E87-7BE1B0A0939C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestsDapperSqlMaker", "TestsDapperSqlMaker\TestsDapperSqlMaker.csproj", "{6CA2F3F4-0149-4A22-BE8C-0A44E302538F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestsDapperSqlMaker", "TestsDapperSqlMaker\TestsDapperSqlMaker.csproj", "{6CA2F3F4-0149-4A22-BE8C-0A44E302538F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Doc", "Doc", "{6A78682E-E44A-4A72-8273-3DCD4330DEA0}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\readme.md = ..\..\readme.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

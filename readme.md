@@ -128,7 +128,12 @@ public void 更新部分字段测试lt()
     Template_DapperSqlMaker 上下文类         
     PredicateBuilder        条件拼接类
 > 7. [实体生成T4模板使用方法点我](https://www.cnblogs.com/cl-blogs/p/7205954.html)
-> 
+
+.NetCore版：
+> 1. DapperSqlMakerVS2017Core 文件下为 .NetCore2.0版本的待完善 表达式解析直接可以用
+> 2. SqlMapperExtensions.cs扩展类中 991-994行(#if COREFX 附近)源码编译失败 已暂时修改为return null 待解决
+> 3. 有时间把Dapper1.50.2源码和修改过的做分离开
+> 4. t4未加入
 
 > 待测：
 > 1. SM这几个方法Like In Convert 值参数为 A.B.C.val VisitExpression和JoinExpression中
