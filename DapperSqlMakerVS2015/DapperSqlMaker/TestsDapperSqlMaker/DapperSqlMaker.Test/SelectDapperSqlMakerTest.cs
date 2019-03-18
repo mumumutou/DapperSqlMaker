@@ -3,6 +3,7 @@ using System;
 using System.Text;
 using System.Linq.Expressions;
 using Dapper;
+using Dapper.Contrib.Extensions;
 
 using FW.Model;
 using DapperSqlMaker.DapperExt;

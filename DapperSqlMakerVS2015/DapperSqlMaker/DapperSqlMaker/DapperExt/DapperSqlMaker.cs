@@ -111,7 +111,7 @@ namespace DapperSqlMaker.DapperExt
             var tabAliasName6 = "f";
 
             // 2. 主表和查询字段 sel ... from tab
-            var tabname1 = SqlMapperExtensions.GetTableName(typeof(T));
+            var tabname1 = DsmSqlMapperExtensions.GetTableName(typeof(T));
             var selstr = $" from {tabname1} {tabAliasName1}"; // sel .. from 表明 别名
             // 3. 生成联表2sql join tab on ...
             string jointabstr2 = GetJoinTabStr(typeof(Y), tabAliasName2, joinType2, joinExps2);
@@ -231,7 +231,7 @@ namespace DapperSqlMaker.DapperExt
             var tabAliasName5 = "e";
 
             // 2. 主表和查询字段 sel ... from tab
-            var tabname1 = SqlMapperExtensions.GetTableName(typeof(T));
+            var tabname1 = DsmSqlMapperExtensions.GetTableName(typeof(T));
             var selstr = $" from {tabname1} {tabAliasName1}"; // sel .. from 表明 别名
             // 3. 生成联表2sql join tab on ...
             string jointabstr2 = GetJoinTabStr(typeof(Y), tabAliasName2, joinType2, joinExps2);
@@ -356,7 +356,7 @@ namespace DapperSqlMaker.DapperExt
             var tabAliasName3 = "c";
             var tabAliasName4 = "d";
             // 3. 主表和查询字段 sel ... from tab
-            var tabname1 = SqlMapperExtensions.GetTableName(typeof(T));
+            var tabname1 = DsmSqlMapperExtensions.GetTableName(typeof(T));
             var selstr = $" from {tabname1} {tabAliasName1}"; // sel .. from 表明 别名
             // 4. 生成联表2sql join tab on ...
             string jointabstr2 = GetJoinTabStr(typeof(Y), tabAliasName2, joinType2, joinExps2);
@@ -467,7 +467,7 @@ namespace DapperSqlMaker.DapperExt
                                      //if (!TabAliaceDic.ContainsKey(tab3fname)) TabAliaceDic.Add(tab3fname + 3, tabAliasName3);
 
             // 3. 主表和查询字段 sel ... from tab
-            var tabname1 = SqlMapperExtensions.GetTableName(typeof(T));
+            var tabname1 = DsmSqlMapperExtensions.GetTableName(typeof(T));
             var selstr = $" from {tabname1} {tabAliasName1}"; // sel .. from 表明 别名
 
             // 4. 生成联表2sql join tab on ...
@@ -581,7 +581,7 @@ namespace DapperSqlMaker.DapperExt
             var tabAliasName2 = "b"; //fielambda.Parameters[1].Name;
 
             // sel ... from tab
-            var tabname1 = SqlMapperExtensions.GetTableName(typeof(T));
+            var tabname1 = DsmSqlMapperExtensions.GetTableName(typeof(T));
             var selstr = $" from {tabname1} {tabAliasName1}"; // sel .. from 表明 别名
 
             // 4. 生成联表2sql join tab on ...
@@ -595,8 +595,8 @@ namespace DapperSqlMaker.DapperExt
         //public DapperSqlMaker<T, Y> JoinTable(JoinType joinType, Expression<Func<T, Y, bool>> joinExps)
         //{
         //    // 主表再select中
-        //    //var tabname1 = SqlMapperExtensions.GetTableName(typeof(T));  
-        //    var tabname2 = SqlMapperExtensions.GetTableName(typeof(Y));
+        //    //var tabname1 = DsmSqlMapperExtensions.GetTableName(typeof(T));  
+        //    var tabname2 = DsmSqlMapperExtensions.GetTableName(typeof(Y));
 
         //    var joinstr = joinType == JoinType.Inner ? " inner join "
         //                  : joinType == JoinType.Left ? " left join "
@@ -714,7 +714,7 @@ namespace DapperSqlMaker.DapperExt
             // 1. 存表别名 
             var tabAliasName1 = "a";
             // 3. 主表和查询字段 sel ... from tab
-            var tabname1 = SqlMapperExtensions.GetTableName(typeof(T));
+            var tabname1 = DsmSqlMapperExtensions.GetTableName(typeof(T));
             var selstr = $" from {tabname1} {tabAliasName1}"; // sel .. from 表明 别名
 
             Clauses.Add(Clause.New(ClauseType.ActionSelectFrom, fromJoin: selstr));
@@ -743,7 +743,7 @@ namespace DapperSqlMaker.DapperExt
 
         #region Dapper.Contrib简单curd 
         /// <summary>
-        /// 获取一条数据根据主键标识字段 (Dapper.Contrib)
+        /// 获取一条数据根据主键标识字段 (Dapper.Contrib.Extensions. DapperSqlMapperExtensions)
         /// </summary> 
         /// <returns></returns>
         public T Get(int id, IDbTransaction transaction = null, int? commandTimeout = null)
@@ -756,7 +756,7 @@ namespace DapperSqlMaker.DapperExt
             }
         }
         /// <summary>
-        /// 获取一条数据根据主键标识字段 (Dapper.Contrib) 
+        /// 获取一条数据根据主键标识字段 (Dapper.Contrib.Extensions. DapperSqlMapperExtensions) 
         /// </summary> 
         /// <returns></returns>
         public T Get(string id, IDbTransaction transaction = null, int? commandTimeout = null)
@@ -764,24 +764,24 @@ namespace DapperSqlMaker.DapperExt
 
             using (var conn = GetCurrentConnection())
             {
-                var t = conn.Get<T>(id, transaction, commandTimeout);
+                var t = conn.Get<T>(id, transaction, commandTimeout);  
                 return t;
             }
         }
         /// <summary>
-        /// 查询所有数据 (Dapper.Contrib) 
+        /// 查询所有数据 (Dapper.Contrib.Extensions. DsmSqlMapperExtensions) 
         /// </summary>
         /// <returns></returns>
         public IEnumerable<T> GetAll(IDbTransaction transaction = null, int? commandTimeout = null)
         {
             using (var conn = GetCurrentConnection())
             {
-                var t = conn.GetAll<T>(transaction, commandTimeout);
+                var t = conn.GetAl<T>(transaction, commandTimeout);
                 return t;
             }
         }
         /// <summary>
-        /// 插入数据 忽略主键标识字段 (Dapper.Contrib) 
+        /// 插入数据 忽略主键标识字段 (Dapper.Contrib.Extensions. DsmSqlMapperExtensions) 
         /// </summary>  
         /// <param name="efrowOrId">true返回影响行数 false返回插入id</param> 
         /// <returns></returns>
@@ -792,12 +792,12 @@ namespace DapperSqlMaker.DapperExt
                 throw new Exception();
             using (var conn = GetCurrentConnection())
             {
-                var t = conn.Insert(entity, efrowOrId, transaction, commandTimeout);
+                var t = conn.Inser(entity, efrowOrId, transaction, commandTimeout);
                 return (int)t;
             }
         }
         /// <summary>
-        /// 批量插入数据 返回影响行数 (Dapper.Contrib) 
+        /// 批量插入数据 返回影响行数 (Dapper.Contrib.Extensions. DsmSqlMapperExtensions) 
         /// </summary> 
         /// <returns></returns>
         public int InserList(List<T> entitys, IDbTransaction transaction = null, int? commandTimeout = null)
@@ -808,12 +808,12 @@ namespace DapperSqlMaker.DapperExt
 
             using (var conn = GetCurrentConnection()) //GetCurrentConnection() )
             {
-                var t = conn.Insert(entitys,false, transaction, commandTimeout);
+                var t = conn.Inser(entitys,false, transaction, commandTimeout);
                 return (int)t;
             }
         }
         /// <summary>
-        /// 更新整个实体根据主键标识字段 (Dapper.Contrib) 
+        /// 更新整个实体根据主键标识字段 (Dapper.Contrib.Extensions. DsmSqlMapperExtensions) 
         /// </summary> 
         public bool Updat(T entity, IDbTransaction transaction = null, int? commandTimeout = null)
         {
@@ -822,12 +822,12 @@ namespace DapperSqlMaker.DapperExt
                 throw new Exception();
             using (var conn = GetCurrentConnection())
             {
-                var t = conn.Update(entity, transaction, commandTimeout);
+                var t = conn.Updat(entity, transaction, commandTimeout);
                 return t;
             }
         }
         /// <summary>
-        /// 更新整个实体根据主键标识字段 (Dapper.Contrib) 
+        /// 更新整个实体根据主键标识字段 (Dapper.Contrib.Extensions. DsmSqlMapperExtensions) 
         /// </summary> 
         public bool Delet(T entity, IDbTransaction transaction = null, int? commandTimeout = null)
         {
@@ -836,7 +836,7 @@ namespace DapperSqlMaker.DapperExt
                 throw new Exception();
             using (var conn = GetCurrentConnection())
             {
-                var t = conn.Delete(entity, transaction, commandTimeout);
+                var t = conn.Delet(entity, transaction, commandTimeout);
                 return t;
             }
         }
@@ -1252,7 +1252,7 @@ namespace DapperSqlMaker.DapperExt
                                       : joinType2 == JoinType.Right ? " right join "
                                       : null;
 
-            string tabname2 = SqlMapperExtensions.GetTableName(jointab) + " " + tabAliasName2;  // 表名 别名
+            string tabname2 = DsmSqlMapperExtensions.GetTableName(jointab) + " " + tabAliasName2;  // 表名 别名
 
             StringBuilder sql = null;
             DynamicParameters spars = null;

@@ -35,6 +35,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Dapper, Version=1.50.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper.1.50.2\lib\net40\Dapper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Dapper.Contrib, Version=1.50.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper.Contrib.1.50.0\lib\net40\Dapper.Contrib.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="nunit.framework, Version=3.11.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.11.0\lib\net40\nunit.framework.dll</HintPath>
       <Private>True</Private>
@@ -50,60 +58,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Dapper-1.50.2\Dapper.Contrib\SqlMapperExtensions.Async.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper.Contrib\SqlMapperExtensions.cs" />
     <Compile Include="DapperExt\AnalysisExpression.cs" />
     <Compile Include="DapperExt\DapperSqlMaker.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\CommandDefinition.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\CommandFlags.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\CustomPropertyTypeMap.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\DataTableHandler.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\DbString.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\DefaultTypeMap.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\DynamicParameters.CachedOutputSetters.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\DynamicParameters.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\DynamicParameters.ParamInfo.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\ExplicitConstructorAttribute.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\FeatureSupport.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SimpleMemberMap.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlDataRecordHandler.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlDataRecordListTVPParameter.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlMapper.Async.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlMapper.CacheInfo.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlMapper.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlMapper.DapperRow.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlMapper.DapperRowMetaObject.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlMapper.DapperTable.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlMapper.DeserializerState.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlMapper.DontMap.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlMapper.GridReader.Async.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlMapper.GridReader.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlMapper.ICustomQueryParameter.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlMapper.IDataReader.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlMapper.Identity.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlMapper.IDynamicParameters.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlMapper.IMemberMap.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlMapper.IParameterCallbacks.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlMapper.IParameterLookup.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlMapper.ITypeHandler.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlMapper.ITypeMap.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlMapper.Link.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlMapper.LiteralToken.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlMapper.Settings.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlMapper.TypeDeserializerCache.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlMapper.TypeHandler.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\SqlMapper.TypeHandlerCache.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\TableValuedParameter.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\TypeExtensions.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\UdtTypeHandler.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\WrappedDataReader.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\WrappedReader.cs" />
-    <Compile Include="Dapper-1.50.2\Dapper\XmlHandlers.cs" />
+    <Compile Include="DapperExt\DsmSqlMapperExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Dapper-1.50.2\Readme.md" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

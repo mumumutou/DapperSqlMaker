@@ -3,12 +3,18 @@
 
 ###### Gihub地址：
 >[https://github.com/mumumutou/DapperSqlMaker](https://github.com/mumumutou/DapperSqlMaker)   欢迎dalao加入来完善
-###### Nuget安装:  
-	Install-Package DapperSqlMaker -Version 0.1.6
-
-###### 基于(已引入源码):
+###### (引入Dapper源码版 svn版本 93) 
+	Nuget安装:> Install-Package DapperSqlMaker -Version 0.1.6
+	
 	Dapper-1.50.2\Dapper
 	Dapper-1.50.2\Dapper.Contrib
+
+###### (依赖Dapper源码版)   
+	Nuget安装:>  未发布
+    依赖项:
+	Dapper (>= 1.50.0)
+	Dapper.Contrib (>= 1.50.0)
+
 ###### Demo:
 	查询       TestsDapperSqlMaker\DapperSqlMaker.Test\  SelectDapperSqlMakerTest.cs
 	添加       TestsDapperSqlMaker\DapperSqlMaker.Test\  InsertDapperSqlMakerTest.cs
