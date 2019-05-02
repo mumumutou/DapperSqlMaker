@@ -113,11 +113,10 @@ public void 更新部分字段测试lt()
 }
 ```
 
-##### 4.条件参数传入规范示例  ()
+##### 4.条件参数传入规范示例
 > 1. 直接where()方法中赋值       s.IsDel = 1;
 > 2. 声明变量 接收参数 再传入    int Id = int.Parse( Request.Form["Id"]);  ---->   w.Id == Id_
 > 3. Action参数装载器的参数不能直接传入  int Id_ = Id;  ---->   w.Id == Id_
-> 4. x
 ```csharp
         public ActionResult RemoveSkin(int Id)
         { 
