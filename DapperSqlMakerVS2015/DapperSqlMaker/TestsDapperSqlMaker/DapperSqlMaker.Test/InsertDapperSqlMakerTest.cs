@@ -16,15 +16,23 @@ namespace TestsDapperSqlMaker.DapperExt
         {
             var str = Newtonsoft.Json.JsonConvert.SerializeObject(test2);
             Console.WriteLine(str);
-        } 
+        }
 
         #region SQLite 添加数据测试
+        [Test]
+        public void DapperContrib添加方法()
+        {
+            Skin additem = new Skin() { InsertDate = DateTime.Now.ToString(), Name = "奥的阿三", Remake = "背景", Type = "bg", Value = "www.baidu.com" };
+            int efrow = LockDapperUtilsqlite<Skin>.Cud.Inser(additem);
+            Console.WriteLine("影响行数-" + efrow);
+        }
 
         [Test]
         public void 添加数据返回影响行数测试lt()
         {
             var efrow = LockDapperUtilsqlite<LockPers>.Cud.Insert(p =>
             {
+                p._IsWriteFiled = true;
                 p.Id = Guid.NewGuid().ToString();
                 p.Name = "mssqlmmmmmmmx2222222222";
                 p.Content = "这是棉花好多好多";
@@ -32,15 +40,17 @@ namespace TestsDapperSqlMaker.DapperExt
                 p.IsDel = false;
                 p.UserId = 3;
             });
-            Console.WriteLine("影响行数-" + efrow );
+            Console.WriteLine("影响行数-" + efrow);
         }
 
         [Test]
-        public void 添加数据返回插入ID测试lt() {
+        public void 添加数据返回插入ID测试lt()
+        {
 
             return;
             var efrow = LockDapperUtilsqlite<LockPers>.Cud.InsertGetId(p =>
             {
+                p._IsWriteFiled = true;
                 p.Id = Guid.NewGuid().ToString();
                 p.Name = "测试bool添加";
                 p.Content = p.Name;
@@ -57,10 +67,29 @@ namespace TestsDapperSqlMaker.DapperExt
         #region MS 添加数据测试
 
         [Test]
-        public void 添加数据返回影响行数_测试MS() {
+        public void DapperContrib添加方法MS()
+        {
+            //return;
+            LockPers_ms item = new LockPers_ms(true)
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = "mssqlmmmmmmmx2222222222",
+                Content = "这是棉花好多好多",
+                InsertTime = DateTime.Now,
+                IsDel = false,
+                UserId = 3
+            };
+            var efrow = LockDapperUtilmssql<LockPers_ms>.Cud.Inser(item
+                );
+            Console.WriteLine("影响行数-" + efrow);
+        }
+        [Test]
+        public void 添加数据返回影响行数_测试MS()
+        {
             return;
             var efrow = LockDapperUtilmssql<LockPers_ms>.Cud.Insert(p =>
             {
+                p._IsWriteFiled = true;
                 p.Id = Guid.NewGuid().ToString();
                 p.Name = "mssqlmmmmmmmx2222222222";
                 p.Content = "这是棉花好多好多";
@@ -77,6 +106,7 @@ namespace TestsDapperSqlMaker.DapperExt
 
             var id = LockDapperUtilmssql<LockPers_ms>.Cud.InsertGetId(p =>
             {
+                p._IsWriteFiled = true;
                 p.Id = Guid.NewGuid().ToString();
                 p.Name = "mssqlmmmmmmmx1";
                 p.Content = p.Name;

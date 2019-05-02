@@ -22,7 +22,7 @@ namespace FW.Model
 						= new System.Collections.Generic.List<System.Reflection.PropertyInfo>();
 		#endregion
 		public Users_ms() {
-            
+            this._IsWriteFiled = false;
         }
         public Users_ms(bool isWrite) {
             this._IsWriteFiled = isWrite;

@@ -12,7 +12,7 @@ namespace FW.Model
 	[Table("Users")]
 	public partial class Users
 	{  
-	   /*  Id  UserName  Password  CreateTime  Remark  IsDel  */ 
+	   /*  Id  UserName  Password  CreateTime  Remark  IsDel  img  RolesId  SkinId  */ 
 
 	    
         #region 待写入字段集合 可抽象出来
@@ -22,6 +22,9 @@ namespace FW.Model
 						= new System.Collections.Generic.List<System.Reflection.PropertyInfo>();
 		#endregion
 		 
+        public Users() {
+            this._IsWriteFiled = false;
+        }
         public Users(bool isWrite) {
             this._IsWriteFiled = isWrite;
         }
@@ -33,6 +36,9 @@ namespace FW.Model
 		public static readonly string  Field_CreateTime = "CreateTime"; 
 		public static readonly string  Field_Remark = "Remark"; 
 		public static readonly string  Field_IsDel = "IsDel"; 
+		public static readonly string  Field_img = "img"; 
+		public static readonly string  Field_RolesId = "RolesId"; 
+		public static readonly string  Field_SkinId = "SkinId"; 
 		#endregion
 
         #region Field
@@ -42,6 +48,9 @@ namespace FW.Model
 		private DateTime _CreateTime ; 
 		private string _Remark ; 
 		private bool _IsDel ; 
+		private string _img ; 
+		private int _RolesId ; 
+		private int _SkinId ; 
         #endregion
 
 		[Key]
@@ -75,6 +84,21 @@ namespace FW.Model
 					if(_IsWriteFiled) _WriteFiled.Add(this.GetType().GetProperty(Field_IsDel) ); }
 			get { return _IsDel; }
 		}
+		public virtual string img { 
+			set { _img = value; 
+					if(_IsWriteFiled) _WriteFiled.Add(this.GetType().GetProperty(Field_img) ); }
+			get { return _img; }
+		}
+		public virtual int RolesId { 
+			set { _RolesId = value; 
+					if(_IsWriteFiled) _WriteFiled.Add(this.GetType().GetProperty(Field_RolesId) ); }
+			get { return _RolesId; }
+		}
+		public virtual int SkinId { 
+			set { _SkinId = value; 
+					if(_IsWriteFiled) _WriteFiled.Add(this.GetType().GetProperty(Field_SkinId) ); }
+			get { return _SkinId; }
+		}
 
 	}
 
@@ -85,7 +109,7 @@ namespace FW.Model
 	[Table("Users")]
 	public partial class Users_
 	{  
-	   /*  Id  UserName  Password  CreateTime  Remark  IsDel  */ 
+	   /*  Id  UserName  Password  CreateTime  Remark  IsDel  img  RolesId  SkinId  */ 
 
 	      
         #region Field
@@ -95,6 +119,9 @@ namespace FW.Model
 		private DateTime _CreateTime ;
 		private string _Remark ;
 		private bool _IsDel ;
+		private string _img ;
+		private int _RolesId ;
+		private int _SkinId ;
         #endregion
 
 		[Key]
@@ -121,6 +148,18 @@ namespace FW.Model
 		public virtual bool IsDel { 
 			set { _IsDel = value; }
 			get { return _IsDel; }
+		}
+		public virtual string img { 
+			set { _img = value; }
+			get { return _img; }
+		}
+		public virtual int RolesId { 
+			set { _RolesId = value; }
+			get { return _RolesId; }
+		}
+		public virtual int SkinId { 
+			set { _SkinId = value; }
+			get { return _SkinId; }
 		}
 
 	}

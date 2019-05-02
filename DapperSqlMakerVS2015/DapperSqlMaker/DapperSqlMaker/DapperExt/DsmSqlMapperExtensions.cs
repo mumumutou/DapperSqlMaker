@@ -17,7 +17,7 @@ using DataException = System.InvalidOperationException;
 using System.Threading;
 #endif
 
-namespace Dapper.Contrib.Extensions 
+namespace Dapper.Contrib.Extensions
 {
     public static partial class DsmSqlMapperExtensions
     {
@@ -1190,294 +1190,304 @@ namespace Dapper.Contrib.Extensions
 
 }
 
-    
 
+
+
+/// <summary>
+/// 不通数据库 参数格式适配器 "\"{0}\" = @{1}"
+/// </summary>
+public partial interface ISqlAdapter
+{
+    /// <summary>
+    /// 添加一条记录 返回受影响行数
+    /// </summary> 
+    int Insert(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert);
 
     /// <summary>
-    /// 不通数据库 参数格式适配器 "\"{0}\" = @{1}"
+    /// 添加一条记录 返回自增id
+    /// </summary> 
+    int InsertGetId(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert);
+
+
+    //new methods for issue #336
+    void AppendColumnName(StringBuilder sb, string columnName);
+
+    /// <summary>
+    /// 参数化格式 Field = @Field 
     /// </summary>
-    public partial interface ISqlAdapter
+    void AppendColumnNameEqualsValue(StringBuilder sb, string columnName);
+
+    /// <summary>
+    /// 参数化格式 Field = @Field | 防止参数字段名重复 传入suffix  示例结果 Field = @Field_0
+    /// </summary> 
+    /// <param name="columnName">字段名</param>
+    /// <param name="suffix">参数名后缀</param>
+    void AppendColumnNameEqualsValue(StringBuilder sb, string columnName, string suffix);
+
+    ///// <summary>
+    ///// 分页查询
+    ///// </summary>
+    ///// <param name="page">页码</param>
+    ///// <param name="rows">行数</param>
+    ///// <param name="records">总页数</param>
+    //void ExcuteLimit(int page, int rows, out int records);
+    void RawPage(StringBuilder sb, DynamicParameters sparams, int page, int rows);
+
+}
+
+public partial class SqlServerAdapter : ISqlAdapter
+{
+    public int InsertGetId(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
     {
-        /// <summary>
-        /// 添加一条记录 返回受影响行数
-        /// </summary> 
-        int Insert(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert);
+        var cmd = $"insert into {tableName} ({columnList}) values ({parameterList});select SCOPE_IDENTITY() id";
+        var multi = connection.QueryMultiple(cmd, entityToInsert, transaction, commandTimeout);
 
-        /// <summary>
-        /// 添加一条记录 返回自增id
-        /// </summary> 
-        int InsertGetId(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert);
+        var first = multi.Read().FirstOrDefault();
+        if (first == null || first.id == null) return 0;
 
+        var id = (int)first.id;
+        var propertyInfos = keyProperties as PropertyInfo[] ?? keyProperties.ToArray();
+        if (!propertyInfos.Any()) return id;
 
-        //new methods for issue #336
-        void AppendColumnName(StringBuilder sb, string columnName);
+        var idProperty = propertyInfos.First();
+        idProperty.SetValue(entityToInsert, Convert.ChangeType(id, idProperty.PropertyType), null);
 
-        /// <summary>
-        /// 参数化格式 Field = @Field 
-        /// </summary>
-        void AppendColumnNameEqualsValue(StringBuilder sb, string columnName);
-
-        /// <summary>
-        /// 参数化格式 Field = @Field | 防止参数字段名重复 传入suffix  示例结果 Field = @Field_0
-        /// </summary> 
-        /// <param name="columnName">字段名</param>
-        /// <param name="suffix">参数名后缀</param>
-        void AppendColumnNameEqualsValue(StringBuilder sb, string columnName, string suffix);
-
-        ///// <summary>
-        ///// 分页查询
-        ///// </summary>
-        ///// <param name="page">页码</param>
-        ///// <param name="rows">行数</param>
-        ///// <param name="records">总页数</param>
-        //void ExcuteLimit(int page, int rows, out int records);
-        void RawPage(StringBuilder sb, DynamicParameters sparams, int page, int rows);
-
+        return id;
     }
 
-    public partial class SqlServerAdapter : ISqlAdapter
+    public void AppendColumnName(StringBuilder sb, string columnName)
     {
-        public int InsertGetId(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
-        {
-            var cmd = $"insert into {tableName} ({columnList}) values ({parameterList});select SCOPE_IDENTITY() id";
-            var multi = connection.QueryMultiple(cmd, entityToInsert, transaction, commandTimeout);
-
-            var first = multi.Read().FirstOrDefault();
-            if (first == null || first.id == null) return 0;
-
-            var id = (int)first.id;
-            var propertyInfos = keyProperties as PropertyInfo[] ?? keyProperties.ToArray();
-            if (!propertyInfos.Any()) return id;
-
-            var idProperty = propertyInfos.First();
-            idProperty.SetValue(entityToInsert, Convert.ChangeType(id, idProperty.PropertyType), null);
-
-            return id;
-        }
-
-        public void AppendColumnName(StringBuilder sb, string columnName)
-        {
-            sb.AppendFormat("[{0}]", columnName);
-        }
-
-        public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName)
-        {
-            sb.AppendFormat("[{0}] = @{1}", columnName, columnName);
-        }
-        public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName, string suffix)
-        {
-            sb.AppendFormat("[{0}] = @{1}{2}", columnName, columnName, suffix);
-        }
-
-        public void RawPage(StringBuilder sb, DynamicParameters sparams, int page, int rows)
-        {
-            // counts,rownum 放在字段解析里
-            sb.Insert(0, " select x.* from (  "); //  select count(a.Id) over() as counts , ROW_NUMBER() over(order by a.Id) as rownum 
-            sb.Append("  ) x  where rownum between (@pageIndex - 1) * @pageSize + 1 and @pageIndex * @pageSize ");
-            sparams.Add("@pageIndex", page);
-            sparams.Add("@pageSize", rows);
-        }
-
-        public int Insert(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
-        {
-            throw new NotImplementedException();
-        }
+        sb.AppendFormat("[{0}]", columnName);
     }
 
-    public partial class SqlCeServerAdapter : ISqlAdapter
+    public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName)
     {
-        public int Insert(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
-        {
-            var cmd = $"insert into {tableName} ({columnList}) values ({parameterList})";
-            connection.Execute(cmd, entityToInsert, transaction, commandTimeout);
-            var r = connection.Query("select @@IDENTITY id", transaction: transaction, commandTimeout: commandTimeout).ToList();
-
-            if (r.First().id == null) return 0;
-            var id = (int)r.First().id;
-
-            var propertyInfos = keyProperties as PropertyInfo[] ?? keyProperties.ToArray();
-            if (!propertyInfos.Any()) return id;
-
-            var idProperty = propertyInfos.First();
-            idProperty.SetValue(entityToInsert, Convert.ChangeType(id, idProperty.PropertyType), null);
-
-            return id;
-        }
-
-        public void AppendColumnName(StringBuilder sb, string columnName)
-        {
-            sb.AppendFormat("[{0}]", columnName);
-        }
-
-        public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName)
-        {
-            sb.AppendFormat("[{0}] = @{1}", columnName, columnName);
-        }
-        public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName, string suffix)
-        {
-            sb.AppendFormat("[{0}] = @{1}{2}", columnName, columnName, suffix);
-        }
-        public void RawPage(StringBuilder sb, DynamicParameters sparams, int page, int rows)
-        {
-            throw new NotImplementedException();
-        }
-
-        public int InsertGetId(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
-        {
-            throw new NotImplementedException();
-        }
+        sb.AppendFormat("[{0}] = @{1}", columnName, columnName);
+    }
+    public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName, string suffix)
+    {
+        sb.AppendFormat("[{0}] = @{1}{2}", columnName, columnName, suffix);
     }
 
-    public partial class MySqlAdapter : ISqlAdapter
+    public void RawPage(StringBuilder sb, DynamicParameters sparams, int page, int rows)
     {
-        public int Insert(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
-        {
-            var cmd = $"insert into {tableName} ({columnList}) values ({parameterList})";
-            connection.Execute(cmd, entityToInsert, transaction, commandTimeout);
-            var r = connection.Query("Select LAST_INSERT_ID() id", transaction: transaction, commandTimeout: commandTimeout);
-
-            var id = r.First().id;
-            if (id == null) return 0;
-            var propertyInfos = keyProperties as PropertyInfo[] ?? keyProperties.ToArray();
-            if (!propertyInfos.Any()) return Convert.ToInt32(id);
-
-            var idp = propertyInfos.First();
-            idp.SetValue(entityToInsert, Convert.ChangeType(id, idp.PropertyType), null);
-
-            return Convert.ToInt32(id);
-        }
-
-        public void AppendColumnName(StringBuilder sb, string columnName)
-        {
-            sb.AppendFormat("`{0}`", columnName);
-        }
-
-        public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName)
-        {
-            sb.AppendFormat("`{0}` = @{1}", columnName, columnName);
-        }
-        public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName, string suffix)
-        {
-            sb.AppendFormat("`{0}` = @{1}{2}", columnName, columnName, suffix);
-        }
-        public void RawPage(StringBuilder sb, DynamicParameters sparams, int page, int rows)
-        {
-            throw new NotImplementedException();
-        }
-
-        public int InsertGetId(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
-        {
-            throw new NotImplementedException();
-        }
+        // counts,rownum 放在字段解析里
+        sb.Insert(0, " select x.* from (  "); //  select count(a.Id) over() as counts , ROW_NUMBER() over(order by a.Id) as rownum 
+        sb.Append("  ) x  where rownum between (@pageIndex - 1) * @pageSize + 1 and @pageIndex * @pageSize ");
+        sparams.Add("@pageIndex", page);
+        sparams.Add("@pageSize", rows);
     }
 
-
-    public partial class PostgresAdapter : ISqlAdapter
+    /// <summary>
+    /// 插入单行 返回影响行数
+    /// </summary>  
+    public int Insert(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
     {
-        public int Insert(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
-        {
-            var sb = new StringBuilder();
-            sb.AppendFormat("insert into {0} ({1}) values ({2})", tableName, columnList, parameterList);
+        var cmd = $"insert into {tableName} ({columnList}) values ({parameterList})";
+        int effrow = connection.Execute(cmd, entityToInsert, transaction, commandTimeout);
+        return effrow;
+    }
+}
 
-            // If no primary key then safe to assume a join table with not too much data to return
-            var propertyInfos = keyProperties as PropertyInfo[] ?? keyProperties.ToArray();
-            if (!propertyInfos.Any())
-                sb.Append(" RETURNING *");
-            else
+public partial class SqlCeServerAdapter : ISqlAdapter
+{
+    public int Insert(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
+    {
+        var cmd = $"insert into {tableName} ({columnList}) values ({parameterList})";
+        connection.Execute(cmd, entityToInsert, transaction, commandTimeout);
+        var r = connection.Query("select @@IDENTITY id", transaction: transaction, commandTimeout: commandTimeout).ToList();
+
+        if (r.First().id == null) return 0;
+        var id = (int)r.First().id;
+
+        var propertyInfos = keyProperties as PropertyInfo[] ?? keyProperties.ToArray();
+        if (!propertyInfos.Any()) return id;
+
+        var idProperty = propertyInfos.First();
+        idProperty.SetValue(entityToInsert, Convert.ChangeType(id, idProperty.PropertyType), null);
+
+        return id;
+    }
+
+    public void AppendColumnName(StringBuilder sb, string columnName)
+    {
+        sb.AppendFormat("[{0}]", columnName);
+    }
+
+    public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName)
+    {
+        sb.AppendFormat("[{0}] = @{1}", columnName, columnName);
+    }
+    public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName, string suffix)
+    {
+        sb.AppendFormat("[{0}] = @{1}{2}", columnName, columnName, suffix);
+    }
+    public void RawPage(StringBuilder sb, DynamicParameters sparams, int page, int rows)
+    {
+        throw new NotImplementedException();
+    }
+
+    public int InsertGetId(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public partial class MySqlAdapter : ISqlAdapter
+{
+    public int Insert(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
+    {
+        var cmd = $"insert into {tableName} ({columnList}) values ({parameterList})";
+        connection.Execute(cmd, entityToInsert, transaction, commandTimeout);
+        var r = connection.Query("Select LAST_INSERT_ID() id", transaction: transaction, commandTimeout: commandTimeout);
+
+        var id = r.First().id;
+        if (id == null) return 0;
+        var propertyInfos = keyProperties as PropertyInfo[] ?? keyProperties.ToArray();
+        if (!propertyInfos.Any()) return Convert.ToInt32(id);
+
+        var idp = propertyInfos.First();
+        idp.SetValue(entityToInsert, Convert.ChangeType(id, idp.PropertyType), null);
+
+        return Convert.ToInt32(id);
+    }
+
+    public void AppendColumnName(StringBuilder sb, string columnName)
+    {
+        sb.AppendFormat("`{0}`", columnName);
+    }
+
+    public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName)
+    {
+        sb.AppendFormat("`{0}` = @{1}", columnName, columnName);
+    }
+    public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName, string suffix)
+    {
+        sb.AppendFormat("`{0}` = @{1}{2}", columnName, columnName, suffix);
+    }
+    public void RawPage(StringBuilder sb, DynamicParameters sparams, int page, int rows)
+    {
+        throw new NotImplementedException();
+    }
+
+    public int InsertGetId(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+
+public partial class PostgresAdapter : ISqlAdapter
+{
+    public int Insert(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
+    {
+        var sb = new StringBuilder();
+        sb.AppendFormat("insert into {0} ({1}) values ({2})", tableName, columnList, parameterList);
+
+        // If no primary key then safe to assume a join table with not too much data to return
+        var propertyInfos = keyProperties as PropertyInfo[] ?? keyProperties.ToArray();
+        if (!propertyInfos.Any())
+            sb.Append(" RETURNING *");
+        else
+        {
+            sb.Append(" RETURNING ");
+            var first = true;
+            foreach (var property in propertyInfos)
             {
-                sb.Append(" RETURNING ");
-                var first = true;
-                foreach (var property in propertyInfos)
-                {
-                    if (!first)
-                        sb.Append(", ");
-                    first = false;
-                    sb.Append(property.Name);
-                }
+                if (!first)
+                    sb.Append(", ");
+                first = false;
+                sb.Append(property.Name);
             }
-
-            var results = connection.Query(sb.ToString(), entityToInsert, transaction, commandTimeout: commandTimeout).ToList();
-
-            // Return the key by assinging the corresponding property in the object - by product is that it supports compound primary keys
-            var id = 0;
-            foreach (var p in propertyInfos)
-            {
-                var value = ((IDictionary<string, object>)results.First())[p.Name.ToLower()];
-                p.SetValue(entityToInsert, value, null);
-                if (id == 0)
-                    id = Convert.ToInt32(value);
-            }
-            return id;
         }
 
-        public void AppendColumnName(StringBuilder sb, string columnName)
-        {
-            sb.AppendFormat("\"{0}\"", columnName);
-        }
+        var results = connection.Query(sb.ToString(), entityToInsert, transaction, commandTimeout: commandTimeout).ToList();
 
-        public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName)
+        // Return the key by assinging the corresponding property in the object - by product is that it supports compound primary keys
+        var id = 0;
+        foreach (var p in propertyInfos)
         {
-            sb.AppendFormat("\"{0}\" = @{1}", columnName, columnName);
+            var value = ((IDictionary<string, object>)results.First())[p.Name.ToLower()];
+            p.SetValue(entityToInsert, value, null);
+            if (id == 0)
+                id = Convert.ToInt32(value);
         }
-        public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName, string suffix)
-        {
-            sb.AppendFormat("\"{0}\" = @{1}{2}", columnName, columnName, suffix);
-        }
-        public void RawPage(StringBuilder sb, DynamicParameters sparams, int page, int rows)
-        {
-            throw new NotImplementedException();
-        }
-
-        public int InsertGetId(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
-        {
-            throw new NotImplementedException();
-        }
+        return id;
     }
 
-    public partial class SQLiteAdapter : ISqlAdapter
+    public void AppendColumnName(StringBuilder sb, string columnName)
     {
-        public int InsertGetId(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
-        {
-            var cmd = $"INSERT INTO {tableName} ({columnList}) VALUES ({parameterList}); SELECT last_insert_rowid() id";
-            var multi = connection.QueryMultiple(cmd, entityToInsert, transaction, commandTimeout);
-
-            var id = (int)multi.Read().First().id;
-            var propertyInfos = keyProperties as PropertyInfo[] ?? keyProperties.ToArray();
-            if (!propertyInfos.Any()) return id;
-
-            var idProperty = propertyInfos.First();
-            idProperty.SetValue(entityToInsert, Convert.ChangeType(id, idProperty.PropertyType), null);
-
-            return id;
-        }
-
-        public void AppendColumnName(StringBuilder sb, string columnName)
-        {
-            sb.AppendFormat("\"{0}\"", columnName);
-        }
-
-        public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName)
-        {
-            sb.AppendFormat("\"{0}\" = @{1}", columnName, columnName);
-        }
-        public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName, string suffix)
-        {
-            sb.AppendFormat("\"{0}\" = @{1}{2}", columnName, columnName, suffix);
-        }
-        public void RawPage(StringBuilder sb, DynamicParameters sparams, int page, int rows)
-        {//offset代表从第几条记录“之后“开始查询，limit表明查询多少条结果
-
-            int offset_ = (page - 1) * rows;
-            int limit_ = rows;
-            sb.Append(" limit @limit_ offset @offset_ ");
-            sparams.Add("@offset_", offset_);
-            sparams.Add("@limit_", limit_);
-        }
-
-        public int Insert(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
-        {
-            throw new NotImplementedException();
-        }
-
-
+        sb.AppendFormat("\"{0}\"", columnName);
     }
+
+    public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName)
+    {
+        sb.AppendFormat("\"{0}\" = @{1}", columnName, columnName);
+    }
+    public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName, string suffix)
+    {
+        sb.AppendFormat("\"{0}\" = @{1}{2}", columnName, columnName, suffix);
+    }
+    public void RawPage(StringBuilder sb, DynamicParameters sparams, int page, int rows)
+    {
+        throw new NotImplementedException();
+    }
+
+    public int InsertGetId(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public partial class SQLiteAdapter : ISqlAdapter
+{
+    public int InsertGetId(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
+    {
+        var cmd = $"INSERT INTO {tableName} ({columnList}) VALUES ({parameterList}); SELECT last_insert_rowid() id";
+        var multi = connection.QueryMultiple(cmd, entityToInsert, transaction, commandTimeout);
+
+        var id = (int)multi.Read().First().id;
+        var propertyInfos = keyProperties as PropertyInfo[] ?? keyProperties.ToArray();
+        if (!propertyInfos.Any()) return id;
+
+        var idProperty = propertyInfos.First();
+        idProperty.SetValue(entityToInsert, Convert.ChangeType(id, idProperty.PropertyType), null);
+
+        return id;
+    }
+
+    public void AppendColumnName(StringBuilder sb, string columnName)
+    {
+        sb.AppendFormat("\"{0}\"", columnName);
+    }
+
+    public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName)
+    {
+        sb.AppendFormat("\"{0}\" = @{1}", columnName, columnName);
+    }
+    public void AppendColumnNameEqualsValue(StringBuilder sb, string columnName, string suffix)
+    {
+        sb.AppendFormat("\"{0}\" = @{1}{2}", columnName, columnName, suffix);
+    }
+    public void RawPage(StringBuilder sb, DynamicParameters sparams, int page, int rows)
+    {//offset代表从第几条记录“之后“开始查询，limit表明查询多少条结果
+
+        int offset_ = (page - 1) * rows;
+        int limit_ = rows;
+        sb.Append(" limit @limit_ offset @offset_ ");
+        sparams.Add("@offset_", offset_);
+        sparams.Add("@limit_", limit_);
+    }
+
+    /// <summary>
+    /// 插入单行 返回影响行数
+    /// </summary>  
+    public int Insert(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
+    {
+        var cmd = $"INSERT INTO {tableName} ({columnList}) VALUES ({parameterList})";
+        int effrow = connection.Execute(cmd, entityToInsert, transaction, commandTimeout);
+        return effrow;
+    }
+
+
+}

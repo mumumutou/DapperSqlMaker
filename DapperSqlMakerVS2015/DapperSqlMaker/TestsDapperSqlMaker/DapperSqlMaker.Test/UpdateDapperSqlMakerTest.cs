@@ -48,7 +48,7 @@ namespace TestsDapperSqlMaker.DapperExt
         {
 
             var model = LockDapperUtilsqlite<LockPers>
-                .Selec().Column().From().Where(p => p.Name == "测试bool修改2 xxxxxx").ExcuteSelect<LockPers>().FirstOrDefault();
+                .Selec().Column().From().Where(p => p.Name == "测试bool修改2 xxxxxx").ExcuteQuery<LockPers>().FirstOrDefault();
 
             model.Content = "棉花棉花棉花棉花棉花";
             model.ContentOld = "忽略Write(false)标记字段";
@@ -67,7 +67,7 @@ namespace TestsDapperSqlMaker.DapperExt
             var query = LockDapperUtilsqlite<LockPers>
                         .Selec().Column(c => new { c.Content, c.EditCount }).From().Where(m => m.Id == p.Id);
 
-            var old = query.ExcuteSelect<LockPers>().FirstOrDefault();
+            var old = query.ExcuteQuery<LockPers>().FirstOrDefault();
 
             old._IsWriteFiled = true; // 标记开始记录赋值字段 注意上面查询LockPers 要再默认构造函数里把 标识改为false 查出的数据不要记录赋值字段 
             old.Name = "蛋蛋蛋蛋H$E22222";
@@ -78,6 +78,20 @@ namespace TestsDapperSqlMaker.DapperExt
             var t = LockDapperUtilsqlite<LockPers>.Cud.Update(old, w => w.Id == p.Id);
         }
 
+        [Test]
+        public void 更新传入int变量测速() {
+            TestIntAction(7);
+
+        }
+
+        public void TestIntAction(int Id)
+        {
+            int UserIds = 1;
+            bool isSuccess = LockDapperUtilsqlite<Skin>.Cud.Update(s => {
+                s._IsWriteFiled = true; s.IsDel = 1;
+            }, w => w.Id == Id && w.UserId == UserIds);
+            Console.WriteLine(isSuccess);
+        }
         #endregion
 
         #region MS 修改数据测试

@@ -22,6 +22,9 @@ namespace FW.Model
 						= new System.Collections.Generic.List<System.Reflection.PropertyInfo>();
 		#endregion
 		 
+        public SynNote() {
+            this._IsWriteFiled = false;
+        }
         public SynNote(bool isWrite) {
             this._IsWriteFiled = isWrite;
         }
@@ -124,10 +127,6 @@ namespace FW.Model
 		}
 
 	}
-
-
-
-
 
 
 } // namespace

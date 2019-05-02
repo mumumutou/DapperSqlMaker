@@ -60,6 +60,18 @@
     <Compile Include="ModelPartial\LockPers.cs">
       <DependentUpon>SQLiteModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="ModelPartial\LOLkengbi.cs">
+      <DependentUpon>SQLiteModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ModelPartial\Menu.cs">
+      <DependentUpon>SQLiteModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ModelPartial\Roles.cs">
+      <DependentUpon>SQLiteModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ModelPartial\Skin.cs">
+      <DependentUpon>SQLiteModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="ModelPartial\SynNote.cs">
       <DependentUpon>SQLiteModel.tt</DependentUpon>
     </Compile>

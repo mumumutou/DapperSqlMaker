@@ -7,7 +7,7 @@ namespace FW.Model
 {
     public partial class Users
     {
-        public Users() { this.LockPerss = new List<LockPers>(); }
+        //public Users() { this.LockPerss = new List<LockPers>(); }
 
         public List<LockPers> LockPerss { get; set; }
     }

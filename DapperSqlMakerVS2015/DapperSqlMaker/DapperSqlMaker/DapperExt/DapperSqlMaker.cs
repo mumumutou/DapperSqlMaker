@@ -12,7 +12,9 @@ using Dapper.Contrib.Extensions;
 namespace DapperSqlMaker.DapperExt
 {
 
-
+    /// <summary>
+    /// 联表类型
+    /// </summary>
     public enum JoinType
     {
         Left
@@ -91,7 +93,7 @@ namespace DapperSqlMaker.DapperExt
             LambdaExpression fielambda = fiesExps as LambdaExpression;
             columns = base.GetColumnStr(fielambda);
 
-        columnsall:
+            columnsall:
             Clauses.Add(Clause.New(ClauseType.ActionSelectColumn, selectColumn: columns));
             return this;
         }
@@ -197,7 +199,7 @@ namespace DapperSqlMaker.DapperExt
             NewExpression arryexps = fielambda.Body as NewExpression;
             Dictionary<string, int> pdic = base.GetLmdparamsDic(fielambda);
             columns = GetFieldrrExps(arryexps.Arguments, TabAliaceDic, pdic); //"select " +
-            columns = string.Format(SM.LimitRowNumber_Sql, columns); 
+            columns = string.Format(SM.LimitRowNumber_Sql, columns);
 
             Clauses.Add(Clause.New(ClauseType.ActionSelectRowRumberOrderBy, rowRumberOrderBy: columns));
             return this;
@@ -213,7 +215,7 @@ namespace DapperSqlMaker.DapperExt
             LambdaExpression fielambda = fiesExps as LambdaExpression;
             columns = base.GetColumnStr(fielambda);
 
-        columnsall:
+            columnsall:
             Clauses.Add(Clause.New(ClauseType.ActionSelectColumn, selectColumn: columns));
             return this;
         }
@@ -342,7 +344,7 @@ namespace DapperSqlMaker.DapperExt
             LambdaExpression fielambda = fiesExps as LambdaExpression;
             columns = base.GetColumnStr(fielambda);
 
-        columnsall:
+            columnsall:
             Clauses.Add(Clause.New(ClauseType.ActionSelectColumn, selectColumn: columns));
             return this;
         }
@@ -445,7 +447,7 @@ namespace DapperSqlMaker.DapperExt
             LambdaExpression fielambda = fiesExps as LambdaExpression;
             columns = base.GetColumnStr(fielambda);
 
-        columnsall:
+            columnsall:
             Clauses.Add(Clause.New(ClauseType.ActionSelectColumn, selectColumn: columns));
             return this;
         }
@@ -511,7 +513,7 @@ namespace DapperSqlMaker.DapperExt
         /// 执行查询
         /// </summary>
         /// <returns></returns>
-        public override IEnumerable<dynamic> ExcuteSelect()
+        public override IEnumerable<dynamic> ExcuteQuery()
         {
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters> rawSqlParams = base.RawSqlParams();
@@ -563,7 +565,7 @@ namespace DapperSqlMaker.DapperExt
             LambdaExpression fielambda = fiesExps as LambdaExpression;
             columns = base.GetColumnStr(fielambda);
 
-        columnsall:
+            columnsall:
             Clauses.Add(Clause.New(ClauseType.ActionSelectColumn, selectColumn: columns));
             return this;
         }
@@ -664,7 +666,7 @@ namespace DapperSqlMaker.DapperExt
         where T : class, new()
     {
         protected abstract override IDbConnection GetCurrentConnection(bool isfirst = false);
-        
+
         #region 链式查询数据
 
         // 查询
@@ -705,7 +707,7 @@ namespace DapperSqlMaker.DapperExt
             LambdaExpression fielambda = fiesExps as LambdaExpression;
             columns = base.GetColumnStr(fielambda);
 
-        columnsall:
+            columnsall:
             Clauses.Add(Clause.New(ClauseType.ActionSelectColumn, selectColumn: columns));
             return this;
         }
@@ -764,7 +766,7 @@ namespace DapperSqlMaker.DapperExt
 
             using (var conn = GetCurrentConnection())
             {
-                var t = conn.Get<T>(id, transaction, commandTimeout);  
+                var t = conn.Get<T>(id, transaction, commandTimeout);
                 return t;
             }
         }
@@ -785,7 +787,7 @@ namespace DapperSqlMaker.DapperExt
         /// </summary>  
         /// <param name="efrowOrId">true返回影响行数 false返回插入id</param> 
         /// <returns></returns>
-        public int Inser(T entity,bool efrowOrId = true, IDbTransaction transaction = null, int? commandTimeout = null)
+        public int Inser(T entity, bool efrowOrId = true, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             Type type = typeof(T);
             if (entity == null)
@@ -808,7 +810,7 @@ namespace DapperSqlMaker.DapperExt
 
             using (var conn = GetCurrentConnection()) //GetCurrentConnection() )
             {
-                var t = conn.Inser(entitys,false, transaction, commandTimeout);
+                var t = conn.Inser(entitys, false, transaction, commandTimeout);
                 return (int)t;
             }
         }
@@ -908,7 +910,7 @@ namespace DapperSqlMaker.DapperExt
         public int InsertGetId(Action<T> entityAcn, IDbTransaction transaction = null, int? commandTimeout = null) // static
         {
             if (entityAcn == null)
-                throw new Exception("entityAcn为空"); 
+                throw new Exception("entityAcn为空");
 
             T entity = new T();
             //writeFiled.SetValue(entity, true); //padd._IsWriteFiled = true;
@@ -921,7 +923,7 @@ namespace DapperSqlMaker.DapperExt
             }
         }
 
-        
+
 
         #endregion
 
@@ -983,7 +985,7 @@ namespace DapperSqlMaker.DapperExt
         /// <param name="whereExps">bool返回值无意义 只是为了连接where表达式</param>
         /// <returns></returns>
         public bool Delete(Expression<Func<T, bool>> whereExps, IDbTransaction transaction = null, int? commandTimeout = null) //static
-        {  
+        {
             using (var conn = GetCurrentConnection()) //GetCurrentConnection() )
             {
                 var t = conn.DeleteWriteField(whereExps, transaction, commandTimeout);
@@ -996,15 +998,15 @@ namespace DapperSqlMaker.DapperExt
 
 
     }
-
     public abstract class DapperSqlMaker
     {
+        protected abstract IDbConnection GetCurrentConnection(bool isfirst = false);
         public DapperSqlMaker()
         {
             GetCurrentConnection(true); //在子类必须重写抽象方法
         }
         // 当前连接
-        protected abstract IDbConnection GetCurrentConnection(bool isfirst = false);
+        //protected abstract IDbConnection GetCurrentConnection(bool isfirst = false);
 
         private static readonly ISqlAdapter DefaultAdapter = new SqlServerAdapter();
         private static readonly Dictionary<string, ISqlAdapter> AdapterDictionary
@@ -1141,17 +1143,20 @@ namespace DapperSqlMaker.DapperExt
                 ParameterExpression parmexr;
 
 
-                if (p.NodeType == ExpressionType.MemberAccess) {
+                if (p.NodeType == ExpressionType.MemberAccess)
+                {
                     meb = p as MemberExpression; goto mebexpisnull;
                 }
-                if (p.NodeType == ExpressionType.Constant) {
+                if (p.NodeType == ExpressionType.Constant)
+                {
                     ConstantExpression const1 = p as ConstantExpression;
                     if (p.Type.Name.ToLower() != "string") throw new Exception(p.Type.Name + "常量未解析");
                     colum = const1.Value.ToString();
                     isfield_suf = false; // 直接写sql 别名也要写在字符串里
                     goto appendsql;
                 }
-                if (p.NodeType == ExpressionType.Convert) { 
+                if (p.NodeType == ExpressionType.Convert)
+                {
                     UnaryExpression umeb = p as UnaryExpression;
                     meb = umeb.Operand as MemberExpression;
                     goto mebexpisnull; //Constant;
@@ -1186,7 +1191,8 @@ namespace DapperSqlMaker.DapperExt
                     }
                     else throw new Exception(method.Method.Name + "未解析");
                     //Arguments
-                }else throw new Exception(p.NodeType + "--" + p + "未解析");
+                }
+                else throw new Exception(p.NodeType + "--" + p + "未解析");
 
 
 
@@ -1194,21 +1200,23 @@ namespace DapperSqlMaker.DapperExt
                 if (meb.Expression == null)
                 { // 特殊sql
                     string fname = meb.Member.DeclaringType.Name + "." + meb.Member.Name;
-                    if (fname == SM._limitcount_Name) {
+                    if (fname == SM._limitcount_Name)
+                    {
                         colum = SM.LimitCount;  // 分页Count总记录数字段
-                    }else throw new Exception(fname + "未解析");
+                    }
+                    else throw new Exception(fname + "未解析");
                     isfield_suf = false; // 已定义的特殊sql 也忽略别名
                     goto appendsql;
                 }
 
-            callstr: // 方法直接到这
+                callstr: // 方法直接到这
 
                 parmexr = meb.Expression as ParameterExpression;
                 var tkey = parmexr.Type.FullName + paramsdic[parmexr.Name];  // 类名+参数序号
                 var tabalias1 = tabalis[tkey]; // Parmexr1.Name
                 colum = tabalias1 + "." + meb.Member.Name;  // 表(别名).字段名
 
-            appendsql: // 字段名 加  后缀(as xxx, desc)
+                appendsql: // 字段名 加  后缀(as xxx, desc)
 
                 if (isfield_suf) field_suf = " as " + asnameArr[i]; // 字段别名
                 i++;
@@ -1221,8 +1229,9 @@ namespace DapperSqlMaker.DapperExt
         /// 生成查询 字段列 
         /// </summary>
         /// <returns></returns>
-        protected string GetColumnStr(LambdaExpression fielambda) {
-            string columns; 
+        protected string GetColumnStr(LambdaExpression fielambda)
+        {
+            string columns;
             // 2. 解析查询字段
             if (fielambda.Body is NewExpression)
             { // 查询指定字段  // 匿名类型传入Fileds   new { t.f1, t.f2, t2.f3 }   ==>   tab1.f1, tab1.f2, tab2.f3
@@ -1476,7 +1485,12 @@ namespace DapperSqlMaker.DapperExt
         // 数据库类型 conn.GetType().Name.ToLower()  sqliteconnection
         // "sqlconnection", "sqlceconnection","npgsqlconnection","sqliteconnection","mysqlconnection",
 
-        public virtual IEnumerable<dynamic> ExcuteSelect()
+
+
+        /// <summary>
+        /// 查询 
+        /// </summary>
+        public virtual IEnumerable<dynamic> ExcuteQuery()
         {
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
@@ -1488,7 +1502,10 @@ namespace DapperSqlMaker.DapperExt
             }
         }
 
-        public virtual IEnumerable<Y> ExcuteSelect<Y>()
+        /// <summary>
+        /// 查询
+        /// </summary>
+        public virtual IEnumerable<Y> ExcuteQuery<Y>()
         {
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
@@ -1497,6 +1514,34 @@ namespace DapperSqlMaker.DapperExt
             {
                 var obj = conn.Query<Y>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
                 return obj;
+            }
+        }
+        /// <summary>
+        /// 查询首行
+        /// </summary>
+        public virtual Y ExcuteQueryFirst<Y>()
+        {
+            // Tuple<sql,entity>
+            Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
+
+            using (var conn = GetCurrentConnection())
+            {
+                var obj = conn.Query<Y>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
+                return obj.FirstOrDefault();
+            }
+        }
+        /// <summary>
+        /// 查询首列
+        /// </summary>
+        public virtual Y ExecuteScalar<Y>()
+        {
+            // Tuple<sql,entity>
+            Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
+
+            using (var conn = GetCurrentConnection())
+            {
+                var obj = conn.Query<Y>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
+                return obj.FirstOrDefault();
             }
         }
 
@@ -1527,7 +1572,7 @@ namespace DapperSqlMaker.DapperExt
         /// mssql分页 T实体里声明records接受总记录数;
         /// </summary>  
         public virtual IEnumerable<T> LoadPagems<T>(int page, int rows)
-        { 
+        {
             ISqlAdapter adp;
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
@@ -1597,73 +1642,79 @@ namespace DapperSqlMaker.DapperExt
         }
 
 
+
+
+        //public virtual IEnumerable<dynamic> ExcuteQuery() { throw new Exception("子类未重写该方法"); }
+
+    }
+
+    /// <summary>
+    /// Dapper自带方法
+    /// </summary>
+    public partial class DapperFuncs
+    {
+
         #region sql执行Dapper已有方法
         /// <summary>
-        /// 增删改 返回影响行数
+        /// 增删改 返回影响行数 (Dapper.SqlMapper Dapper自带方法)
         /// </summary> 
-        public int Execute(string sql, object entity)
+        public static int Execute(string sql, object entity, IDbConnection conn)
         {
             if (entity == null)
                 throw new Exception();
 
-            using (var conn = GetCurrentConnection()) //GetCurrentConnection() )
+            using (conn)//var conn = GetCurrentConnection()) //GetCurrentConnection() )
             {
                 return conn.Execute(sql, entity);
             }
         }
         /// <summary>
-        /// 查询
+        /// 查询  (Dapper.SqlMapper Dapper自带方法)
         /// </summary> 
-        public IEnumerable<dynamic> Query(string sql, object entity)
+        public static IEnumerable<dynamic> Query(string sql, object entity, IDbConnection conn)
         {
-            using (var conn = GetCurrentConnection())
+            using (conn)//var conn = GetCurrentConnection()) //GetCurrentConnection() )
             {
                 var obj = conn.Query<dynamic>(sql, entity);
                 return obj;
             }
         }
         /// <summary>
-        /// 查询
+        /// 查询 (Dapper.SqlMapper Dapper自带方法)
         /// </summary> 
-        public IEnumerable<T> Query<T>(string sql, object entity)
+        public static IEnumerable<T> Query<T>(string sql, object entity, IDbConnection conn)
         {
-            using (var conn = GetCurrentConnection())
+            using (conn)//var conn = GetCurrentConnection()) //GetCurrentConnection() )
             {
                 var obj = conn.Query<T>(sql, entity);
                 return obj;
             }
         }
         /// <summary>
-        /// 查询首行
+        /// 查询首行 (Dapper.SqlMapper Dapper自带方法)
         /// </summary> 
-        public T QueryFirst<T>(string sql, object entity)
+        public static T QueryFirst<T>(string sql, object entity, IDbConnection conn)
         {
-            using (var conn = GetCurrentConnection())
+            using (conn)//var conn = GetCurrentConnection()) //GetCurrentConnection() )
             {
                 var obj = conn.QueryFirst<T>(sql, entity);
                 return obj;
             }
         }
         /// <summary>
-        /// 查询首行
+        /// 查询首行  (Dapper.SqlMapper Dapper自带方法)
         /// </summary> 
-        public T ExecuteScalar<T>(string sql, object entity)
+        public static T ExecuteScalar<T>(string sql, object entity, IDbConnection conn)
         {
-            using (var conn = GetCurrentConnection())
+            using (conn)//var conn = GetCurrentConnection()) //GetCurrentConnection() )
             {
                 var obj = conn.ExecuteScalar<T>(sql, entity);
                 return obj;
             }
         }
-        
+
         #endregion
 
-
-
-        //public virtual IEnumerable<dynamic> ExcuteSelect() { throw new Exception("子类未重写该方法"); }
-
     }
-
-
 
 }

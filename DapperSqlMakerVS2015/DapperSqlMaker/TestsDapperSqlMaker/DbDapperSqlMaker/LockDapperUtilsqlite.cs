@@ -16,7 +16,7 @@ namespace DapperSqlMaker.DapperExt
         public static LockDapperUtilsqlite New() {
             return _New;
         }
-        public IDbConnection GetCurrentConnectionSign(bool isfirst) {
+        public IDbConnection GetConnSign(bool isfirst) {
             return this.GetCurrentConnection(isfirst);
         }
 
@@ -36,7 +36,7 @@ namespace DapperSqlMaker.DapperExt
     {
         protected override IDbConnection GetCurrentConnection(bool isfirst)
         {
-            return LockDapperUtilsqlite.New().GetCurrentConnectionSign(isfirst);
+            return LockDapperUtilsqlite.New().GetConnSign(isfirst);
         }
 
         public static DapperSqlMaker<T> Selec()
@@ -54,7 +54,7 @@ namespace DapperSqlMaker.DapperExt
     {
         protected override IDbConnection GetCurrentConnection(bool isfirst)
         {
-            return LockDapperUtilsqlite.New().GetCurrentConnectionSign(isfirst);
+            return LockDapperUtilsqlite.New().GetConnSign(isfirst);
         }
          
         // 不能用单例 单例后面的表别名字典会冲突
@@ -68,7 +68,7 @@ namespace DapperSqlMaker.DapperExt
     {
         protected override IDbConnection GetCurrentConnection(bool isfirst)
         {
-            return LockDapperUtilsqlite.New().GetCurrentConnectionSign(isfirst);
+            return LockDapperUtilsqlite.New().GetConnSign(isfirst);
         }
         // 不能用单例 单例后面的表别名字典会冲突
 
@@ -82,7 +82,7 @@ namespace DapperSqlMaker.DapperExt
     {
         protected override IDbConnection GetCurrentConnection(bool isfirst)
         {
-            return LockDapperUtilsqlite.New().GetCurrentConnectionSign(isfirst);
+            return LockDapperUtilsqlite.New().GetConnSign(isfirst);
         }
         // 不能用单例 单例后面的表别名字典会冲突
 
@@ -95,7 +95,7 @@ namespace DapperSqlMaker.DapperExt
     {
         protected override IDbConnection GetCurrentConnection(bool isfirst)
         {
-            return LockDapperUtilsqlite.New().GetCurrentConnectionSign(isfirst);
+            return LockDapperUtilsqlite.New().GetConnSign(isfirst);
         }
         // 不能用单例 单例后面的表别名字典会冲突
 
@@ -108,7 +108,7 @@ namespace DapperSqlMaker.DapperExt
     {
         protected override IDbConnection GetCurrentConnection(bool isfirst)
         {
-            return LockDapperUtilsqlite.New().GetCurrentConnectionSign(isfirst);
+            return LockDapperUtilsqlite.New().GetConnSign(isfirst);
         }
         // 不能用单例 单例后面的表别名字典会冲突
 

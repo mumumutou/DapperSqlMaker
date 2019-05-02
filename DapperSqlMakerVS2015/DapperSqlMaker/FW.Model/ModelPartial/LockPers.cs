@@ -12,7 +12,7 @@ namespace FW.Model
 	[Table("LockPers")]
 	public partial class LockPers
 	{  
-	   /*  Name  Content  Prompt  Id  InsertTime  IsDel  DelTime  UpdateTime  EditCount  UserId  */ 
+	   /*  Name  Content  Prompt  Id  InsertTime  IsDel  DelTime  UpdateTime  EditCount  CheckCount  UserId  */ 
 
 	    
         #region 待写入字段集合 可抽象出来
@@ -22,6 +22,9 @@ namespace FW.Model
 						= new System.Collections.Generic.List<System.Reflection.PropertyInfo>();
 		#endregion
 		 
+        public LockPers() {
+            this._IsWriteFiled = false;
+        }
         public LockPers(bool isWrite) {
             this._IsWriteFiled = isWrite;
         }
@@ -36,6 +39,7 @@ namespace FW.Model
 		public static readonly string  Field_DelTime = "DelTime"; 
 		public static readonly string  Field_UpdateTime = "UpdateTime"; 
 		public static readonly string  Field_EditCount = "EditCount"; 
+		public static readonly string  Field_CheckCount = "CheckCount"; 
 		public static readonly string  Field_UserId = "UserId"; 
 		#endregion
 
@@ -48,7 +52,8 @@ namespace FW.Model
 		private bool _IsDel ; 
 		private DateTime? _DelTime ; 
 		private DateTime? _UpdateTime ; 
-		private int? _EditCount ; 
+		private int _EditCount ; 
+		private int _CheckCount ; 
 		private int _UserId ; 
         #endregion
 
@@ -92,10 +97,15 @@ namespace FW.Model
 					if(_IsWriteFiled) _WriteFiled.Add(this.GetType().GetProperty(Field_UpdateTime) ); }
 			get { return _UpdateTime; }
 		}
-		public virtual int? EditCount { 
+		public virtual int EditCount { 
 			set { _EditCount = value; 
 					if(_IsWriteFiled) _WriteFiled.Add(this.GetType().GetProperty(Field_EditCount) ); }
 			get { return _EditCount; }
+		}
+		public virtual int CheckCount { 
+			set { _CheckCount = value; 
+					if(_IsWriteFiled) _WriteFiled.Add(this.GetType().GetProperty(Field_CheckCount) ); }
+			get { return _CheckCount; }
 		}
 		public virtual int UserId { 
 			set { _UserId = value; 
@@ -112,7 +122,7 @@ namespace FW.Model
 	[Table("LockPers")]
 	public partial class LockPers_
 	{  
-	   /*  Name  Content  Prompt  Id  InsertTime  IsDel  DelTime  UpdateTime  EditCount  UserId  */ 
+	   /*  Name  Content  Prompt  Id  InsertTime  IsDel  DelTime  UpdateTime  EditCount  CheckCount  UserId  */ 
 
 	      
         #region Field
@@ -124,7 +134,8 @@ namespace FW.Model
 		private bool _IsDel ;
 		private DateTime? _DelTime ;
 		private DateTime? _UpdateTime ;
-		private int? _EditCount ;
+		private int _EditCount ;
+		private int _CheckCount ;
 		private int _UserId ;
         #endregion
 
@@ -160,9 +171,13 @@ namespace FW.Model
 			set { _UpdateTime = value; }
 			get { return _UpdateTime; }
 		}
-		public virtual int? EditCount { 
+		public virtual int EditCount { 
 			set { _EditCount = value; }
 			get { return _EditCount; }
+		}
+		public virtual int CheckCount { 
+			set { _CheckCount = value; }
+			get { return _CheckCount; }
 		}
 		public virtual int UserId { 
 			set { _UserId = value; }

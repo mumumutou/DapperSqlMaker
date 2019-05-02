@@ -7,8 +7,8 @@ namespace FW.Model
 {
     public partial class SynNote
     {
-        public SynNote()
-        {
-        }
+        //public SynNote()
+        //{
+        //}
     }
 }

@@ -71,6 +71,9 @@ foreach(Table tbl in from t in tables where !t.Ignore select t){
 						= new System.Collections.Generic.List<System.Reflection.PropertyInfo>();
 		#endregion
 		 
+        public <#=tbl.ClassName#>() {
+            this._IsWriteFiled = false;
+        }
         public <#=tbl.ClassName#>(bool isWrite) {
             this._IsWriteFiled = isWrite;
         }
