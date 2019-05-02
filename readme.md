@@ -122,9 +122,9 @@ public void 更新部分字段测试lt()
         { 
             //int Id = int.Parse( Request.Form["Id"]);
             int Id_ = Id;
-            bool isSuccess = LockDapperUtilsqlite<Skin>.Cud.Update(s => {
-                s._IsWriteFiled = true; s.IsDel = 1;
-            }, w => w.Id == Id_ && w.UserId == 1);
+            bool isSuccess = LockDapperUtilsqlite<Skin>.Cud.Update(
+				s => {  s._IsWriteFiled = true; s.IsDel = 1; }
+				, w => w.Id == Id_ && w.UserId == 1);
 
             return Content(isSuccess ? "1" : "0");
         }
@@ -135,7 +135,6 @@ public void 更新部分字段测试lt()
 ExcuteSelect 方法名更改为 => ExcuteQuery 
 
 -----
-
  
  注意：
 > 1. svn提交到github时 不要再解决方案内复制文件 直接当作新文件添加进来 
