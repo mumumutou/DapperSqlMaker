@@ -57,7 +57,7 @@ namespace TestsDapperSqlMaker
                 .Where(where) //(lpp, uu, snn, snnn) => uu.Id == snn.UserId && snnn.Id == snn.UserId)//)
                 .Order((lp, w, sn, snn, s5, s6) => new { lp.EditCount, lp.Name, sn.Content });
 
-            var result = query.ExcuteQuery();
+            var result = query.ExecuteQuery();
             WriteJson(result); //  查询结果
             Tuple<StringBuilder, DynamicParameters> resultsqlparams = query.RawSqlParams();
             WriteSqlParams(resultsqlparams); // 打印sql和参数
@@ -89,7 +89,7 @@ namespace TestsDapperSqlMaker
                 .Where(where) //(lpp, uu, snn, snnn) => uu.Id == snn.UserId && snnn.Id == snn.UserId)//)
                 .Order((lp, w, sn, snn, s5) => new { lp.EditCount, lp.Name, sn.Content });
 
-            var result = query.ExcuteQuery();
+            var result = query.ExecuteQuery();
             WriteJson(result); //  查询结果
             Tuple<StringBuilder, DynamicParameters> resultsqlparams = query.RawSqlParams();
             WriteSqlParams(resultsqlparams); // 打印sql和参数
@@ -120,7 +120,7 @@ namespace TestsDapperSqlMaker
                 .Where(where) //(lpp, uu, snn, snnn) => uu.Id == snn.UserId && snnn.Id == snn.UserId)//)
                 .Order((lp, w, sn, snn) => new { lp.EditCount, lp.Name, sn.Content });
 
-            var result = query.ExcuteQuery();
+            var result = query.ExecuteQuery();
             WriteJson(result); //  查询结果
             Tuple<StringBuilder, DynamicParameters> resultsqlparams = query.RawSqlParams();
             WriteSqlParams(resultsqlparams); // 打印sql和参数
@@ -153,7 +153,7 @@ namespace TestsDapperSqlMaker
                 .Where(where)
                 .Order((lp, w, sn) => new { lp.EditCount, x = SM.OrderDesc(lp.Name), sn.Content });
 
-            var result = query.ExcuteQuery();
+            var result = query.ExecuteQuery();
             WriteJson(result); //  查询结果
 
             Tuple<StringBuilder, DynamicParameters> resultsqlparams = query.RawSqlParams();
@@ -179,8 +179,8 @@ namespace TestsDapperSqlMaker
                 .FromJoin(JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId)
                 .Where(where)
                             //(lp, u) => lp.Name == lpmodel.Name && lp.IsDel == lpmodel.IsDel || u.UserName == umodel.UserName )
-                            .Order((lp, w) => new { lp.EditCount, lp.Name }); // .ExcuteQuery();
-            var result = query.ExcuteQuery();
+                            .Order((lp, w) => new { lp.EditCount, lp.Name }); // .ExecuteQuery();
+            var result = query.ExecuteQuery();
             WriteJson(result); //  查询结果
 
             Tuple<StringBuilder, DynamicParameters> resultsqlparams = query.RawSqlParams();
@@ -203,8 +203,8 @@ namespace TestsDapperSqlMaker
                 .Column() // lp => new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel }) // null查询所有字段
                 .From()
                 .Where(where) //lp => lp.Name == lpmodel.Name && lp.IsDel == lpmodel.IsDel  )
-                .Order(lp => new { lp.EditCount, lp.Name }); // .ExcuteQuery();
-            var result = query.ExcuteQuery();
+                .Order(lp => new { lp.EditCount, lp.Name }); // .ExecuteQuery();
+            var result = query.ExecuteQuery();
             WriteJson(result); //  查询结果
 
             Tuple<StringBuilder, DynamicParameters> resultsqlparams = query.RawSqlParams();
@@ -216,7 +216,19 @@ namespace TestsDapperSqlMaker
         }
 
         [Test]
-        public void 查询首行首列列测速() {
+        public void 查表简单查询测试()
+        {
+
+            var first = LockDapperUtilsqlite<LockPers>.Selec()
+                .Column()
+                .From()
+                .Where(a => a.IsDel == true)
+                .ExecuteQuery<LockPers>();
+            WriteJson(first); //  查询结果
+        }
+
+        [Test]
+        public void 查询首行首列列测试() {
 
             var first = LockDapperUtilsqlite<Users, Skin>.Selec()
                 .Column((a, b) => new { Value = b.Value })
@@ -257,7 +269,7 @@ namespace TestsDapperSqlMaker
                 .Where(where); //(lpp, uu, snn, snnn) => uu.Id == snn.UserId && snnn.Id == snn.UserId)//)
                 //.Order((lp, w, sn, snn, s5, s6) => new { lp.EditCount, lp.Name, sn.Content });
 
-            var result = query.ExcuteQuery();
+            var result = query.ExecuteQuery();
             WriteJson(result); //  查询结果
             Tuple<StringBuilder, DynamicParameters> resultsqlparams = query.RawSqlParams();
             WriteSqlParams(resultsqlparams); // 打印sql和参数
@@ -290,7 +302,7 @@ namespace TestsDapperSqlMaker
                 .Where(where); //(lpp, uu, snn, snnn) => uu.Id == snn.UserId && snnn.Id == snn.UserId)//)
                 //.Order((lp, w, sn, snn, s5) => new { lp.EditCount, lp.Name, sn.Content });
 
-            var result = query.ExcuteQuery();
+            var result = query.ExecuteQuery();
             WriteJson(result); //  查询结果
             Tuple<StringBuilder, DynamicParameters> resultsqlparams = query.RawSqlParams();
             WriteSqlParams(resultsqlparams); // 打印sql和参数
@@ -326,7 +338,7 @@ namespace TestsDapperSqlMaker
             Tuple<StringBuilder, DynamicParameters> resultsqlparams = query.RawSqlParams();
             WriteSqlParams(resultsqlparams);
 
-            var result = query.ExcuteQuery();
+            var result = query.ExecuteQuery();
             WriteJson(result); //  查询结果
 
             int page = 2, rows = 2, records;
@@ -356,7 +368,7 @@ namespace TestsDapperSqlMaker
                 .Where(where);
             //.Order((lp, w, sn) => new { lp.EditCount, lp.Name, sn.Content });
 
-            var result = query.ExcuteQuery();
+            var result = query.ExecuteQuery();
             WriteJson(result); //  查询结果
             Tuple<StringBuilder, DynamicParameters> resultsqlparams = query.RawSqlParams();
             WriteSqlParams(resultsqlparams); //打印sql和参数 
@@ -381,8 +393,8 @@ namespace TestsDapperSqlMaker
                 .Column((lp, u) => new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName }) //null查询所有字段
                 .FromJoin(JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId)
                 .Where(where); //(lp, u) => lp.Name == lpmodel.Name && lp.IsDel == lpmodel.IsDel || u.UserName == umodel.UserName )
-                //.Order((lp, w) => new { lp.EditCount, lp.Name }); // .ExcuteQuery();
-            var result = query.ExcuteQuery();
+                //.Order((lp, w) => new { lp.EditCount, lp.Name }); // .ExecuteQuery();
+            var result = query.ExecuteQuery();
             WriteJson(result); //  查询结果
 
             Tuple<StringBuilder, DynamicParameters> resultsqlparams = query.RawSqlParams();
@@ -410,8 +422,8 @@ namespace TestsDapperSqlMaker
                 .Column() // lp => new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel }) // null查询所有字段
                 .From()
                 .Where(where); //lp => lp.Name == lpmodel.Name && lp.IsDel == lpmodel.IsDel  )
-                //.Order(lp => new { lp.EditCount, lp.Name }); // .ExcuteQuery();
-            var result = query.ExcuteQuery();
+                //.Order(lp => new { lp.EditCount, lp.Name }); // .ExecuteQuery();
+            var result = query.ExecuteQuery();
             WriteJson(result); //  查询结果
             
             Tuple<StringBuilder, DynamicParameters> resultsqlparams = query.RawSqlParams();
@@ -438,7 +450,7 @@ namespace TestsDapperSqlMaker
                 .FromJoin(JoinType.Left, (lpp, uu, snn, snnn) => uu.Id == lpp.UserId
                         , JoinType.Inner, (lpp, uu, snn, snnn) => uu.Id == snn.UserId && snn.Id == snn.UserId
                         , JoinType.Inner, (lpp, uu, snn, snnn) => snnn.Id == snn.UserId);
-            var result4 = query4.ExcuteQuery();
+            var result4 = query4.ExecuteQuery();
             WriteJson(result4); //  查询结果
             // 3表
             DapperSqlMaker<LockPers, Users, SynNote> query3 = 
@@ -447,7 +459,7 @@ namespace TestsDapperSqlMaker
                .Column() //null 查询所有字段 // (lp, u, s) => new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName, s.Content, s.Name })
                .FromJoin(JoinType.Left, (lpp, uu, snn) => uu.Id == lpp.UserId
                        , JoinType.Inner, (lpp, uu, snn) => uu.Id == snn.UserId);
-            var result3 = query3.ExcuteQuery();
+            var result3 = query3.ExecuteQuery();
             WriteJson(result3); //  查询结果
 
             // 2表
@@ -455,7 +467,7 @@ namespace TestsDapperSqlMaker
                .Selec()
                .Column() //null 查询所有字段 //(lp, u) => new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName }) //null查询所有字段
                .FromJoin(JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId);
-            var result2 = query2.ExcuteQuery();
+            var result2 = query2.ExecuteQuery();
             WriteJson(result2); //  查询结果
 
             // 1 表
@@ -463,7 +475,7 @@ namespace TestsDapperSqlMaker
                .Selec()
                .Column() // null查询所有字段// lp => new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel }) 
                .From();
-            var result = query.ExcuteQuery();
+            var result = query.ExecuteQuery();
             WriteJson(result); //  查询结果
         }
         [Test]
@@ -488,7 +500,7 @@ namespace TestsDapperSqlMaker
                 .Where(where)
                 .Order((lp, w) => new { a = SM.OrderDesc(lp.EditCount), lp.Id });
 
-            var result = query.ExcuteQuery();
+            var result = query.ExecuteQuery();
             WriteJson(result); //  查询结果
             WriteSqlParams(query.RawSqlParams()); //打印sql和参数
         }
@@ -512,7 +524,7 @@ namespace TestsDapperSqlMaker
                 .Where(where)
                 .Order((lp, w) => new { a = SM.OrderDesc(lp.EditCount), lp.Id });
 
-            var result = query.ExcuteQuery();
+            var result = query.ExecuteQuery();
             WriteJson(result); //  查询结果
         }
 
@@ -532,8 +544,8 @@ namespace TestsDapperSqlMaker
                 .FromJoin(JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId)
                 .Where((lp, u) => lp.Name.Contains(lpmodel.Name) && lp.IsDel == lpmodel.IsDel && u.UserName == umodel.UserName)
                 .Order((lp, w) => new { a = SM.OrderDesc(lp.EditCount), lp.Id });
-            //.ExcuteQuery();
-            var result = query.ExcuteQuery();
+            //.ExecuteQuery();
+            var result = query.ExecuteQuery();
             WriteJson(result); //  查询结果
              
         }
@@ -556,7 +568,7 @@ namespace TestsDapperSqlMaker
             var rawsqlparms = query.RawSqlParams();
             WriteSqlParams(rawsqlparms); //打印sql和参数
 
-            var re = query.ExcuteQuery();
+            var re = query.ExecuteQuery();
 
         }
 
@@ -588,7 +600,7 @@ namespace TestsDapperSqlMaker
             var rawsqlparms = query.RawSqlParams();
             WriteSqlParams(rawsqlparms); //打印sql和参数
 
-            var result = query.ExcuteQuery();
+            var result = query.ExecuteQuery();
             WriteJson(result); //  查询结果
         }
 
@@ -651,7 +663,7 @@ namespace TestsDapperSqlMaker
                .Selec().Column(p => new { t = "datetime(a.InsertTime) as InsertTimestr", b = SM.Sql(rownm), p.Id, p.Name, p.Content, p.Prompt, p.EditCount })
                .From().Where(m => m.IsDel != true && m.Name.Contains(nobj.name)).Order(m => new { m.Name });
             //Tuple<StringBuilder, Dapper.DynamicParameters> ru = query.RawSqlParams();
-            //var list = query.ExcuteQuery<LockPers>();
+            //var list = query.ExecuteQuery<LockPers>();
 
             Tuple<StringBuilder, DynamicParameters, StringBuilder> ru = query.RawLimitSqlParams();
             var list = query.LoadPagelt(page, rows, out records);

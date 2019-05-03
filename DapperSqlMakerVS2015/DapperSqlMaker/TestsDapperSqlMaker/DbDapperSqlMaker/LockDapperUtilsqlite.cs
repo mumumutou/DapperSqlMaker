@@ -43,6 +43,10 @@ namespace DapperSqlMaker.DapperExt
         {
             return new LockDapperUtilsqlite<T>().Select();
         }
+        public static DapperSqlMaker<T> Inser()
+        {
+            return new LockDapperUtilsqlite<T>().Insert();
+        }
 
         /// <summary>
         /// 增删改

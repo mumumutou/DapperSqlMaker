@@ -94,15 +94,27 @@ where  (  a.Name like @Name0  or  a.Name like @Name1  )
 	and  c.Name = @Name4  and  b.Id in @Id 
 order by  a.EditCount, a.Name desc , c.Content 
 ```
+##### 3.添加-添加部分字段
 
-##### 3.更新-更新部分字段
+```csharp 
+public void 添加部分字段和子查询_测试lt2() {
+    string colm = "img", val = "(select value from skin limit 1 offset 1)"; DateTime cdate = DateTime.Now;
+    var insert = LockDapperUtilsqlite<Users>.Inser().AddColumn(p => new bool[] {
+        p.UserName =="木头人1", p.Password == "666", p.CreateTime == cdate
+        , SM.Sql(colm,val), SM.Sql(p.Remark,"(select '荒野高尔夫')")
+    }); 
+    var efrow = insert.ExecuteInsert();
+    Console.WriteLine(efrow + " " + insert.RawSqlParams().Item1);
+}
+```
+
+##### 4.更新-更新部分字段
 
 ```csharp
 public void 更新部分字段测试lt()
 {
     var issucs = LockDapperUtilsqlite<LockPers>.Cud.Update(
-        s =>
-        {
+        s => {
             s.Name = "测试bool修改1";
             s.Content = "update方法内赋值修改字段";
             s.IsDel = true;
@@ -113,10 +125,11 @@ public void 更新部分字段测试lt()
 }
 ```
 
-##### 4.条件参数传入规范示例
+##### 5.条件方法参数传入规范示例  Column/Where/AddColumn
 > 1. 直接where()方法中赋值       s.IsDel = 1;
 > 2. 声明变量 接收参数 再传入    int Id = int.Parse( Request.Form["Id"]);  ---->   w.Id == Id_
 > 3. Action参数装载器的参数不能直接传入  int Id_ = Id;  ---->   w.Id == Id_
+> 4. 时间不能直接赋值 需要赋值给外部变量传入  p.Date == DateTime.Now  ------>  var date = DateTime.Now; // 再传入
 ```csharp
         public ActionResult RemoveSkin(int Id)
         { 
@@ -125,15 +138,14 @@ public void 更新部分字段测试lt()
             bool isSuccess = LockDapperUtilsqlite<Skin>.Cud.Update(
 				s => {  s._IsWriteFiled = true; s.IsDel = 1; }
 				, w => w.Id == Id_ && w.UserId == 1);
-
             return Content(isSuccess ? "1" : "0");
         }
 ```
 
 ----- 
 更新：
-ExcuteSelect 方法名更改为 => ExcuteQuery 
-
+ExcuteSelect 方法名更改为 => ExecuteQuery 
+s._IsWriteFiled  再实体类默认构造函数中 false 赋值是需修改为true
 -----
  
  注意：

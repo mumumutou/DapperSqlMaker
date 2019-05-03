@@ -651,6 +651,78 @@ namespace DapperSqlMaker.DapperExt.Tests
         }
 
 
+        [Test]
+        public void 添加数据复杂语句测试lt()
+        {
+            string colm1 = "remake", val1 = " (select 666) ";
+            System.Linq.Expressions.Expression<Func<LockPers, bool[]>> fiesExps =
+                p => new bool[] { p.Content == "aa", p.IsDel == true, SM.Sql(colm1, val1), SM.Sql(p.Name, " (select 1) ") }; // 
+            System.Linq.Expressions.LambdaExpression colmvalambda = fiesExps as System.Linq.Expressions.LambdaExpression;
+            System.Linq.Expressions.NewArrayExpression arryexps = colmvalambda.Body as System.Linq.Expressions.NewArrayExpression;
+
+            StringBuilder sb = new StringBuilder();
+            Dapper.DynamicParameters spars = new Dapper.DynamicParameters();
+            int num = 1;
+            string exgl = "=";
+            sb.Append(" ( ");
+            List<string[]> customColmval = new List<string[]>();
+            var lmbdParmName = colmvalambda.Parameters[0].Name;
+            foreach (var p in arryexps.Expressions)
+            {
+                if (p.NodeType == System.Linq.Expressions.ExpressionType.Equal)
+                {
+                    AnalysisExpression.BinaryExprssRowSqlParms(p, sb, spars, num++, exgl, (name, parmasName, exglstr) => string.Format("{0},", name)); //" {0} {2} @{0}{1} "
+                }
+                else if (p.NodeType == System.Linq.Expressions.ExpressionType.Call)
+                {
+                    string[] arrColmval = new string[2]; // 0 column  1 value
+                    System.Linq.Expressions.MethodCallExpression method = p as System.Linq.Expressions.MethodCallExpression;
+                    int i = 0;
+                    tempstart:
+                    //meb = method.Arguments[0] as System.Linq.Expressions.MemberExpression;
+                    if (method.Arguments[i] is System.Linq.Expressions.ConstantExpression)
+                    {
+                        // 参数名/插入值 直接赋值
+                        arrColmval[i] = (method.Arguments[i] as System.Linq.Expressions.ConstantExpression).Value.ToString();
+                    }
+                    else if (method.Arguments[i] is System.Linq.Expressions.MemberExpression)
+                    {// 参数名/插入值 传入的时 变量 
+
+                        var meb = method.Arguments[i] as System.Linq.Expressions.MemberExpression;
+
+                        if (meb.Expression is System.Linq.Expressions.ParameterExpression
+                                 && (meb.Expression as System.Linq.Expressions.ParameterExpression).Name == lmbdParmName)
+                        { // lambda表达式的参数成员 表示字段参数名 只取成员名称不取值
+                            arrColmval[i] = (method.Arguments[i] as System.Linq.Expressions.MemberExpression).Member.Name;
+                        }
+                        else
+                        {// 外部传入的变量
+                            arrColmval[i] = AnalysisExpression.GetMemberValue(method.Arguments[i] as System.Linq.Expressions.MemberExpression).ToString();
+                        }
+                    }
+                    //(method.Arguments[i] as System.Linq.Expressions.MemberExpression).Member.Name;
+                    else throw new Exception(p.ToString() + " 插入语句未能解析");
+
+                    if (++i < 2) goto tempstart;
+
+                    customColmval.Add(arrColmval);
+                }
+                else throw new Exception(p.ToString() + " 插入语句未能解析");
+            }
+            sb.Remove(sb.Length - 1, 1);
+            // 拼接子查询插入的 参数名
+            sb.Append((spars.ParameterNames.Count() > 0 && customColmval.Count > 0 ? ", " : string.Empty) + string.Join(",", customColmval.Select(p => p[0]).ToList<string>()));
+            sb.AppendFormat(") values ({0}{1}) "
+                , string.Join(",", spars.ParameterNames.ToList<string>().Select(p => "@" + p).ToList<string>())
+                , (spars.ParameterNames.Count() > 0 && customColmval.Count > 0 ? ", " : string.Empty) + string.Join(",", customColmval.Select(p => p[1]).ToList<string>())
+                );
+            Console.WriteLine(sb);
+            return;   // ############################################################ 
+
+        }
+
+
+
         #region 混淆数据
 
         [Test]

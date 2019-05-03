@@ -20,11 +20,12 @@ namespace TestsDapperSqlMaker.DapperExt
             var issucs = LockDapperUtilsqlite<LockPers>.Cud.Update(
                 s =>
                 {
-                    s.Name = "测试bool修改1";
-                    s.Content = "update方法内赋值修改字段";
+                    s._IsWriteFiled = true;
+                    s.Name = "测试修改 生成sql回调格式化";
+                    s.Content = "66666666";
                     s.IsDel = true;
                 },
-                w => w.Name == "测试bool修改1" && w.IsDel == true
+                w => w.IsDel == true  //w.Name == "测试bool修改1" && 
                 );
             Console.WriteLine(issucs);
         }
@@ -48,7 +49,7 @@ namespace TestsDapperSqlMaker.DapperExt
         {
 
             var model = LockDapperUtilsqlite<LockPers>
-                .Selec().Column().From().Where(p => p.Name == "测试bool修改2 xxxxxx").ExcuteQuery<LockPers>().FirstOrDefault();
+                .Selec().Column().From().Where(p => p.Name == "测试bool修改2 xxxxxx").ExecuteQuery<LockPers>().FirstOrDefault();
 
             model.Content = "棉花棉花棉花棉花棉花";
             model.ContentOld = "忽略Write(false)标记字段";
@@ -67,7 +68,7 @@ namespace TestsDapperSqlMaker.DapperExt
             var query = LockDapperUtilsqlite<LockPers>
                         .Selec().Column(c => new { c.Content, c.EditCount }).From().Where(m => m.Id == p.Id);
 
-            var old = query.ExcuteQuery<LockPers>().FirstOrDefault();
+            var old = query.ExecuteQuery<LockPers>().FirstOrDefault();
 
             old._IsWriteFiled = true; // 标记开始记录赋值字段 注意上面查询LockPers 要再默认构造函数里把 标识改为false 查出的数据不要记录赋值字段 
             old.Name = "蛋蛋蛋蛋H$E22222";

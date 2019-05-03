@@ -513,7 +513,7 @@ namespace DapperSqlMaker.DapperExt
         /// 执行查询
         /// </summary>
         /// <returns></returns>
-        public override IEnumerable<dynamic> ExcuteQuery()
+        public override IEnumerable<dynamic> ExecuteQuery()
         {
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters> rawSqlParams = base.RawSqlParams();
@@ -742,6 +742,33 @@ namespace DapperSqlMaker.DapperExt
 
         #endregion
 
+        #region 链式 添加数据
+
+        /// <summary>
+        /// 链式 添加语法
+        /// </summary>
+        public DapperSqlMaker<T> Insert()
+        {
+            // 1. insert into tab
+            var tabname1 = DsmSqlMapperExtensions.GetTableName(typeof(T));
+            Clauses.Add(Clause.New(ClauseType.Insert, insert: " insert into " + tabname1));
+
+            return this;
+            // $"insert into {name} ({sbColumnList}) values ({sbParameterList})"
+        }
+        public DapperSqlMaker<T> AddColumn(Expression<Func<T,bool[]>> fiesExps = null)
+        {
+            DynamicParameters spars;
+            string sqlColmval;
+            if (fiesExps == null) throw new Exception("不能执行空的插入语句");
+            LambdaExpression fielambda = fiesExps as LambdaExpression;
+            base.GetInsertColumnValueStr(fielambda, out spars, out sqlColmval);
+            Clauses.Add(Clause.New(ClauseType.AddColumn, addcolumn: sqlColmval,insertParms: spars));
+            return this; 
+        }
+        // Insert 影响行数  Insert 最后插入数据Id
+
+        #endregion
 
         #region Dapper.Contrib简单curd 
         /// <summary>
@@ -848,7 +875,7 @@ namespace DapperSqlMaker.DapperExt
 
         #region 添加数据
         /// <summary>
-        /// 1.添加一行记录 返回影响行数 外部初始化新实体 只插入赋值的字段
+        /// (不支持同名字段)1.添加一行记录 返回影响行数 外部初始化新实体 只插入赋值的字段
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entity"></param>
@@ -865,7 +892,7 @@ namespace DapperSqlMaker.DapperExt
             }
         }
         /// <summary>
-        /// 2.添加一行记录 返回影响行数返回影响行数 只插入赋值的字段  x.Insert(p => { p.Id = 1; p.Name = "新增"; });
+        /// (不支持同名字段)2.添加一行记录 返回影响行数返回影响行数 只插入赋值的字段  x.Insert(p => { p.Id = 1; p.Name = "新增"; });
         /// </summary>  
         /// <param name="entityAcn"> 记录赋值字段默认关闭,手动开启s._IsWriteFiled = true;  </param>
         /// <returns>返回影响行数</returns>
@@ -885,7 +912,7 @@ namespace DapperSqlMaker.DapperExt
             }
         }
         /// <summary>
-        /// 3.添加一行记录 返回插入id 外部初始化新实体 只插入赋值的字段
+        /// (不支持同名字段)3.添加一行记录 返回插入id 外部初始化新实体 只插入赋值的字段
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entity"></param>
@@ -903,7 +930,7 @@ namespace DapperSqlMaker.DapperExt
             }
         }
         /// <summary>
-        /// 4.添加一行记录 返回插入id 只插入赋值的字段  x.Insert(p => { s._IsWriteFiled = true;  p.Id = 1; p.Name = "新增"; });
+        /// (不支持同名字段)4.添加一行记录 返回插入id 只插入赋值的字段  x.Insert(p => { s._IsWriteFiled = true;  p.Id = 1; p.Name = "新增"; });
         /// </summary>
         /// <param name="entityAcn"> 记录赋值字段默认关闭,手动开启s._IsWriteFiled = true;  </param>
         /// <returns>返回的是最后插入行id (sqlite中是最后一行数+1)</returns>
@@ -930,7 +957,7 @@ namespace DapperSqlMaker.DapperExt
         #region 更新数据
 
         /// <summary>
-        /// 1.更新 只更新赋值修改的字段 (外部初始化新实体 并赋值修改过的字段 再传入)
+        /// (不支持同名字段)1.更新 只更新赋值修改的字段 (外部初始化新实体 并赋值修改过的字段 再传入)
         /// t.Update(setEntity ,  w => w.Id == 1);
         /// </summary>
         /// <param name="setEntity">已修改过字段实体</param>
@@ -951,7 +978,7 @@ namespace DapperSqlMaker.DapperExt
 
         }
         /// <summary>
-        /// 2.更新 只更新赋值修改的字段 
+        /// (不支持同名字段)2.更新 只更新赋值修改的字段 
         /// t.Update( s => { s._IsWriteFiled = true; s.IsDel = true; },  w => w.Id == 1);
         /// </summary>
         /// <param name="setAcn">记录赋值字段默认关闭,手动开启s._IsWriteFiled = true; </param>
@@ -1040,6 +1067,9 @@ namespace DapperSqlMaker.DapperExt
             ActionSelectWhereOnHaving,
             ActionSelectOrder,
             Table,
+
+            Insert,
+            AddColumn,
         }
 
         protected class Clause
@@ -1049,7 +1079,8 @@ namespace DapperSqlMaker.DapperExt
                 , string selectColumn = null, string fromJoin = null
                 , string seletTable = null//, string jointable = null, string aliace = null
                 , string condition = null, DynamicParameters conditionParms = null
-                , string order = null, string extra = null)
+                , string order = null, string extra = null
+                , string insert = null, string addcolumn = null, DynamicParameters insertParms= null)
             {
                 return new Clause
                 {
@@ -1065,7 +1096,11 @@ namespace DapperSqlMaker.DapperExt
                     Condition = condition,
                     ConditionParms = conditionParms,
                     Order = order,
-                    Extra = extra
+                    Extra = extra,
+                    //添加 ------------
+                    Insert = insert,
+                    AddColumn = addcolumn,
+                    InsertParms = insertParms
                 };
             }
 
@@ -1081,7 +1116,10 @@ namespace DapperSqlMaker.DapperExt
             public string Order { get; private set; }
             //public string Aliace { get; private set; } 
             public DynamicParameters ConditionParms { get; private set; }
-            public string Extra { get; private set; } // 字段
+            public string Extra { get; private set; } // 字段 
+            public string Insert { get; private set; }
+            public string AddColumn { get; private set; }
+            public DynamicParameters InsertParms { get; private set; }
         }
 
         //protected class TabAliace {
@@ -1109,6 +1147,7 @@ namespace DapperSqlMaker.DapperExt
             get { return _TabAliace ?? (_TabAliace = new Dictionary<string, string>()); }
         }
 
+        #region 解析 查询sql
         protected Dictionary<string, int> GetLmdparamsDic(LambdaExpression fielambda)
         {
             Dictionary<string, int> pdic = new Dictionary<string, int>();
@@ -1317,6 +1356,83 @@ namespace DapperSqlMaker.DapperExt
             sqlCondition = sql.ToString();
         }
 
+        #endregion
+
+        #region 解析插入语句sql
+
+        /// <summary>
+        /// 生成插入语句 Columns Values
+        /// </summary>
+        /// <param name="colmvalambda">列和值语法规范p => new object[] { p.Content == p.Name,p.IsDel == false } </param>
+        /// <param name="spars">插入语句参数</param>
+        /// <param name="sqlColmval">插入语句sql</param>
+        protected void GetInsertColumnValueStr(LambdaExpression colmvalambda, out DynamicParameters spars, out string sqlColmval)
+        {  
+            //2.解析查询字段
+            if (!(colmvalambda.Body is NewArrayExpression)) throw new Exception("不能执行空的插入语句");
+            // 列和值语法规范p => new object[] { p.Content == p.Name,p.IsDel == false }   ==>   (Content,IsDel) Value(@Content,@IsDel)
+            NewArrayExpression arryexps = colmvalambda.Body as NewArrayExpression;
+            StringBuilder sb = new StringBuilder();
+            spars = new Dapper.DynamicParameters();
+            List<string[]> customColmval = new List<string[]>();
+            var lmbdParmName = colmvalambda.Parameters[0].Name;
+            int num = 1;
+            string exgl = "=";
+            sb.Append(" ( ");
+            foreach (var p in arryexps.Expressions)
+            {
+                if (p.NodeType == System.Linq.Expressions.ExpressionType.Equal)
+                    AnalysisExpression.BinaryExprssRowSqlParms(p, sb, spars, num++, exgl, (name, parmasName, exglstr) => string.Format("{0},", name)); //" {0} {2} @{0}{1} "
+                else if (p.NodeType == System.Linq.Expressions.ExpressionType.Call)
+                {
+                    string[] arrColmval = new string[2]; // 0 column  1 value
+                    System.Linq.Expressions.MethodCallExpression method = p as System.Linq.Expressions.MethodCallExpression;
+                    int i = 0;
+                    tempstart:
+                    //meb = method.Arguments[0] as System.Linq.Expressions.MemberExpression;
+                    if (method.Arguments[i] is System.Linq.Expressions.ConstantExpression)
+                    {
+                        // 参数名/插入值 直接赋值
+                        arrColmval[i] = (method.Arguments[i] as System.Linq.Expressions.ConstantExpression).Value.ToString();
+                    }
+                    else if (method.Arguments[i] is System.Linq.Expressions.MemberExpression)
+                    {// 参数名/插入值 传入的时 变量 
+
+                        var meb = method.Arguments[i] as System.Linq.Expressions.MemberExpression;
+
+                        if (meb.Expression is System.Linq.Expressions.ParameterExpression
+                                 && (meb.Expression as System.Linq.Expressions.ParameterExpression).Name == lmbdParmName)
+                        { // lambda表达式的参数成员 表示字段参数名 只取成员名称不取值
+                            arrColmval[i] = (method.Arguments[i] as System.Linq.Expressions.MemberExpression).Member.Name;
+                        }
+                        else
+                        {// 外部传入的变量
+                            arrColmval[i] = AnalysisExpression.GetMemberValue(method.Arguments[i] as System.Linq.Expressions.MemberExpression).ToString();
+                        }
+                    }
+                    //(method.Arguments[i] as System.Linq.Expressions.MemberExpression).Member.Name;
+                    else throw new Exception(p.ToString() + " 插入语句未能解析");
+
+                    if (++i < 2) goto tempstart;
+
+                    customColmval.Add(arrColmval);
+                }
+                else throw new Exception(p.ToString() + " 插入语句未能解析");
+
+
+            }
+            sb.Remove(sb.Length - 1, 1);
+
+            // 拼接子查询插入的 参数名
+            sb.Append((spars.ParameterNames.Count() > 0 && customColmval.Count > 0 ? ", " : string.Empty) + string.Join(",", customColmval.Select(p => p[0]).ToList<string>()));
+
+            // 简单参数值 和 子查询
+            sb.AppendFormat(") values ({0}{1}) ", string.Join(",", spars.ParameterNames.ToList<string>().Select(p => "@" + p).ToList<string>())
+                 , (spars.ParameterNames.Count() > 0 && customColmval.Count > 0 ? ", " : string.Empty) + string.Join(",", customColmval.Select(p => p[1]).ToList<string>()) );
+            sqlColmval = sb.ToString();
+        }
+
+        #endregion
 
         protected static DapperSqlMaker _sqlMaker;
         //public static DapperSqlMaker New()
@@ -1390,9 +1506,9 @@ namespace DapperSqlMaker.DapperExt
                 throw new Exception("Empty query");
             }
             var first = Clauses.First();
-            if (first.ClauseType != ClauseType.ActionSelect)
+            if (first.ClauseType != ClauseType.ActionSelect && first.ClauseType != ClauseType.Insert)
             {
-                throw new Exception("Wrong start of query");
+                throw new Exception("Wrong start of query or insert");
             }
             DynamicParameters dparam = null;
             List<string> columns = new List<string>();
@@ -1401,7 +1517,7 @@ namespace DapperSqlMaker.DapperExt
             {
                 switch (clause.ClauseType)
                 {
-                    case ClauseType.ActionSelect:
+                    case ClauseType.ActionSelect: // 查询 ----------------
                         sb.Append(clause.Select);
                         break;
                     case ClauseType.ActionSelectRowRumberOrderBy:
@@ -1419,7 +1535,15 @@ namespace DapperSqlMaker.DapperExt
                         break;
                     case ClauseType.ActionSelectOrder:
                         sb.Append(clause.Order);
+                        break; // --------------查询
+                    
+                    case ClauseType.Insert: // 新增 -----------------------
+                        sb.Append(clause.Insert);
                         break;
+                    case ClauseType.AddColumn:
+                        sb.Append(clause.AddColumn);
+                        dparam = clause.InsertParms;
+                        break;// ----------新增
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -1486,11 +1610,12 @@ namespace DapperSqlMaker.DapperExt
         // "sqlconnection", "sqlceconnection","npgsqlconnection","sqliteconnection","mysqlconnection",
 
 
+        #region 输出sql执行
 
         /// <summary>
         /// 查询 
         /// </summary>
-        public virtual IEnumerable<dynamic> ExcuteQuery()
+        public virtual IEnumerable<dynamic> ExecuteQuery()
         {
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
@@ -1505,7 +1630,7 @@ namespace DapperSqlMaker.DapperExt
         /// <summary>
         /// 查询
         /// </summary>
-        public virtual IEnumerable<Y> ExcuteQuery<Y>()
+        public virtual IEnumerable<Y> ExecuteQuery<Y>()
         {
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
@@ -1519,7 +1644,7 @@ namespace DapperSqlMaker.DapperExt
         /// <summary>
         /// 查询首行
         /// </summary>
-        public virtual Y ExcuteQueryFirst<Y>()
+        public virtual Y ExecuteQueryFirst<Y>()
         {
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
@@ -1642,9 +1767,23 @@ namespace DapperSqlMaker.DapperExt
         }
 
 
+        public virtual int ExecuteInsert()
+        {
+            // Tuple<sql,entity>
+            Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
+
+            using (var conn = GetCurrentConnection())
+            {
+                var obj = conn.Execute(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
+                return obj;
+            }
+        }
+
+        #endregion
 
 
-        //public virtual IEnumerable<dynamic> ExcuteQuery() { throw new Exception("子类未重写该方法"); }
+
+        //public virtual IEnumerable<dynamic> ExecuteQuery() { throw new Exception("子类未重写该方法"); }
 
     }
 

@@ -55,9 +55,14 @@ namespace DapperSqlMaker.DapperExt
         //{
         //    return true;
         //}
-
-        //  直接传入sql
-
+         
+        /// <summary>
+        /// 插入数据 子查询拼接
+        /// </summary>
+        /// <param name="name">字段名</param>
+        /// <param name="sql">子查询</param>
+        /// <returns></returns>
+        public static bool Sql(string name, string sql) => true;
 
         public static bool AppendSql2(string str) => false;
 
@@ -290,44 +295,9 @@ namespace DapperSqlMaker.DapperExt
                             : expression.NodeType == ExpressionType.LessThanOrEqual ? "<="
                             : null;
                     if (exgl == null) throw new Exception("未知的比较符号");
-
-                    BinaryExpression binaryg = expression as BinaryExpression;
-                    if (binaryg.Left.NodeType == ExpressionType.Constant)
-                    { // 左边为常量值  右边为字段名
-                        MemberExpression Member = binaryg.Right as MemberExpression;
-                        ConstantExpression constant = binaryg.Left as ConstantExpression;
-                        spars.Add(Member.Member.Name + num, constant.Value); //.ToString()  );
-                        sb.AppendFormat(" {0} {2} @{0}{1} ", Member.Member.Name, +num, exgl);  // A > @A0
-                    }
-                    else if (binaryg.Left.NodeType == ExpressionType.MemberAccess && binaryg.Right is ConstantExpression)
-                    { // 左边为字段名 右边为常量值
-                        MemberExpression Member = binaryg.Left as MemberExpression;
-                        ConstantExpression constant = binaryg.Right as ConstantExpression;
-                        spars.Add(Member.Member.Name + num, constant.Value); // .ToString());
-                        sb.AppendFormat(" {0} {2} @{0}{1} ", Member.Member.Name, num, exgl);
-                    }
-                    // 时间格式化处理
-                    //else if (binaryg.Left.NodeType == ExpressionType.MemberAccess && binaryg.Right.NodeType == ExpressionType.Convert)
-                    //{
-                    //    MemberExpression Member = binaryg.Left as MemberExpression;
-                    //    ConstantExpression constant = (binaryg.Right as UnaryExpression).Operand as ConstantExpression;
-
-                    //    spars.Add(Member.Member.Name + num, constant.Value); //.ToString());
-                    //    sb.AppendFormat(" {0} {2} @{0}{1} ", Member.Member.Name, num, exgl);
-                    //}
-
-                    else if (binaryg.Left.NodeType == ExpressionType.MemberAccess && binaryg.Right.NodeType == ExpressionType.MemberAccess)
-                    {  // 左边为字段名 右边为传入的外部变量 w => w.Name == varName
-                        MemberExpression Member = binaryg.Left as MemberExpression;
-
-                        MemberExpression constMember = binaryg.Right as MemberExpression; //右边变量名 constMember.Member.Name 
-                        //ConstantExpression constant = constMember.Expression as ConstantExpression; //右边变量所在的类 
-                        //var constValue = constant.Value.GetType().GetField(constMember.Member.Name).GetValue(constant.Value);
-                         
-                        object constValue = GetMemberValue(constMember);
-                        spars.Add(Member.Member.Name + num, constValue); //.ToString());
-                        sb.AppendFormat(" {0} {2} @{0}{1} ", Member.Member.Name, num, exgl);
-                    }
+                    BinaryExprssRowSqlParms(expression, sb, spars, num, exgl
+                        , (name, paramsName, exglstr) => string.Format(" {0} {2} @{1} ", name, paramsName, exglstr) );
+                    //sb.AppendFormat(sqlFormart, Member.Member.Name, +num, exgl);  // A > @A0
                     // Console.WriteLine(sb);
                     break;
                 default:
@@ -335,6 +305,62 @@ namespace DapperSqlMaker.DapperExt
 
 
 
+            }
+        }
+
+        /// <summary>
+        /// 一元表达式解析 a.Name == "名称" 
+        /// </summary>
+        /// <param name="expression">一元表达式</param>
+        /// <param name="sb">生成的sql</param>
+        /// <param name="spars">生成参数</param>
+        /// <param name="num">参数区分序号</param>
+        /// <param name="exgl">运算符</param> 
+        /// <param name="formartFunc">生成指定格式sql (arg1:字段名,arg2:参数名,arg3:表达式) 参数名为 字段名+区分序号 </param>
+        public static void BinaryExprssRowSqlParms(Expression expression, StringBuilder sb, DynamicParameters spars, int num, string exgl,Func<string,string,string,string> formartFunc)
+        {
+            BinaryExpression binaryg = expression as BinaryExpression;
+            if (binaryg.Left.NodeType == ExpressionType.Constant)
+            { // 左边为常量值  右边为字段名
+                MemberExpression Member = binaryg.Right as MemberExpression;
+                ConstantExpression constant = binaryg.Left as ConstantExpression;
+                string parmName = Member.Member.Name + num;
+                spars.Add(parmName, constant.Value); //.ToString()  );
+                sb.Append( formartFunc(Member.Member.Name, parmName, exgl) );// 
+                //sb.AppendFormat(sqlFormart, Member.Member.Name, num, exgl);  // A > @A0  
+            }
+            else if (binaryg.Left.NodeType == ExpressionType.MemberAccess && binaryg.Right is ConstantExpression)
+            { // 左边为字段名 右边为常量值
+                MemberExpression Member = binaryg.Left as MemberExpression;
+                ConstantExpression constant = binaryg.Right as ConstantExpression;
+                string parmName = Member.Member.Name + num;
+                spars.Add(parmName, constant.Value); // .ToString());
+                sb.Append( formartFunc(Member.Member.Name, parmName, exgl) );// 
+                //sb.AppendFormat(sqlFormart, Member.Member.Name, num, exgl);
+            }
+            // 时间格式化处理
+            //else if (binaryg.Left.NodeType == ExpressionType.MemberAccess && binaryg.Right.NodeType == ExpressionType.Convert)
+            //{
+            //    MemberExpression Member = binaryg.Left as MemberExpression;
+            //    ConstantExpression constant = (binaryg.Right as UnaryExpression).Operand as ConstantExpression;
+
+            //    spars.Add(Member.Member.Name + num, constant.Value); //.ToString());
+            //    sb.AppendFormat(" {0} {2} @{0}{1} ", Member.Member.Name, num, exgl);
+            //}
+
+            else if (binaryg.Left.NodeType == ExpressionType.MemberAccess && binaryg.Right.NodeType == ExpressionType.MemberAccess)
+            {  // 左边为字段名 右边为传入的外部变量 w => w.Name == varName
+                MemberExpression Member = binaryg.Left as MemberExpression;
+
+                MemberExpression constMember = binaryg.Right as MemberExpression; //右边变量名 constMember.Member.Name 
+                                                                                  //ConstantExpression constant = constMember.Expression as ConstantExpression; //右边变量所在的类 
+                                                                                  //var constValue = constant.Value.GetType().GetField(constMember.Member.Name).GetValue(constant.Value);
+
+                object constValue = GetMemberValue(constMember);
+                string parmName = Member.Member.Name + num;
+                spars.Add(parmName, constValue); //.ToString());
+                sb.Append( formartFunc(Member.Member.Name, parmName, exgl) );// 
+                //sb.AppendFormat(sqlFormart, Member.Member.Name, num, exgl);
             }
         }
 

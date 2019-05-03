@@ -28,7 +28,7 @@ namespace TestsDapperSqlMaker.DapperExt
         }
 
         [Test]
-        public void 添加数据返回影响行数测试lt()
+        public void 添加部分字段_返回影响行_测试lt()
         {
             var efrow = LockDapperUtilsqlite<LockPers>.Cud.Insert(p =>
             {
@@ -44,7 +44,7 @@ namespace TestsDapperSqlMaker.DapperExt
         }
 
         [Test]
-        public void 添加数据返回插入ID测试lt()
+        public void 添加部分字段_返回插入ID_测试lt()
         {
 
             return;
@@ -61,6 +61,34 @@ namespace TestsDapperSqlMaker.DapperExt
 
         }
 
+        [Test]
+        public void 添加部分字段和子查询_测试lt()
+        {
+            string colm1 = "remake", val1 = " (select '子查询和注入的sql语句') ";
+            var datestr = DateTime.Now.ToString("yyMMdd HHmmss");
+            var query = LockDapperUtilsqlite<Skin>.Inser().AddColumn(p => new bool[] {
+                SM.Sql(colm1, val1), SM.Sql(p.Name, " (select '宽叶飙车9facebook改写修改的了') "),
+                p.UserId == 1
+                , p.Value == "www.baidu.com", p.Type == "bg", p.InsertDate == datestr
+                 });
+            var sqlparms = query.RawSqlParams();
+            Console.WriteLine(sqlparms.Item1);
+            var ew = query.ExecuteInsert();
+            Console.WriteLine(ew);
+            return;
+
+        }
+
+        [Test]
+        public void 添加部分字段和子查询_测试lt2() {
+            string colm = "img", val = "(select value from skin limit 1 offset 1)"; DateTime cdate = DateTime.Now;
+            var insert = LockDapperUtilsqlite<Users>.Inser().AddColumn(p => new bool[] {
+                p.UserName =="木头人1", p.Password == "666", p.CreateTime == cdate
+                , SM.Sql(colm,val), SM.Sql(p.Remark,"(select '荒野高尔夫')")
+            }); 
+            var efrow = insert.ExecuteInsert();
+            Console.WriteLine(efrow + " " + insert.RawSqlParams().Item1);
+        }
         #endregion
 
 
