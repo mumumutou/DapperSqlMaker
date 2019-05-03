@@ -7,16 +7,12 @@
 	Nuget安装:> Install-Package DapperSqlMaker -Version 0.1.7
 	
 	Dapper-1.50.2\Dapper
-	Dapper-1.50.2\Dapper.Contrib
------ 
-更新：
-
-
------
-> 1 ExcuteSelect 方法名更改为 => ExecuteQuery 
-> 2 s._IsWriteFiled 在实体类默认构造函数中默认为false   赋值时需修改为true
-> 3 非链式解析的curd方法全放到 DapperFuncs类中了
-> 4 新增 c u d 链式解析
+	Dapper-1.50.2\Dapper.Contrib 
+###### 更新：
+> 1. ExcuteSelect 方法名更改为 => ExecuteQuery 
+> 2. s._IsWriteFiled 在实体类默认构造函数中默认为false   赋值时需修改为true
+> 3. 非链式解析的curd方法全放到 DapperFuncs类中了
+> 4. 新增 c u d 链式解析
 
 
 	
