@@ -97,10 +97,13 @@ order by  a.EditCount, a.Name desc , c.Content
 ##### 3.添加-添加部分字段
 
 ```csharp 
-public void 添加部分字段和子查询_测试lt2() {
-    string colm = "img", val = "(select value from skin limit 1 offset 1)"; DateTime cdate = DateTime.Now;
-    var insert = LockDapperUtilsqlite<Users>.Inser().AddColumn(p => new bool[] {
-        p.UserName =="木头人1", p.Password == "666", p.CreateTime == cdate
+public void 添加部分字段和子查询_测试lt2() 
+{
+    string colm = "img", val = "(select value from skin limit 1 offset 1)"; 
+	DateTime cdate = DateTime.Now;
+    var insert = LockDapperUtilsqlite<Users>.Inser().AddColumn(
+	p => new bool[] {
+         p.UserName =="木头人1", p.Password == "666", p.CreateTime == cdate
         , SM.Sql(colm,val), SM.Sql(p.Remark,"(select '荒野高尔夫')")
     }); 
     var efrow = insert.ExecuteInsert();
@@ -111,21 +114,34 @@ public void 添加部分字段和子查询_测试lt2() {
 ##### 4.更新-更新部分字段
 
 ```csharp
-public void 更新部分字段测试lt()
+public void 更新部分字段_含子查询_测试lt()
 {
-    var issucs = LockDapperUtilsqlite<LockPers>.Cud.Update(
-        s => {
-            s.Name = "测试bool修改1";
-            s.Content = "update方法内赋值修改字段";
-            s.IsDel = true;
-        },
-        w => w.Name == "测试bool修改1" && w.IsDel == true
-        );
-    Console.WriteLine(issucs);
+    string colm = "img", val = "(select value from skin limit 1 offset 1)"; 
+	DateTime cdate = DateTime.Now;
+    var update = LockDapperUtilsqlite<Users>.Updat().EditColumn(p => new bool[] {
+        p.UserName =="几十行代码几十个错 调一步改一步....", p.Password == "bug制造者"
+        , p.CreateTime == cdate,  SM.Sql(p.Remark,"(select '奥德赛 终于改好了')")
+    }).Where(p => p.Id == 6 && SM.SQL("IsDel == 0"));
+	
+    var efrow = update.ExecuteUpdate();
+    Console.WriteLine(efrow + update.RawSqlParams().Item1);
 }
 ```
 
-##### 5.条件方法参数传入规范示例  Column/Where/AddColumn
+##### 5.删除-
+```csharp
+public void 删除数据_含子查询_测试lt() {
+    var sql = " UserId = ( select Id from users  where UserName = '木头人1' )";
+    var delete = LockDapperUtilsqlite<LockPers>
+	.Delet().Where(p => 
+            p.Name == "H$E22222" && SM.SQL(sql) && SM.SQL(" IsDel = '1' "));
+    var efrow = delete.ExecuteDelete();
+    Console.WriteLine(efrow + " " + delete.RawSqlParams().Item1);
+}
+```
+
+
+##### 6.条件方法参数传入规范示例  Column/Where/AddColumn
 > 1. 直接where()方法中赋值       s.IsDel = 1;
 > 2. 声明变量 接收参数 再传入    int Id = int.Parse( Request.Form["Id"]);  ---->   w.Id == Id_
 > 3. Action参数装载器的参数不能直接传入  int Id_ = Id;  ---->   w.Id == Id_

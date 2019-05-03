@@ -18,19 +18,43 @@ namespace TestsDapperSqlMaker.DapperExt
             Console.WriteLine(str);
         }
 
+        #region 链式解析 添加数据
+
+        [Test]
+        public void 添加部分字段_含子查询_测试lt()
+        {
+            string colm = "img", val = "(select value from skin limit 1 offset 1)"; DateTime cdate = DateTime.Now;
+            var insert = LockDapperUtilsqlite<Users>.Inser().AddColumn(p => new bool[] {
+                p.UserName =="木头人1 名称必须唯一", p.Password == "666", p.CreateTime == cdate
+                , SM.Sql(colm,val), SM.Sql(p.Remark,"(select '荒野高尔夫')")
+            });
+
+            Console.WriteLine(insert.RawSqlParams().Item1);
+            var efrow = insert.ExecuteInsert();
+            Console.WriteLine(efrow);
+        }
+
+        #endregion
+
+
+        #region 一些 Dapper.Contrib改编的方法
+
+
         #region SQLite 添加数据测试
         [Test]
         public void DapperContrib添加方法()
         {
+            DapperFuncs.CurtConn = LockDapperUtilsqlite.New().GetConn();
             Skin additem = new Skin() { InsertDate = DateTime.Now.ToString(), Name = "奥的阿三", Remake = "背景", Type = "bg", Value = "www.baidu.com" };
-            int efrow = LockDapperUtilsqlite<Skin>.Cud.Inser(additem);
+            int efrow = DapperFuncs.Inser<Skin>(additem);
             Console.WriteLine("影响行数-" + efrow);
         }
 
         [Test]
         public void 添加部分字段_返回影响行_测试lt()
         {
-            var efrow = LockDapperUtilsqlite<LockPers>.Cud.Insert(p =>
+            DapperFuncs.CurtConn = LockDapperUtilsqlite.New().GetConn();
+            var efrow = DapperFuncs.Insert<LockPers>(p =>
             {
                 p._IsWriteFiled = true;
                 p.Id = Guid.NewGuid().ToString();
@@ -47,8 +71,9 @@ namespace TestsDapperSqlMaker.DapperExt
         public void 添加部分字段_返回插入ID_测试lt()
         {
 
+            DapperFuncs.CurtConn = LockDapperUtilsqlite.New().GetConn();
             return;
-            var efrow = LockDapperUtilsqlite<LockPers>.Cud.InsertGetId(p =>
+            var efrow = DapperFuncs.InsertGetId<LockPers>(p =>
             {
                 p._IsWriteFiled = true;
                 p.Id = Guid.NewGuid().ToString();
@@ -61,42 +86,15 @@ namespace TestsDapperSqlMaker.DapperExt
 
         }
 
-        [Test]
-        public void 添加部分字段和子查询_测试lt()
-        {
-            string colm1 = "remake", val1 = " (select '子查询和注入的sql语句') ";
-            var datestr = DateTime.Now.ToString("yyMMdd HHmmss");
-            var query = LockDapperUtilsqlite<Skin>.Inser().AddColumn(p => new bool[] {
-                SM.Sql(colm1, val1), SM.Sql(p.Name, " (select '宽叶飙车9facebook改写修改的了') "),
-                p.UserId == 1
-                , p.Value == "www.baidu.com", p.Type == "bg", p.InsertDate == datestr
-                 });
-            var sqlparms = query.RawSqlParams();
-            Console.WriteLine(sqlparms.Item1);
-            var ew = query.ExecuteInsert();
-            Console.WriteLine(ew);
-            return;
 
-        }
-
-        [Test]
-        public void 添加部分字段和子查询_测试lt2() {
-            string colm = "img", val = "(select value from skin limit 1 offset 1)"; DateTime cdate = DateTime.Now;
-            var insert = LockDapperUtilsqlite<Users>.Inser().AddColumn(p => new bool[] {
-                p.UserName =="木头人1", p.Password == "666", p.CreateTime == cdate
-                , SM.Sql(colm,val), SM.Sql(p.Remark,"(select '荒野高尔夫')")
-            }); 
-            var efrow = insert.ExecuteInsert();
-            Console.WriteLine(efrow + " " + insert.RawSqlParams().Item1);
-        }
         #endregion
-
 
         #region MS 添加数据测试
 
         [Test]
         public void DapperContrib添加方法MS()
         {
+            DapperFuncs.CurtConn = LockDapperUtilmssql.New().GetConn();
             //return;
             LockPers_ms item = new LockPers_ms(true)
             {
@@ -107,15 +105,16 @@ namespace TestsDapperSqlMaker.DapperExt
                 IsDel = false,
                 UserId = 3
             };
-            var efrow = LockDapperUtilmssql<LockPers_ms>.Cud.Inser(item
+            var efrow = DapperFuncs.Inser<LockPers_ms>(item
                 );
             Console.WriteLine("影响行数-" + efrow);
         }
         [Test]
         public void 添加数据返回影响行数_测试MS()
         {
+            DapperFuncs.CurtConn = LockDapperUtilmssql.New().GetConn();
             return;
-            var efrow = LockDapperUtilmssql<LockPers_ms>.Cud.Insert(p =>
+            var efrow = DapperFuncs.Insert<LockPers_ms>(p =>
             {
                 p._IsWriteFiled = true;
                 p.Id = Guid.NewGuid().ToString();
@@ -131,8 +130,9 @@ namespace TestsDapperSqlMaker.DapperExt
         public void 添加数据返回插入ID_测试MS()
         {
             //return;
+            DapperFuncs.CurtConn = LockDapperUtilmssql.New().GetConn();
 
-            var id = LockDapperUtilmssql<LockPers_ms>.Cud.InsertGetId(p =>
+            var id = DapperFuncs.InsertGetId<LockPers_ms>(p =>
             {
                 p._IsWriteFiled = true;
                 p.Id = Guid.NewGuid().ToString();
@@ -166,13 +166,15 @@ namespace TestsDapperSqlMaker.DapperExt
 
 
         #endregion
+        #endregion
 
         [Test]
         public void 批量插入测试()
-        {
-            //return;
+        {   
+            //return;  // sqlite 读取 批量插入到 mssql
+            DapperFuncs.CurtConn = LockDapperUtilsqlite.New().GetConn();
 
-            var list3old = LockDapperUtilsqlite<LockPers_>.Cud.GetAll();
+            var list3old = DapperFuncs.GetAll<LockPers_>();
             List<LockPers_ms_> list3new = new List<LockPers_ms_>();
             foreach (var item in list3old)
             {
@@ -180,24 +182,24 @@ namespace TestsDapperSqlMaker.DapperExt
 
                 list3new.Add(CopyModelHelper.Mapper<LockPers_ms_, LockPers_>(item));
             }
-            var efrow = LockDapperUtilmssql<LockPers_ms_>.Cud.InserList(list3new);
+            var efrow = DapperFuncs.InserList<LockPers_ms_>(list3new,LockDapperUtilmssql.New().GetConn());
             Console.WriteLine("影响行数-" + efrow);
 
             return;
 
-            var list2old = LockDapperUtilsqlite<SynNote>.Cud.GetAll();
+            var list2old = DapperFuncs.GetAll<SynNote>();
             foreach (var item in list2old)
             {
                 var model = CopyModelHelper.Mapper<SynNote_ms, SynNote>(item);
-                LockDapperUtilmssql<SynNote_ms>.Cud.Insert(model);
+                DapperFuncs.Insert<SynNote_ms>(model, LockDapperUtilmssql.New().GetConn());
                 //newlist.Add ( );
             }
 
-            var list1old = LockDapperUtilsqlite<Users>.Cud.GetAll();
+            var list1old = DapperFuncs.GetAll<Users>();
             foreach (var item in list1old)
             {
                 var model = CopyModelHelper.Mapper<Users_ms, Users>(item);
-                LockDapperUtilmssql<Users_ms>.Cud.Insert(model);
+                DapperFuncs.Insert<Users_ms>(model, LockDapperUtilmssql.New().GetConn());
             }
         }
 

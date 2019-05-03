@@ -9,7 +9,7 @@ namespace DapperSqlMaker.DapperExt
     /// </summary>
     public partial class XxxxDapperSqlMakerXxxx : DapperSqlMaker
     {
-        protected override IDbConnection GetCurrentConnection(bool isfirst)
+        protected override IDbConnection GetConn(bool isfirst)
         {
             throw new System.Exception("未配置数据库连接");
             //DataBaseConfig.GetSqliteConnection();
@@ -28,9 +28,9 @@ namespace DapperSqlMaker.DapperExt
         {
             return _New;
         }
-        public IDbConnection GetCurrentConnectionSign(bool isfirst)
+        public IDbConnection GetConnSign(bool isfirst)
         {
-            return this.GetCurrentConnection(isfirst);
+            return this.GetConn(isfirst);
         }
 
 
@@ -39,7 +39,7 @@ namespace DapperSqlMaker.DapperExt
     public partial class XxxxDapperSqlMakerXxxx<T> : DapperSqlMaker<T>
                                          where T : class, new()
     {
-        protected override IDbConnection GetCurrentConnection(bool isfirst)
+        protected override IDbConnection GetConn(bool isfirst)
         {
             return XxxxDapperSqlMakerXxxx.New().GetCurrentConnectionSign(isfirst);
         }
@@ -57,7 +57,7 @@ namespace DapperSqlMaker.DapperExt
     }
     public partial class XxxxDapperSqlMakerXxxx<T, Y> : DapperSqlMaker<T, Y>
     {
-        protected override IDbConnection GetCurrentConnection(bool isfirst)
+        protected override IDbConnection GetConn(bool isfirst)
         {
             return XxxxDapperSqlMakerXxxx.New().GetCurrentConnectionSign(isfirst);
         }
@@ -71,7 +71,7 @@ namespace DapperSqlMaker.DapperExt
 
     public partial class XxxxDapperSqlMakerXxxx<T, Y, Z> : DapperSqlMaker<T, Y, Z>
     {
-        protected override IDbConnection GetCurrentConnection(bool isfirst)
+        protected override IDbConnection GetConn(bool isfirst)
         {
             return XxxxDapperSqlMakerXxxx.New().GetCurrentConnectionSign(isfirst);
         }
@@ -85,7 +85,7 @@ namespace DapperSqlMaker.DapperExt
     }
     public partial class XxxxDapperSqlMakerXxxx<T, Y, Z, O> : DapperSqlMaker<T, Y, Z, O>
     {
-        protected override IDbConnection GetCurrentConnection(bool isfirst)
+        protected override IDbConnection GetConn(bool isfirst)
         {
             return XxxxDapperSqlMakerXxxx.New().GetCurrentConnectionSign(isfirst);
         }
@@ -99,7 +99,7 @@ namespace DapperSqlMaker.DapperExt
 
     public partial class XxxxDapperSqlMakerXxxx<T, Y, Z, O, P> : DapperSqlMaker<T, Y, Z, O, P>
     {
-        protected override IDbConnection GetCurrentConnection(bool isfirst)
+        protected override IDbConnection GetConn(bool isfirst)
         {
             return XxxxDapperSqlMakerXxxx.New().GetCurrentConnectionSign(isfirst);
         }
@@ -112,7 +112,7 @@ namespace DapperSqlMaker.DapperExt
     }
     public partial class XxxxDapperSqlMakerXxxx<T, Y, Z, O, P, Q> : DapperSqlMaker<T, Y, Z, O, P, Q>
     {
-        protected override IDbConnection GetCurrentConnection(bool isfirst)
+        protected override IDbConnection GetConn(bool isfirst)
         {
             return XxxxDapperSqlMakerXxxx.New().GetCurrentConnectionSign(isfirst);
         }

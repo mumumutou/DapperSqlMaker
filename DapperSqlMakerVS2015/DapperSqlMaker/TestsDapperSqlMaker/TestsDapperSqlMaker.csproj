@@ -82,7 +82,6 @@
     <Compile Include="DbDapperSqlMaker\DataBaseConfig.cs" />
     <Compile Include="DbDapperSqlMaker\LockDapperUtilmssql.cs" />
     <Compile Include="DbDapperSqlMaker\LockDapperUtilsqlite.cs" />
-    <Compile Include="DbDapperSqlMaker\Template_DapperSqlMaker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

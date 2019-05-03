@@ -153,11 +153,11 @@ namespace TestsDapperSqlMaker
                 .Where(where)
                 .Order((lp, w, sn) => new { lp.EditCount, x = SM.OrderDesc(lp.Name), sn.Content });
 
-            var result = query.ExecuteQuery();
-            WriteJson(result); //  查询结果
-
             Tuple<StringBuilder, DynamicParameters> resultsqlparams = query.RawSqlParams();
             WriteSqlParams(resultsqlparams); // 打印sql和参数
+
+            var result = query.ExecuteQuery();
+            WriteJson(result); //  查询结果
 
             int page = 2, rows = 3, records;
             var result2 = query.LoadPagelt(page, rows, out records);
@@ -605,50 +605,50 @@ namespace TestsDapperSqlMaker
         }
 
 
-        //动态sql
-        #region Dapper已有方法
-        [Test]
-        public void 查询首行()
-        {
-            SynNote_ sn = new SynNote_();
-            sn.Id = 3;
-            string updatesql = " select * from SynNote where \"Id\" = @Id";
-            var ef = DapperFuncs.QueryFirst<SynNote_>(updatesql, sn, LockDapperUtilsqlite.New().GetConnSign(false));
-            WriteJson(ef);
+        ////动态sql
+        //#region Dapper已有方法
+        //[Test]
+        //public void 查询首行()
+        //{
+        //    SynNote_ sn = new SynNote_();
+        //    sn.Id = 3;
+        //    string updatesql = " select * from SynNote where \"Id\" = @Id";
+        //    var ef = DapperFuncs.QueryFirst<SynNote_>(updatesql, sn, LockDapperUtilsqlite.New().GetConnSign(false));
+        //    WriteJson(ef);
 
-        }
-        [Test]
-        public void 查询()
-        {
-            string updatesql = " select * from SynNote ";
-            var ef = DapperFuncs.Query<SynNote_>(updatesql, null, LockDapperUtilsqlite.New().GetConnSign(false));
-            WriteJson(ef);
-        }
-        [Test]
-        public void 查询首行首列()
-        {
-            string updatesql = " select Content from SynNote ";
-            var ef = DapperFuncs.ExecuteScalar<string>(updatesql, null, LockDapperUtilsqlite.New().GetConnSign(false));
-            WriteJson(ef);
-        }
-        [Test]
-        public void 修改()
-        {
-            SynNote_ sn = new SynNote_();
-            sn.Content = "备注333";
-            sn.IsDel = false;
-            sn.Name = "棉花多读懂多多多多好多好多好多好多";
-            sn.NoteDate = DateTime.Now;
-            sn.UserId = 2;
-            sn.Id = 3;
-            string updatesql = "update SynNote set \"Content\" = @Content, \"NoteDate\" = @NoteDate, \"Name\" = @Name, \"UserId\" = @UserId, \"IsDel\" = @IsDel where \"Id\" = @Id";
-            var ef = DapperFuncs.Execute(updatesql, sn, LockDapperUtilsqlite.New().GetConnSign(false));
-            Console.WriteLine(ef);
+        //}
+        //[Test]
+        //public void 查询()
+        //{
+        //    string updatesql = " select * from SynNote ";
+        //    var ef = DapperFuncs.Query<SynNote_>(updatesql, null, LockDapperUtilsqlite.New().GetConnSign(false));
+        //    WriteJson(ef);
+        //}
+        //[Test]
+        //public void 查询首行首列()
+        //{
+        //    string updatesql = " select Content from SynNote ";
+        //    var ef = DapperFuncs.ExecuteScalar<string>(updatesql, null, LockDapperUtilsqlite.New().GetConnSign(false));
+        //    WriteJson(ef);
+        //}
+        //[Test]
+        //public void 修改()
+        //{
+        //    SynNote_ sn = new SynNote_();
+        //    sn.Content = "备注333";
+        //    sn.IsDel = false;
+        //    sn.Name = "棉花多读懂多多多多好多好多好多好多";
+        //    sn.NoteDate = DateTime.Now;
+        //    sn.UserId = 2;
+        //    sn.Id = 3;
+        //    string updatesql = "update SynNote set \"Content\" = @Content, \"NoteDate\" = @NoteDate, \"Name\" = @Name, \"UserId\" = @UserId, \"IsDel\" = @IsDel where \"Id\" = @Id";
+        //    var ef = DapperFuncs.Execute(updatesql, sn, LockDapperUtilsqlite.New().GetConnSign(false));
+        //    Console.WriteLine(ef);
 
-        }
+        //}
 
 
-        #endregion
+        //#endregion
 
         [Test]
         public void lock下拉刷新分页测试() {

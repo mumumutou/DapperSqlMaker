@@ -918,7 +918,7 @@ namespace Dapper.Contrib.Extensions
         /// <typeparam name="T"></typeparam> 
         /// <param name="whereExps">表达式</param> 
         /// <returns></returns>
-        public static bool DeleteWriteField<T>(this IDbConnection connection, Expression<Func<T, bool>> whereExps, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        public static int DeleteWriteField<T>(this IDbConnection connection, Expression<Func<T, bool>> whereExps, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             if (whereExps == null)
                 throw new ArgumentException("Cannot Delete null Object", nameof(whereExps));
@@ -944,12 +944,13 @@ namespace Dapper.Contrib.Extensions
 
             // sb参数啊查询 变量@ 不同库适配 adapter.AppendColumnNameEqualsValue  ???
             //    adapter.AppendColumnNameEqualsValue(sb, property.Name);  //fix for issue #336
-            AnalysisExpression.VisitExpression(whereExps, ref sb, ref dpars);    // Field = @Field0
+            //AnalysisExpression.VisitExpression(whereExps, ref sb, ref dpars);    // Field = @Field0
+            AnalysisExpression.JoinExpression(whereExps, ref sb, ref dpars, isAliasName: false);    // Field = @Field0
 
             var adapter = GetFormatter(connection);
 
             var deleted = connection.Execute(sb.ToString(), dpars, transaction, commandTimeout);
-            return deleted > 0;
+            return deleted ;
         }
 
 

@@ -34,10 +34,10 @@ namespace DapperSqlMaker.DapperExt
     /// <typeparam name="Q">联表6</typeparam>
     public abstract class DapperSqlMaker<T, Y, Z, O, P, Q> : DapperSqlMaker
     {
-        protected abstract override IDbConnection GetCurrentConnection(bool isfirst = false);
+        public abstract override IDbConnection GetConn();
         public DapperSqlMaker<T, Y, Z, O, P, Q> Select()
         {
-            // 1. 存表序号和表别名
+            //1.存表序号和表别名 //
             var tabAliasName1 = "a"; //fielambda.Parameters[0].Name;
             var tabAliasName2 = "b"; //fielambda.Parameters[1].Name;
             var tabAliasName3 = "c"; //fielambda.Parameters[2].Name;
@@ -76,7 +76,7 @@ namespace DapperSqlMaker.DapperExt
             // 查指定字段 
             NewExpression arryexps = fielambda.Body as NewExpression;
             Dictionary<string, int> pdic = base.GetLmdparamsDic(fielambda);
-            columns = GetFieldrrExps(arryexps.Arguments, TabAliaceDic, pdic); //"select " +
+            columns = GetFieldrrExps(arryexps.Arguments, pdic); //"select " +
             columns = string.Format(SM.LimitRowNumber_Sql, columns);
 
             Clauses.Add(Clause.New(ClauseType.ActionSelectRowRumberOrderBy, rowRumberOrderBy: columns));
@@ -161,10 +161,10 @@ namespace DapperSqlMaker.DapperExt
     /// <typeparam name="P">联表5</typeparam>
     public abstract class DapperSqlMaker<T, Y, Z, O, P> : DapperSqlMaker
     {
-        protected abstract override IDbConnection GetCurrentConnection(bool isfirst = false);
+        public abstract override IDbConnection GetConn();
         public DapperSqlMaker<T, Y, Z, O, P> Select()
         {
-            // 1. 存表序号和表别名
+            //1.存表序号和表别名 //FromJoin 得用到
             var tabAliasName1 = "a"; //fielambda.Parameters[0].Name;
             var tabAliasName2 = "b"; //fielambda.Parameters[1].Name;
             var tabAliasName3 = "c"; //fielambda.Parameters[2].Name;
@@ -198,7 +198,7 @@ namespace DapperSqlMaker.DapperExt
             // 查指定字段 
             NewExpression arryexps = fielambda.Body as NewExpression;
             Dictionary<string, int> pdic = base.GetLmdparamsDic(fielambda);
-            columns = GetFieldrrExps(arryexps.Arguments, TabAliaceDic, pdic); //"select " +
+            columns = GetFieldrrExps(arryexps.Arguments, pdic); //"select " +
             columns = string.Format(SM.LimitRowNumber_Sql, columns);
 
             Clauses.Add(Clause.New(ClauseType.ActionSelectRowRumberOrderBy, rowRumberOrderBy: columns));
@@ -279,11 +279,11 @@ namespace DapperSqlMaker.DapperExt
     /// <typeparam name="O">联表4</typeparam>
     public abstract class DapperSqlMaker<T, Y, Z, O> : DapperSqlMaker
     {
-        protected abstract override IDbConnection GetCurrentConnection(bool isfirst = false);
+        public abstract override IDbConnection GetConn();
 
         public DapperSqlMaker<T, Y, Z, O> Select()
         {
-            // 1. 存表序号和表别名
+            // 1. 存表序号和表别名 //FromJoin 得用到
             var tabAliasName1 = "a"; //fielambda.Parameters[0].Name;
             var tabAliasName2 = "b"; //fielambda.Parameters[1].Name;
             var tabAliasName3 = "c"; //fielambda.Parameters[2].Name;
@@ -313,7 +313,7 @@ namespace DapperSqlMaker.DapperExt
             // 查指定字段 
             NewExpression arryexps = fielambda.Body as NewExpression;
             Dictionary<string, int> pdic = base.GetLmdparamsDic(fielambda);
-            columns = GetFieldrrExps(arryexps.Arguments, TabAliaceDic, pdic); //"select " +
+            columns = GetFieldrrExps(arryexps.Arguments, pdic); //"select " +  //TabAliaceDic
             columns = string.Format(SM.LimitRowNumber_Sql, columns);
             /*
              * else if (p.NodeType == ExpressionType.Call)
@@ -401,11 +401,11 @@ namespace DapperSqlMaker.DapperExt
     /// <typeparam name="Z">联表2</typeparam>
     public abstract class DapperSqlMaker<T, Y, Z> : DapperSqlMaker
     {
-        protected abstract override IDbConnection GetCurrentConnection(bool isfirst = false);
+        public abstract override IDbConnection GetConn();
 
         public DapperSqlMaker<T, Y, Z> Select()
         {
-            // 1. 存表序号和表别名
+            // 1. 存表序号和表别名 //FromJoin 得用到
             var tabAliasName1 = "a"; //fielambda.Parameters[0].Name;
             var tabAliasName2 = "b"; //fielambda.Parameters[1].Name;
             var tabAliasName3 = "c"; //fielambda.Parameters[2].Name;
@@ -431,7 +431,7 @@ namespace DapperSqlMaker.DapperExt
             // 查指定字段 
             NewExpression arryexps = fielambda.Body as NewExpression;
             Dictionary<string, int> pdic = base.GetLmdparamsDic(fielambda);
-            columns = GetFieldrrExps(arryexps.Arguments, TabAliaceDic, pdic); //"select " +
+            columns = GetFieldrrExps(arryexps.Arguments, pdic); //"select " +  //, TabAliaceDic
             columns = string.Format(SM.LimitRowNumber_Sql, columns);
             Clauses.Add(Clause.New(ClauseType.ActionSelectRowRumberOrderBy, rowRumberOrderBy: columns));
             return this;
@@ -507,7 +507,7 @@ namespace DapperSqlMaker.DapperExt
 
     public abstract class DapperSqlMaker<T, Y> : DapperSqlMaker
     {
-        protected abstract override IDbConnection GetCurrentConnection(bool isfirst = false);
+        public abstract override IDbConnection GetConn();
 
         /// <summary>
         /// 执行查询
@@ -518,7 +518,7 @@ namespace DapperSqlMaker.DapperExt
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters> rawSqlParams = base.RawSqlParams();
 
-            using (var conn = GetCurrentConnection())
+            using (var conn = GetConn())
             {
                 var obj = conn.Query<dynamic>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
                 return obj;
@@ -527,7 +527,7 @@ namespace DapperSqlMaker.DapperExt
 
         public DapperSqlMaker<T, Y> Select()
         {
-            // 1. 存表序号和表别名
+            // 1. 存表序号和表别名 //FromJoin 得用到
             var tabAliasName1 = "a"; //fielambda.Parameters[0].Name;
             var tabAliasName2 = "b"; //fielambda.Parameters[1].Name; 
             TabAliaceDic.Add(typeof(T).FullName + 1, tabAliasName1);
@@ -549,7 +549,7 @@ namespace DapperSqlMaker.DapperExt
             // 查指定字段 
             NewExpression arryexps = fielambda.Body as NewExpression;
             Dictionary<string, int> pdic = base.GetLmdparamsDic(fielambda);
-            columns = GetFieldrrExps(arryexps.Arguments, TabAliaceDic, pdic); //"select " +
+            columns = GetFieldrrExps(arryexps.Arguments, pdic); //"select " +//, TabAliaceDic
             columns = string.Format(SM.LimitRowNumber_Sql, columns);
             Clauses.Add(Clause.New(ClauseType.ActionSelectRowRumberOrderBy, rowRumberOrderBy: columns));
             return this;
@@ -665,18 +665,19 @@ namespace DapperSqlMaker.DapperExt
     public abstract class DapperSqlMaker<T> : DapperSqlMaker
         where T : class, new()
     {
-        protected abstract override IDbConnection GetCurrentConnection(bool isfirst = false);
+        public abstract override IDbConnection GetConn();
 
         #region 链式查询数据
 
         // 查询
         public DapperSqlMaker<T> Select()
         {
-            // 1. 存表序号和表别名
+            // 1. 存表序号和表别名 //FromJoin 得用到
             var tabAliasName1 = "a"; //fielambda.Parameters[0].Name; 
             TabAliaceDic.Add(typeof(T).FullName + 1, tabAliasName1);
 
             Clauses.Add(Clause.New(ClauseType.ActionSelect, select: " select "));
+            base.ClauseFirst = ClauseType.ActionSelect;
             return this;
         }
         /// <summary>
@@ -691,7 +692,7 @@ namespace DapperSqlMaker.DapperExt
             // 查指定字段 
             NewExpression arryexps = fielambda.Body as NewExpression;
             Dictionary<string, int> pdic = base.GetLmdparamsDic(fielambda);
-            columns = GetFieldrrExps(arryexps.Arguments, TabAliaceDic, pdic); //"select " +
+            columns = GetFieldrrExps(arryexps.Arguments, pdic); //"select " + //, TabAliaceDic
             columns = string.Format(SM.LimitRowNumber_Sql, columns);
             Clauses.Add(Clause.New(ClauseType.ActionSelectRowRumberOrderBy, rowRumberOrderBy: columns));
             return this;
@@ -752,288 +753,75 @@ namespace DapperSqlMaker.DapperExt
             // 1. insert into tab
             var tabname1 = DsmSqlMapperExtensions.GetTableName(typeof(T));
             Clauses.Add(Clause.New(ClauseType.Insert, insert: " insert into " + tabname1));
-
+            base.ClauseFirst = ClauseType.Insert;
             return this;
             // $"insert into {name} ({sbColumnList}) values ({sbParameterList})"
         }
-        public DapperSqlMaker<T> AddColumn(Expression<Func<T,bool[]>> fiesExps = null)
+        public DapperSqlMaker<T> AddColumn(Expression<Func<T, bool[]>> fiesExps = null)
         {
             DynamicParameters spars;
             string sqlColmval;
             if (fiesExps == null) throw new Exception("不能执行空的插入语句");
             LambdaExpression fielambda = fiesExps as LambdaExpression;
-            base.GetInsertColumnValueStr(fielambda, out spars, out sqlColmval);
-            Clauses.Add(Clause.New(ClauseType.AddColumn, addcolumn: sqlColmval,insertParms: spars));
-            return this; 
+            base.GetInsertOrUpdateColumnValueStr(fielambda, out spars, out sqlColmval);
+            Clauses.Add(Clause.New(ClauseType.AddColumn, addcolumn: sqlColmval, insertParms: spars));
+            return this;
         }
         // Insert 影响行数  Insert 最后插入数据Id
 
         #endregion
 
-        #region Dapper.Contrib简单curd 
-        /// <summary>
-        /// 获取一条数据根据主键标识字段 (Dapper.Contrib.Extensions. DapperSqlMapperExtensions)
-        /// </summary> 
-        /// <returns></returns>
-        public T Get(int id, IDbTransaction transaction = null, int? commandTimeout = null)
+        #region 链式 更新数据
+        public DapperSqlMaker<T> Update()
         {
+            // 1. insert into tab
+            var tabname1 = DsmSqlMapperExtensions.GetTableName(typeof(T));
+            Clauses.Add(Clause.New(ClauseType.Update, update: " update " + tabname1));
+            base.ClauseFirst = ClauseType.Update;
+            return this;
+            // $" update {name} set {EditColumn}where {where}"
+        }
+        public DapperSqlMaker<T> EditColumn(Expression<Func<T, bool[]>> fiesExps = null)
+        {
+            DynamicParameters spars;
+            string sqlColmval;
+            if (fiesExps == null) throw new Exception("不能执行空的插入语句");
+            LambdaExpression fielambda = fiesExps as LambdaExpression;
+            base.GetInsertOrUpdateColumnValueStr(fielambda, out spars, out sqlColmval, addOrEdit: 2);
+            Clauses.Add(Clause.New(ClauseType.EditColumn, editcolumn: " set " + sqlColmval, updateParms: spars));
 
-            using (var conn = GetCurrentConnection())
-            {
-                var t = conn.Get<T>(id, transaction, commandTimeout);
-                return t;
-            }
+            return this;
+            // $"insert into {name} ({sbColumnList}) values ({sbParameterList})"
         }
-        /// <summary>
-        /// 获取一条数据根据主键标识字段 (Dapper.Contrib.Extensions. DapperSqlMapperExtensions) 
-        /// </summary> 
-        /// <returns></returns>
-        public T Get(string id, IDbTransaction transaction = null, int? commandTimeout = null)
-        {
-
-            using (var conn = GetCurrentConnection())
-            {
-                var t = conn.Get<T>(id, transaction, commandTimeout);
-                return t;
-            }
-        }
-        /// <summary>
-        /// 查询所有数据 (Dapper.Contrib.Extensions. DsmSqlMapperExtensions) 
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<T> GetAll(IDbTransaction transaction = null, int? commandTimeout = null)
-        {
-            using (var conn = GetCurrentConnection())
-            {
-                var t = conn.GetAl<T>(transaction, commandTimeout);
-                return t;
-            }
-        }
-        /// <summary>
-        /// 插入数据 忽略主键标识字段 (Dapper.Contrib.Extensions. DsmSqlMapperExtensions) 
-        /// </summary>  
-        /// <param name="efrowOrId">true返回影响行数 false返回插入id</param> 
-        /// <returns></returns>
-        public int Inser(T entity, bool efrowOrId = true, IDbTransaction transaction = null, int? commandTimeout = null)
-        {
-            Type type = typeof(T);
-            if (entity == null)
-                throw new Exception();
-            using (var conn = GetCurrentConnection())
-            {
-                var t = conn.Inser(entity, efrowOrId, transaction, commandTimeout);
-                return (int)t;
-            }
-        }
-        /// <summary>
-        /// 批量插入数据 返回影响行数 (Dapper.Contrib.Extensions. DsmSqlMapperExtensions) 
-        /// </summary> 
-        /// <returns></returns>
-        public int InserList(List<T> entitys, IDbTransaction transaction = null, int? commandTimeout = null)
-        {
-            //Type type = typeof(T);
-            if (entitys == null)
-                throw new Exception();
-
-            using (var conn = GetCurrentConnection()) //GetCurrentConnection() )
-            {
-                var t = conn.Inser(entitys, false, transaction, commandTimeout);
-                return (int)t;
-            }
-        }
-        /// <summary>
-        /// 更新整个实体根据主键标识字段 (Dapper.Contrib.Extensions. DsmSqlMapperExtensions) 
-        /// </summary> 
-        public bool Updat(T entity, IDbTransaction transaction = null, int? commandTimeout = null)
-        {
-            Type type = typeof(T);
-            if (entity == null)
-                throw new Exception();
-            using (var conn = GetCurrentConnection())
-            {
-                var t = conn.Updat(entity, transaction, commandTimeout);
-                return t;
-            }
-        }
-        /// <summary>
-        /// 更新整个实体根据主键标识字段 (Dapper.Contrib.Extensions. DsmSqlMapperExtensions) 
-        /// </summary> 
-        public bool Delet(T entity, IDbTransaction transaction = null, int? commandTimeout = null)
-        {
-            Type type = typeof(T);
-            if (entity == null)
-                throw new Exception();
-            using (var conn = GetCurrentConnection())
-            {
-                var t = conn.Delet(entity, transaction, commandTimeout);
-                return t;
-            }
-        }
-
 
         #endregion
 
-        #region 添加数据
-        /// <summary>
-        /// (不支持同名字段)1.添加一行记录 返回影响行数 外部初始化新实体 只插入赋值的字段
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="entity"></param>
-        /// <returns>返回影响行数</returns>
-        public int Insert(T entity, IDbTransaction transaction = null, int? commandTimeout = null)
+        #region 链式 删除数据
+        public DapperSqlMaker<T> Delete()
         {
-            if (entity == null)
-                throw new Exception();
-
-            using (var conn = GetCurrentConnection())
-            {
-                var t = conn.InsertWriteField(entity, transaction, commandTimeout);
-                return (int)t;
-            }
-        }
-        /// <summary>
-        /// (不支持同名字段)2.添加一行记录 返回影响行数返回影响行数 只插入赋值的字段  x.Insert(p => { p.Id = 1; p.Name = "新增"; });
-        /// </summary>  
-        /// <param name="entityAcn"> 记录赋值字段默认关闭,手动开启s._IsWriteFiled = true;  </param>
-        /// <returns>返回影响行数</returns>
-        public int Insert(Action<T> entityAcn, IDbTransaction transaction = null, int? commandTimeout = null)
-        {
-            if (entityAcn == null)
-                throw new Exception("entityAcn为空");
-
-            T entity = new T();
-            //writeFiled.SetValue(entity, true); //padd._IsWriteFiled = true;
-            entityAcn(entity);
-
-            using (var conn = GetCurrentConnection()) // GetCurrentConnection() )
-            {
-                var t = conn.InsertWriteField(entity, transaction, commandTimeout);
-                return (int)t;
-            }
-        }
-        /// <summary>
-        /// (不支持同名字段)3.添加一行记录 返回插入id 外部初始化新实体 只插入赋值的字段
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="entity"></param>
-        /// <returns>返回的是最后插入行id (sqlite中是最后一行数+1)</returns>
-        public int InsertGetId(T entity, IDbTransaction transaction = null, int? commandTimeout = null)
-        {
-            //Type type = typeof(T);
-            if (entity == null)
-                throw new Exception();
-
-            using (var conn = GetCurrentConnection()) //GetCurrentConnection() )
-            {
-                var t = conn.InsertGetIdWriteField(entity, transaction, commandTimeout);
-                return (int)t;
-            }
-        }
-        /// <summary>
-        /// (不支持同名字段)4.添加一行记录 返回插入id 只插入赋值的字段  x.Insert(p => { s._IsWriteFiled = true;  p.Id = 1; p.Name = "新增"; });
-        /// </summary>
-        /// <param name="entityAcn"> 记录赋值字段默认关闭,手动开启s._IsWriteFiled = true;  </param>
-        /// <returns>返回的是最后插入行id (sqlite中是最后一行数+1)</returns>
-        public int InsertGetId(Action<T> entityAcn, IDbTransaction transaction = null, int? commandTimeout = null) // static
-        {
-            if (entityAcn == null)
-                throw new Exception("entityAcn为空");
-
-            T entity = new T();
-            //writeFiled.SetValue(entity, true); //padd._IsWriteFiled = true;
-            entityAcn(entity);
-
-            using (var conn = GetCurrentConnection()) // GetCurrentConnection() )
-            {
-                var t = conn.InsertGetIdWriteField(entity, transaction, commandTimeout);
-                return (int)t;
-            }
+            // 1. insert into tab
+            var tabname1 = DsmSqlMapperExtensions.GetTableName(typeof(T));
+            // 添加where关键字防止全表删除
+            Clauses.Add(Clause.New(ClauseType.Delete, delete: string.Format(" delete from {0} where ", tabname1)));
+            base.ClauseFirst = ClauseType.Delete;
+            return this;
+            // $" delete from {0} where "
         }
 
 
 
         #endregion
-
-        #region 更新数据
-
-        /// <summary>
-        /// (不支持同名字段)1.更新 只更新赋值修改的字段 (外部初始化新实体 并赋值修改过的字段 再传入)
-        /// t.Update(setEntity ,  w => w.Id == 1);
-        /// </summary>
-        /// <param name="setEntity">已修改过字段实体</param>
-        /// <param name="wherefunc">where条件</param>
-        /// <returns>返回是否修改成功</returns> 
-        public bool Update(T setEntity, Expression<Func<T, bool>> whereAcn, IDbTransaction transaction = null, int? commandTimeout = null)  // static
-        {
-            if (setEntity == null)
-                throw new Exception("setEntity为空");
-            if (whereAcn == null)
-                throw new Exception("whereAcn为空");
-
-            using (var conn = GetCurrentConnection()) //GetCurrentConnection() )
-            {
-                var t = conn.UpdateWriteField(setEntity, whereAcn, transaction, commandTimeout);
-                return t;
-            }
-
-        }
-        /// <summary>
-        /// (不支持同名字段)2.更新 只更新赋值修改的字段 
-        /// t.Update( s => { s._IsWriteFiled = true; s.IsDel = true; },  w => w.Id == 1);
-        /// </summary>
-        /// <param name="setAcn">记录赋值字段默认关闭,手动开启s._IsWriteFiled = true; </param>
-        /// <param name="wherefunc">where条件</param>
-        /// <returns>返回是否修改成功</returns> 
-        public bool Update(Action<T> setAcn, Expression<Func<T, bool>> whereAcn, IDbTransaction transaction = null, int? commandTimeout = null)  // static
-        {
-            if (setAcn == null)
-                throw new Exception("setAcn为空");
-            if (whereAcn == null)
-                throw new Exception("whereAcn为空");
-
-            T entity = new T(); // 记录赋值字段默认关闭了 del._IsWriteFiled = true
-            setAcn(entity);  //
-
-            using (var conn = GetCurrentConnection()) //GetCurrentConnection() )
-            {
-                var t = conn.UpdateWriteField(entity, whereAcn, transaction, commandTimeout);
-                return t;
-            }
-
-        }
-        #endregion
-
-        #region 删除数据
-
-        /// 
-        /// <summary>
-        /// 删除字段 根据where表达式 x.Delete( w => w.Id == 1)
-        /// </summary>
-        /// <param name="whereExps">bool返回值无意义 只是为了连接where表达式</param>
-        /// <returns></returns>
-        public bool Delete(Expression<Func<T, bool>> whereExps, IDbTransaction transaction = null, int? commandTimeout = null) //static
-        {
-            using (var conn = GetCurrentConnection()) //GetCurrentConnection() )
-            {
-                var t = conn.DeleteWriteField(whereExps, transaction, commandTimeout);
-                return t;
-            }
-
-        }
-
-        #endregion
-
 
     }
     public abstract class DapperSqlMaker
     {
-        protected abstract IDbConnection GetCurrentConnection(bool isfirst = false);
+        public abstract IDbConnection GetConn();
         public DapperSqlMaker()
         {
-            GetCurrentConnection(true); //在子类必须重写抽象方法
+            GetConn(); //在子类必须重写抽象方法
         }
         // 当前连接
-        //protected abstract IDbConnection GetCurrentConnection(bool isfirst = false);
+        //protected abstract IDbConnection GetConn();
 
         private static readonly ISqlAdapter DefaultAdapter = new SqlServerAdapter();
         private static readonly Dictionary<string, ISqlAdapter> AdapterDictionary
@@ -1053,6 +841,8 @@ namespace DapperSqlMaker.DapperExt
                  : AdapterDictionary[name];
         }
 
+        protected ClauseType ClauseFirst { get; set; }
+
         protected enum ClauseType
         {
             ActionSelect,
@@ -1070,6 +860,9 @@ namespace DapperSqlMaker.DapperExt
 
             Insert,
             AddColumn,
+            Update,
+            EditColumn,
+            Delete,
         }
 
         protected class Clause
@@ -1080,7 +873,9 @@ namespace DapperSqlMaker.DapperExt
                 , string seletTable = null//, string jointable = null, string aliace = null
                 , string condition = null, DynamicParameters conditionParms = null
                 , string order = null, string extra = null
-                , string insert = null, string addcolumn = null, DynamicParameters insertParms= null)
+                , string insert = null, string addcolumn = null, DynamicParameters insertParms = null
+                , string update = null, string editcolumn = null, DynamicParameters updateParms = null
+                , string delete = null)
             {
                 return new Clause
                 {
@@ -1100,7 +895,12 @@ namespace DapperSqlMaker.DapperExt
                     //添加 ------------
                     Insert = insert,
                     AddColumn = addcolumn,
-                    InsertParms = insertParms
+                    InsertParms = insertParms,
+                    //修改 ------------
+                    Update = update,
+                    EditColumn = editcolumn,
+                    UpdateParms = updateParms,
+                    Delete = delete
                 };
             }
 
@@ -1120,6 +920,10 @@ namespace DapperSqlMaker.DapperExt
             public string Insert { get; private set; }
             public string AddColumn { get; private set; }
             public DynamicParameters InsertParms { get; private set; }
+            public string Update { get; private set; }
+            public string EditColumn { get; private set; }
+            public DynamicParameters UpdateParms { get; private set; }
+            public string Delete { get; private set; }
         }
 
         //protected class TabAliace {
@@ -1136,11 +940,11 @@ namespace DapperSqlMaker.DapperExt
         {
             get { return _clauses ?? (_clauses = new List<Clause>()); }
         }
-        // 表别名 ConcurrentDictionary FullName, tabAliasName
+        //表别名 ConcurrentDictionary FullName, tabAliasName
 
         protected Dictionary<string, string> _TabAliace;
         /// <summary>
-        /// 类全名 + 序号  表别名已经改为按顺序a,b,c,d的形式 有空改掉这个？？？？
+        /// 类全名 + 序号  表别名已经改为按顺序a,b,c,d的形式 FromJoin方法需要使用 where不用了 ？？？？ 看要不要把FromJoin改了
         /// </summary>
         protected Dictionary<string, string> TabAliaceDic
         {
@@ -1164,10 +968,9 @@ namespace DapperSqlMaker.DapperExt
         /// 生成字段 tab1.Field1, tab1.Field2, tab2.Field3
         /// </summary> 
         /// <param name="fierrExps"></param>
-        /// <param name="tabalis"></param>
         /// <param name="paramsdic">lmb参数名 序号 字典</param>
         /// <returns></returns>
-        protected static string GetFieldrrExps(System.Collections.ObjectModel.ReadOnlyCollection<Expression> fierrExps, Dictionary<string, string> tabalis, Dictionary<string, int> paramsdic
+        protected string GetFieldrrExps(System.Collections.ObjectModel.ReadOnlyCollection<Expression> fierrExps, Dictionary<string, int> paramsdic
             , string[] asnameArr = null) // , System.Collections.ObjectModel.ReadOnlyCollection<System.Reflection.MemberInfo> nmebs = null)
         {
 
@@ -1251,9 +1054,11 @@ namespace DapperSqlMaker.DapperExt
                 callstr: // 方法直接到这
 
                 parmexr = meb.Expression as ParameterExpression;
-                var tkey = parmexr.Type.FullName + paramsdic[parmexr.Name];  // 类名+参数序号
-                var tabalias1 = tabalis[tkey]; // Parmexr1.Name
-                colum = tabalias1 + "." + meb.Member.Name;  // 表(别名).字段名
+                //var tkey = parmexr.Type.FullName + paramsdic[parmexr.Name];  // 类名+参数序号
+                //var tabalias1 = tabalis[tkey]; // Parmexr1.Name
+                //colum = tabalias1 + "." + meb.Member.Name;  // 表(别名).字段名
+
+                colum = ((char)(paramsdic[parmexr.Name] + 96)) + "." + meb.Member.Name;  // 表(别名).字段名
 
                 appendsql: // 字段名 加  后缀(as xxx, desc)
 
@@ -1279,7 +1084,7 @@ namespace DapperSqlMaker.DapperExt
 
                 var asnameArr = arryexps.Members.Select(m => m.Name).ToArray<string>();
 
-                columns = GetFieldrrExps(arryexps.Arguments, TabAliaceDic, pdic, asnameArr); //
+                columns = GetFieldrrExps(arryexps.Arguments, pdic, asnameArr); //
             }
             else columns = SM.ColumnAll; // 查询所有字段
 
@@ -1304,7 +1109,15 @@ namespace DapperSqlMaker.DapperExt
 
             StringBuilder sql = null;
             DynamicParameters spars = null;
-            AnalysisExpression.JoinExpression(joinlambda, TabAliaceDic, ref sql, ref spars); //sqlMaker.TabAliasName
+
+            int aliasIndex = 1;
+            Dictionary<string, int> paramsdic = new Dictionary<string, int>();
+            foreach (var p in joinlambda.Parameters)
+            {
+                paramsdic.Add(p.Name, aliasIndex++);
+            }
+
+            AnalysisExpression.JoinExpression(joinlambda, ref sql, ref spars, paramsdic: paramsdic); //sqlMaker.TabAliasName
             string onCondition = sql.ToString();
             var jointabstr = $" {joinstr} {tabname2} on {onCondition} ";
 
@@ -1336,7 +1149,7 @@ namespace DapperSqlMaker.DapperExt
             Dictionary<string, int> pdic = this.GetLmdparamsDic(fielambda);
             string columns;
             NewExpression newexps = fielambda.Body as NewExpression;
-            columns = " order by " + GetFieldrrExps(newexps.Arguments, TabAliaceDic, pdic) + (isDesc ? " desc " : null); //base.TabAliasName
+            columns = " order by " + GetFieldrrExps(newexps.Arguments, pdic) + (isDesc ? " desc " : null); //base.TabAliasName
 
             return columns;
         }
@@ -1350,24 +1163,28 @@ namespace DapperSqlMaker.DapperExt
         {
             StringBuilder sql = null;
             spars = null;
-            AnalysisExpression.JoinExpression(whereExps, TabAliaceDic, ref sql, ref spars); //sqlMaker.TabAliasName
+            // select子句有表别名  update子句不能有表别名
 
-            sql.Insert(0, sql.Length > 0 ? " where " : " ");
+            AnalysisExpression.JoinExpression(whereExps, ref sql, ref spars, isAliasName: this.ClauseFirst == ClauseType.ActionSelect); //sqlMaker.TabAliasName
+
+            // 防止 update和delete全表操作 已在前面添加where关键字   只有查询语句会执行下行
+            if (this.ClauseFirst != ClauseType.Delete && this.ClauseFirst != ClauseType.Update)
+                sql.Insert(0, sql.Length > 0 ? " where " : " ");
             sqlCondition = sql.ToString();
         }
 
         #endregion
 
         #region 解析插入语句sql
-
         /// <summary>
         /// 生成插入语句 Columns Values
         /// </summary>
         /// <param name="colmvalambda">列和值语法规范p => new object[] { p.Content == p.Name,p.IsDel == false } </param>
         /// <param name="spars">插入语句参数</param>
         /// <param name="sqlColmval">插入语句sql</param>
-        protected void GetInsertColumnValueStr(LambdaExpression colmvalambda, out DynamicParameters spars, out string sqlColmval)
-        {  
+        /// <param name="addOrEdit">默认新增 1 新增 2 修改</param>
+        protected void GetInsertOrUpdateColumnValueStr(LambdaExpression colmvalambda, out DynamicParameters spars, out string sqlColmval, int addOrEdit = 1)
+        {
             //2.解析查询字段
             if (!(colmvalambda.Body is NewArrayExpression)) throw new Exception("不能执行空的插入语句");
             // 列和值语法规范p => new object[] { p.Content == p.Name,p.IsDel == false }   ==>   (Content,IsDel) Value(@Content,@IsDel)
@@ -1378,15 +1195,24 @@ namespace DapperSqlMaker.DapperExt
             var lmbdParmName = colmvalambda.Parameters[0].Name;
             int num = 1;
             string exgl = "=";
-            sb.Append(" ( ");
+            if (addOrEdit == 1) sb.Append(" ( "); // 添加输出 修改不用
             foreach (var p in arryexps.Expressions)
             {
-                if (p.NodeType == System.Linq.Expressions.ExpressionType.Equal)
+                if (p.NodeType == System.Linq.Expressions.ExpressionType.Equal && addOrEdit == 1)
+                { //添加
                     AnalysisExpression.BinaryExprssRowSqlParms(p, sb, spars, num++, exgl, (name, parmasName, exglstr) => string.Format("{0},", name)); //" {0} {2} @{0}{1} "
+                }
+                else if (p.NodeType == System.Linq.Expressions.ExpressionType.Equal && addOrEdit == 2)
+                { // 修改
+                    AnalysisExpression.BinaryExprssRowSqlParms(p, sb, spars, num++, exgl, (name, parmasName, exglstr) => string.Format(" {0}{2}@{1} ,", name, parmasName, exglstr)); //" {0} {2} @{0}{1} "
+                }
                 else if (p.NodeType == System.Linq.Expressions.ExpressionType.Call)
                 {
-                    string[] arrColmval = new string[2]; // 0 column  1 value
                     System.Linq.Expressions.MethodCallExpression method = p as System.Linq.Expressions.MethodCallExpression;
+
+                    if (method.Method.Name != SM._Sql_Name) throw new Exception(method.Method.Name + " 暂未做解析的方法 " + p);
+
+                    string[] arrColmval = new string[2]; // 0 column  1 value
                     int i = 0;
                     tempstart:
                     //meb = method.Arguments[0] as System.Linq.Expressions.MemberExpression;
@@ -1421,14 +1247,27 @@ namespace DapperSqlMaker.DapperExt
 
 
             }
-            sb.Remove(sb.Length - 1, 1);
+            if (sb.Length > 0) sb.Remove(sb.Length - 1, 1);
 
-            // 拼接子查询插入的 参数名
-            sb.Append((spars.ParameterNames.Count() > 0 && customColmval.Count > 0 ? ", " : string.Empty) + string.Join(",", customColmval.Select(p => p[0]).ToList<string>()));
+            if (addOrEdit == 1)
+            { // 添加
+                // 拼接子查询插入的 参数名
+                sb.Append((spars.ParameterNames.Count() > 0 && customColmval.Count > 0 ? ", " : string.Empty) + string.Join(",", customColmval.Select(p => p[0]).ToList<string>()));
 
-            // 简单参数值 和 子查询
-            sb.AppendFormat(") values ({0}{1}) ", string.Join(",", spars.ParameterNames.ToList<string>().Select(p => "@" + p).ToList<string>())
-                 , (spars.ParameterNames.Count() > 0 && customColmval.Count > 0 ? ", " : string.Empty) + string.Join(",", customColmval.Select(p => p[1]).ToList<string>()) );
+                // 简单参数值 和 子查询
+                sb.AppendFormat(") values ({0}{1}) ", string.Join(",", spars.ParameterNames.ToList<string>().Select(p => "@" + p).ToList<string>())
+                     , (spars.ParameterNames.Count() > 0 && customColmval.Count > 0 ? ", " : string.Empty) + string.Join(",", customColmval.Select(p => p[1]).ToList<string>()));
+            }
+            else if (addOrEdit == 2)
+            { // 修改
+                // 拼接子查询插入的 参数名
+                sb.Append((spars.ParameterNames.Count() > 0 && customColmval.Count > 0 ? ", " : string.Empty) + string.Join(",", customColmval.Select(p => p[0] + "=" + p[1]).ToList<string>()));
+                sb.Append(" where "); // 添加where关键字防止全表操作
+                // 简单参数值 和 子查询
+                //sb.AppendFormat(") val/*ues ({0}{1}) ", string.Join(",", spars.ParameterNames.ToList<string>().Select(p => "@" + p).ToList<string>())*/
+                //     , (spars.ParameterNames.Count() > 0 && customColmval.Count > 0 ? ", " : string.Empty) + string.Join(",", customColmval.Select(p => p[1]).ToList<string>()));
+            }
+
             sqlColmval = sb.ToString();
         }
 
@@ -1505,12 +1344,12 @@ namespace DapperSqlMaker.DapperExt
             {
                 throw new Exception("Empty query");
             }
-            var first = Clauses.First();
-            if (first.ClauseType != ClauseType.ActionSelect && first.ClauseType != ClauseType.Insert)
+            //var first = Clauses.First();
+            if (this.ClauseFirst != ClauseType.ActionSelect && this.ClauseFirst != ClauseType.Insert && this.ClauseFirst != ClauseType.Update && this.ClauseFirst != ClauseType.Delete)
             {
                 throw new Exception("Wrong start of query or insert");
             }
-            DynamicParameters dparam = null;
+            DynamicParameters dparam = new DynamicParameters();
             List<string> columns = new List<string>();
             var sb = new StringBuilder();
             foreach (var clause in Clauses)
@@ -1531,19 +1370,36 @@ namespace DapperSqlMaker.DapperExt
                         break;
                     case ClauseType.ActionSelectWhereOnHaving:
                         sb.Append(clause.Condition);
-                        dparam = clause.ConditionParms;
+                        dparam.AddDynamicParams(clause.ConditionParms);
+                        //if (this.ClauseFirst == ClauseType.ActionSelect)
+                        //    dparam.AddDynamicParams(clause.ConditionParms);
+                        //else if (this.ClauseFirst == ClauseType.Update)
+                        //    dparam.AddDynamicParams(clause.ConditionParms);
+                        //else if (this.ClauseFirst == ClauseType.Delete)
+                        //    dparam.AddDynamicParams(clause.ConditionParms);
                         break;
                     case ClauseType.ActionSelectOrder:
                         sb.Append(clause.Order);
                         break; // --------------查询
-                    
+
                     case ClauseType.Insert: // 新增 -----------------------
                         sb.Append(clause.Insert);
                         break;
                     case ClauseType.AddColumn:
                         sb.Append(clause.AddColumn);
-                        dparam = clause.InsertParms;
+                        dparam.AddDynamicParams(clause.InsertParms);
                         break;// ----------新增
+
+                    case ClauseType.Update: // 更新 -----------------------
+                        sb.Append(clause.Update);
+                        break;
+                    case ClauseType.EditColumn:
+                        sb.Append(clause.EditColumn);
+                        dparam.AddDynamicParams(clause.UpdateParms);
+                        break;// ----------更新 where子句公用select的
+                    case ClauseType.Delete: // 删除 -------------------
+                        sb.Append(clause.Delete); 
+                        break;// ----------删除 where子句公用select的
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -1620,7 +1476,7 @@ namespace DapperSqlMaker.DapperExt
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
 
-            using (var conn = GetCurrentConnection())
+            using (var conn = GetConn())
             {
                 var obj = conn.Query<dynamic>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
                 return obj;
@@ -1635,7 +1491,7 @@ namespace DapperSqlMaker.DapperExt
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
 
-            using (var conn = GetCurrentConnection())
+            using (var conn = GetConn())
             {
                 var obj = conn.Query<Y>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
                 return obj;
@@ -1649,7 +1505,7 @@ namespace DapperSqlMaker.DapperExt
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
 
-            using (var conn = GetCurrentConnection())
+            using (var conn = GetConn())
             {
                 var obj = conn.Query<Y>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
                 return obj.FirstOrDefault();
@@ -1663,7 +1519,7 @@ namespace DapperSqlMaker.DapperExt
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
 
-            using (var conn = GetCurrentConnection())
+            using (var conn = GetConn())
             {
                 var obj = conn.Query<Y>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
                 return obj.FirstOrDefault();
@@ -1680,7 +1536,7 @@ namespace DapperSqlMaker.DapperExt
             ISqlAdapter adp;
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
-            using (var conn = GetCurrentConnection())
+            using (var conn = GetConn())
             {
                 adp = GetSqlAdapter(conn);
 
@@ -1701,7 +1557,7 @@ namespace DapperSqlMaker.DapperExt
             ISqlAdapter adp;
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
-            using (var conn = GetCurrentConnection())
+            using (var conn = GetConn())
             {
                 adp = GetSqlAdapter(conn);
 
@@ -1723,7 +1579,7 @@ namespace DapperSqlMaker.DapperExt
             ISqlAdapter adp;
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters, StringBuilder> rawSqlParams = this.RawLimitSqlParams();
-            using (var conn = GetCurrentConnection())
+            using (var conn = GetConn())
             {
                 adp = GetSqlAdapter(conn);
 
@@ -1748,7 +1604,7 @@ namespace DapperSqlMaker.DapperExt
             ISqlAdapter adp;
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters, StringBuilder> rawSqlParams = this.RawLimitSqlParams();
-            using (var conn = GetCurrentConnection())
+            using (var conn = GetConn())
             {
                 adp = GetSqlAdapter(conn);
 
@@ -1767,17 +1623,31 @@ namespace DapperSqlMaker.DapperExt
         }
 
 
+        /// <summary>
+        /// 执行添加sql  返回影响行
+        /// </summary>
         public virtual int ExecuteInsert()
         {
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
 
-            using (var conn = GetCurrentConnection())
+            using (var conn = GetConn())
             {
                 var obj = conn.Execute(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
                 return obj;
             }
         }
+        /// <summary>
+        /// 执行修改sql 返回影响行 修改全表操作需写Where条件  
+        /// </summary>
+        /// <returns></returns>
+        public virtual int ExecuteUpdate() => this.ExecuteInsert();
+        /// <summary>
+        /// 执行删除sql 返回影响行 删除全表操作需写Where条件  
+        /// </summary>
+        public virtual int ExecuteDelete() => this.ExecuteInsert();
+
+
 
         #endregion
 
@@ -1792,17 +1662,47 @@ namespace DapperSqlMaker.DapperExt
     /// </summary>
     public partial class DapperFuncs
     {
+        //public readonly static List<DapperSqlMaker> New = new List<DapperSqlMaker>(); // { get; set; }
+        ///// <summary>
+        ///// 需要初始化 数据上下文
+        ///// </summary>
+        //public readonly static List<DapperSqlMaker> contents = new List<DapperSqlMaker>(); // { get; set; }
+        //public DapperSqlMaker this[int idx]
+        //{
+        //    set
+        //    {
+        //        if (idx >= 0 && idx < contents.Count)
+        //            contents[idx] = value;
+        //    }
+        //    get
+        //    {
+        //        if (idx >= 0 && idx < contents.Count)
+        //            return contents[idx];
+        //        return null;
+        //    }
+        //}
+
+
+        private DapperFuncs() { }
+        /// <summary>
+        /// 配置默认连接后 不要修改 下面的方法可以不用传入数据库连接
+        /// 使用其他库 直接传入连接到方法 
+        /// </summary>
+        public static IDbConnection CurtConn = null;
+
+
 
         #region sql执行Dapper已有方法
         /// <summary>
         /// 增删改 返回影响行数 (Dapper.SqlMapper Dapper自带方法)
         /// </summary> 
-        public static int Execute(string sql, object entity, IDbConnection conn)
+        public static int Execute(string sql, object entity, IDbConnection conn = null)
         {
             if (entity == null)
                 throw new Exception();
+            if (conn == null) conn = CurtConn;
 
-            using (conn)//var conn = GetCurrentConnection()) //GetCurrentConnection() )
+            using (conn)//var conn = GetConn()) //GetConn() )
             {
                 return conn.Execute(sql, entity);
             }
@@ -1810,9 +1710,10 @@ namespace DapperSqlMaker.DapperExt
         /// <summary>
         /// 查询  (Dapper.SqlMapper Dapper自带方法)
         /// </summary> 
-        public static IEnumerable<dynamic> Query(string sql, object entity, IDbConnection conn)
+        public static IEnumerable<dynamic> Query(string sql, object entity, IDbConnection conn = null)
         {
-            using (conn)//var conn = GetCurrentConnection()) //GetCurrentConnection() )
+            if (conn == null) conn = CurtConn;
+            using (conn)//var conn = GetConn()) //GetConn() )
             {
                 var obj = conn.Query<dynamic>(sql, entity);
                 return obj;
@@ -1821,9 +1722,10 @@ namespace DapperSqlMaker.DapperExt
         /// <summary>
         /// 查询 (Dapper.SqlMapper Dapper自带方法)
         /// </summary> 
-        public static IEnumerable<T> Query<T>(string sql, object entity, IDbConnection conn)
+        public static IEnumerable<T> Query<T>(string sql, object entity, IDbConnection conn = null)
         {
-            using (conn)//var conn = GetCurrentConnection()) //GetCurrentConnection() )
+            if (conn == null) conn = CurtConn;
+            using (conn)//var conn = GetConn()) //GetConn() )
             {
                 var obj = conn.Query<T>(sql, entity);
                 return obj;
@@ -1832,9 +1734,10 @@ namespace DapperSqlMaker.DapperExt
         /// <summary>
         /// 查询首行 (Dapper.SqlMapper Dapper自带方法)
         /// </summary> 
-        public static T QueryFirst<T>(string sql, object entity, IDbConnection conn)
+        public static T QueryFirst<T>(string sql, object entity, IDbConnection conn = null)
         {
-            using (conn)//var conn = GetCurrentConnection()) //GetCurrentConnection() )
+            if (conn == null) conn = CurtConn;
+            using (conn)//var conn = GetConn()) //GetConn() )
             {
                 var obj = conn.QueryFirst<T>(sql, entity);
                 return obj;
@@ -1843,9 +1746,10 @@ namespace DapperSqlMaker.DapperExt
         /// <summary>
         /// 查询首行  (Dapper.SqlMapper Dapper自带方法)
         /// </summary> 
-        public static T ExecuteScalar<T>(string sql, object entity, IDbConnection conn)
+        public static T ExecuteScalar<T>(string sql, object entity, IDbConnection conn = null)
         {
-            using (conn)//var conn = GetCurrentConnection()) //GetCurrentConnection() )
+            if (conn == null) conn = CurtConn;
+            using (conn)//var conn = GetConn()) //GetConn() )
             {
                 var obj = conn.ExecuteScalar<T>(sql, entity);
                 return obj;
@@ -1853,6 +1757,301 @@ namespace DapperSqlMaker.DapperExt
         }
 
         #endregion
+
+
+        #region Dapper.Contrib扩展简单curd 
+        /// <summary>
+        /// 获取一条数据根据主键标识字段 (Dapper.Contrib.Extensions. DapperSqlMapperExtensions)
+        /// </summary> 
+        /// <returns></returns>
+        public static T Get<T>(int id, IDbConnection conn = null, IDbTransaction transaction = null, int? commandTimeout = null)
+           where T : class, new()
+        {
+            if (conn == null) conn = CurtConn;
+            using (conn)// var = GetConn())
+            {
+                var t = conn.Get<T>(id, transaction, commandTimeout);
+                return t;
+            }
+        }
+        /// <summary>
+        /// 获取一条数据根据主键标识字段 (Dapper.Contrib.Extensions. DapperSqlMapperExtensions) 
+        /// </summary> 
+        /// <returns></returns>
+        public static T Get<T>(string id, IDbConnection conn = null, IDbTransaction transaction = null, int? commandTimeout = null)
+           where T : class, new()
+        {
+            if (conn == null) conn = CurtConn;
+            using (conn) // var = GetConn())
+            {
+                var t = conn.Get<T>(id, transaction, commandTimeout);
+                return t;
+            }
+        }
+        /// <summary>
+        /// 查询所有数据 (Dapper.Contrib.Extensions. DsmSqlMapperExtensions) 
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<T> GetAll<T>(IDbConnection conn = null, IDbTransaction transaction = null, int? commandTimeout = null)
+           where T : class, new()
+        {
+            if (conn == null) conn = CurtConn;
+            using (conn)// var = GetConn())
+            {
+                var t = conn.GetAl<T>(transaction, commandTimeout);
+                return t;
+            }
+        }
+        /// <summary>
+        /// 插入数据 忽略主键标识字段 (Dapper.Contrib.Extensions. DsmSqlMapperExtensions) 
+        /// </summary>  
+        /// <param name="efrowOrId">true返回影响行数 false返回插入id</param> 
+        /// <returns></returns>
+        public static int Inser<T>(T entity, bool efrowOrId = true, IDbConnection conn = null, IDbTransaction transaction = null, int? commandTimeout = null)
+           where T : class, new()
+        {
+            Type type = typeof(T);
+            if (entity == null)
+                throw new Exception();
+            if (conn == null) conn = CurtConn;
+            using (conn) // var = GetConn())
+            {
+                var t = conn.Inser(entity, efrowOrId, transaction, commandTimeout);
+                return (int)t;
+            }
+        }
+        /// <summary>
+        /// 批量插入数据 返回影响行数 (Dapper.Contrib.Extensions. DsmSqlMapperExtensions) 
+        /// </summary> 
+        /// <returns></returns>
+        public static int InserList<T>(List<T> entitys, IDbConnection conn = null, IDbTransaction transaction = null, int? commandTimeout = null)
+           where T : class, new()
+        {
+            //Type type = typeof(T);
+            if (entitys == null)
+                throw new Exception();
+
+            if (conn == null) conn = CurtConn;
+            using (conn) // var = GetConn()) //GetConn() )
+            {
+                var t = conn.Inser(entitys, false, transaction, commandTimeout);
+                return (int)t;
+            }
+        }
+        /// <summary>
+        /// 更新整个实体根据主键标识字段 (Dapper.Contrib.Extensions. DsmSqlMapperExtensions) 
+        /// </summary> 
+        public static bool Updat<T>(T entity, IDbConnection conn = null, IDbTransaction transaction = null, int? commandTimeout = null)
+           where T : class, new()
+        {
+            Type type = typeof(T);
+            if (entity == null)
+                throw new Exception();
+
+            if (conn == null) conn = CurtConn;
+            using (conn) // var = GetConn())
+            {
+                var t = conn.Updat(entity, transaction, commandTimeout);
+                return t;
+            }
+        }
+        /// <summary>
+        /// 更新整个实体根据主键标识字段 (Dapper.Contrib.Extensions. DsmSqlMapperExtensions) 
+        /// </summary> 
+        public static bool Delet<T>(T entity, IDbConnection conn = null, IDbTransaction transaction = null, int? commandTimeout = null)
+           where T : class, new()
+        {
+            Type type = typeof(T);
+            if (entity == null)
+                throw new Exception();
+            using (conn) // var = GetConn())
+            {
+                var t = conn.Delet(entity, transaction, commandTimeout);
+                return t;
+            }
+        }
+
+
+        #endregion
+
+
+        #region 改编自Dapper.Contrib 扩展的简单curd 
+
+        #region 添加数据
+        /// <summary>
+        /// (不支持同名字段)1.添加一行记录 返回影响行数 外部初始化新实体 只插入赋值的字段
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entity"></param>
+        /// <returns>返回影响行数</returns>
+        public static int Insert<T>(T entity, IDbConnection conn = null, IDbTransaction transaction = null, int? commandTimeout = null)
+           where T : class, new()
+        {
+            if (entity == null)
+                throw new Exception();
+
+            if (conn == null) conn = CurtConn;
+            using (conn) // var conn = GetConn())
+            {
+                var t = conn.InsertWriteField(entity, transaction, commandTimeout);
+                return (int)t;
+            }
+        }
+        /// <summary>
+        /// (不支持同名字段)2.添加一行记录 返回影响行数返回影响行数 只插入赋值的字段  x.Insert(p => { p.Id = 1; p.Name = "新增"; });
+        /// </summary>  
+        /// <param name="entityAcn"> 记录赋值字段默认关闭,手动开启s._IsWriteFiled = true;  </param>
+        /// <returns>返回影响行数</returns>
+        public static int Insert<T>(Action<T> entityAcn, IDbConnection conn = null, IDbTransaction transaction = null, int? commandTimeout = null)
+         where T : class, new()
+        {
+            if (entityAcn == null)
+                throw new Exception("entityAcn为空");
+
+            T entity = new T();
+            //writeFiled.SetValue(entity, true); //padd._IsWriteFiled = true;
+            entityAcn(entity);
+            if (conn == null) conn = CurtConn;
+            using (conn) // var = GetConn()) // GetConn() )
+            {
+                var t = conn.InsertWriteField(entity, transaction, commandTimeout);
+                return (int)t;
+            }
+        }
+        /// <summary>
+        /// (不支持同名字段)3.添加一行记录 返回插入id 外部初始化新实体 只插入赋值的字段
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entity"></param>
+        /// <returns>返回的是最后插入行id (sqlite中是最后一行数+1)</returns>
+        public static int InsertGetId<T>(T entity, IDbConnection conn = null, IDbTransaction transaction = null, int? commandTimeout = null)
+         where T : class, new()
+        {
+            //Type type = typeof(T);
+            if (entity == null)
+                throw new Exception();
+            if (conn == null) conn = CurtConn;
+            using (conn) // var = GetConn()) //GetConn() )
+            {
+                var t = conn.InsertGetIdWriteField(entity, transaction, commandTimeout);
+                return (int)t;
+            }
+        }
+        /// <summary>
+        /// (不支持同名字段)4.添加一行记录 返回插入id 只插入赋值的字段  x.Insert(p => { s._IsWriteFiled = true;  p.Id = 1; p.Name = "新增"; });
+        /// </summary>
+        /// <param name="entityAcn"> 记录赋值字段默认关闭,手动开启s._IsWriteFiled = true;  </param>
+        /// <returns>返回的是最后插入行id (sqlite中是最后一行数+1)</returns>
+        public static int InsertGetId<T>(Action<T> entityAcn, IDbConnection conn = null, IDbTransaction transaction = null, int? commandTimeout = null)
+         where T : class, new()
+        {
+            if (entityAcn == null)
+                throw new Exception("entityAcn为空");
+
+            T entity = new T();
+            //writeFiled.SetValue(entity, true); //padd._IsWriteFiled = true;
+            entityAcn(entity);
+            if (conn == null) conn = CurtConn;
+            using (conn)// var = GetConn()) // GetConn() )
+            {
+                var t = conn.InsertGetIdWriteField(entity, transaction, commandTimeout);
+                return (int)t;
+            }
+        }
+
+
+
+        #endregion
+
+        #region 更新数据
+
+        /// <summary>
+        /// (不支持同名字段)1.更新 只更新赋值修改的字段 (外部初始化新实体 并赋值修改过的字段 再传入)
+        /// t.Update(setEntity ,  w => w.Id == 1);
+        /// </summary>
+        /// <param name="setEntity">已修改过字段实体</param>
+        /// <param name="wherefunc">where条件</param>
+        /// <returns>返回是否修改成功</returns> 
+        public static bool Update<T>(T setEntity, Expression<Func<T, bool>> whereAcn, IDbConnection conn = null, IDbTransaction transaction = null, int? commandTimeout = null)
+         where T : class, new()
+        {
+            if (setEntity == null)
+                throw new Exception("setEntity为空");
+            if (whereAcn == null)
+                throw new Exception("whereAcn为空");
+            if (conn == null) conn = CurtConn;
+            using (conn)// var = GetConn()) //GetConn() )
+            {
+                var t = conn.UpdateWriteField(setEntity, whereAcn, transaction, commandTimeout);
+                return t;
+            }
+
+        }
+        /// <summary>
+        /// (不支持同名字段)2.更新 只更新赋值修改的字段 
+        /// t.Update( s => { s._IsWriteFiled = true; s.IsDel = true; },  w => w.Id == 1);
+        /// </summary>
+        /// <param name="setAcn">记录赋值字段默认关闭,手动开启s._IsWriteFiled = true; </param>
+        /// <param name="wherefunc">where条件</param>
+        /// <returns>返回是否修改成功</returns> 
+        public static bool Update<T>(Action<T> setAcn, Expression<Func<T, bool>> whereAcn, IDbConnection conn = null, IDbTransaction transaction = null, int? commandTimeout = null)
+         where T : class, new()
+        {
+            if (setAcn == null)
+                throw new Exception("setAcn为空");
+            if (whereAcn == null)
+                throw new Exception("whereAcn为空");
+
+            T entity = new T(); // 记录赋值字段默认关闭了 del._IsWriteFiled = true
+            setAcn(entity);  //
+            if (conn == null) conn = CurtConn;
+            using (conn) // var = GetConn()) //GetConn() )
+            {
+                var t = conn.UpdateWriteField(entity, whereAcn, transaction, commandTimeout);
+                return t;
+            }
+
+        }
+        #endregion
+
+        #region 删除数据
+
+        /// 
+        /// <summary>
+        /// 删除字段 根据where表达式 x.Delete( w => w.Id == 1)
+        /// </summary>
+        /// <param name="whereExps">bool返回值无意义 只是为了连接where表达式</param>
+        /// <returns></returns>
+        public static bool Delete<T>(Expression<Func<T, bool>> whereExps, IDbConnection conn = null, IDbTransaction transaction = null, int? commandTimeout = null)
+         where T : class, new()
+        {
+            if (conn == null) conn = CurtConn;
+            using (conn) // var = GetConn()) //GetConn() )
+            {
+                var t = conn.DeleteWriteField(whereExps, transaction, commandTimeout);
+                return t > 0;
+            }
+        }/// 
+         /// <summary>
+         /// 删除数据 返回影响行数 根据where表达式 x.Delete( w => w.Id == 1)
+         /// </summary>
+         /// <param name="whereExps">bool返回值无意义 只是为了连接where表达式</param>
+         /// <returns></returns>
+        public static int Deleters<T>(Expression<Func<T, bool>> whereExps, IDbConnection conn = null, IDbTransaction transaction = null, int? commandTimeout = null)
+         where T : class, new()
+        {
+            if (conn == null) conn = CurtConn;
+            using (conn) // var = GetConn()) //GetConn() )
+            {
+                var t = conn.DeleteWriteField(whereExps, transaction, commandTimeout);
+                return t;
+            }
+        }
+
+        #endregion
+
+        #endregion
+
 
     }
 

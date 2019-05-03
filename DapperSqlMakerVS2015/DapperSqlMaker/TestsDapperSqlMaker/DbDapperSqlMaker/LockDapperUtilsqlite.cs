@@ -16,14 +16,12 @@ namespace DapperSqlMaker.DapperExt
         public static LockDapperUtilsqlite New() {
             return _New;
         }
-        public IDbConnection GetConnSign(bool isfirst) {
-            return this.GetCurrentConnection(isfirst);
-        }
+        //public IDbConnection GetConnSign(bool isfirst) {
+        //    return this.GetConn();
+        //}
 
-        protected override IDbConnection GetCurrentConnection(bool isfirst)
+        public override IDbConnection GetConn()
         { 
-            if (isfirst) return null;
-
             SQLiteConnection conn = new SQLiteConnection(DataBaseConfig.LockTestSqlLiteConnectionString);
             conn.Open();
             return conn;
@@ -34,9 +32,9 @@ namespace DapperSqlMaker.DapperExt
     public partial class LockDapperUtilsqlite<T> : DapperSqlMaker<T>
                                          where T : class, new()
     {
-        protected override IDbConnection GetCurrentConnection(bool isfirst)
+        public override IDbConnection GetConn()
         {
-            return LockDapperUtilsqlite.New().GetConnSign(isfirst);
+            return LockDapperUtilsqlite.New().GetConn();
         }
 
         public static DapperSqlMaker<T> Selec()
@@ -47,6 +45,14 @@ namespace DapperSqlMaker.DapperExt
         {
             return new LockDapperUtilsqlite<T>().Insert();
         }
+        public static DapperSqlMaker<T> Updat()
+        {
+            return new LockDapperUtilsqlite<T>().Update();
+        }
+        public static DapperSqlMaker<T> Delet()
+        {
+            return new LockDapperUtilsqlite<T>().Delete();
+        }
 
         /// <summary>
         /// 增删改
@@ -56,9 +62,9 @@ namespace DapperSqlMaker.DapperExt
     }
     public partial class LockDapperUtilsqlite<T, Y> : DapperSqlMaker<T, Y>
     {
-        protected override IDbConnection GetCurrentConnection(bool isfirst)
+        public override IDbConnection GetConn()
         {
-            return LockDapperUtilsqlite.New().GetConnSign(isfirst);
+            return LockDapperUtilsqlite.New().GetConn();
         }
          
         // 不能用单例 单例后面的表别名字典会冲突
@@ -70,9 +76,9 @@ namespace DapperSqlMaker.DapperExt
 
     public partial class LockDapperUtilsqlite<T, Y, Z> : DapperSqlMaker<T, Y, Z>
     {
-        protected override IDbConnection GetCurrentConnection(bool isfirst)
+        public override IDbConnection GetConn()
         {
-            return LockDapperUtilsqlite.New().GetConnSign(isfirst);
+            return LockDapperUtilsqlite.New().GetConn();
         }
         // 不能用单例 单例后面的表别名字典会冲突
 
@@ -84,9 +90,9 @@ namespace DapperSqlMaker.DapperExt
     }
     public partial class LockDapperUtilsqlite<T, Y, Z, O> : DapperSqlMaker<T, Y, Z, O>
     {
-        protected override IDbConnection GetCurrentConnection(bool isfirst)
+        public override IDbConnection GetConn()
         {
-            return LockDapperUtilsqlite.New().GetConnSign(isfirst);
+            return LockDapperUtilsqlite.New().GetConn();
         }
         // 不能用单例 单例后面的表别名字典会冲突
 
@@ -97,9 +103,9 @@ namespace DapperSqlMaker.DapperExt
     }
     public partial class LockDapperUtilsqlite<T, Y, Z, O, P> : DapperSqlMaker<T, Y, Z, O, P>
     {
-        protected override IDbConnection GetCurrentConnection(bool isfirst)
+        public override IDbConnection GetConn()
         {
-            return LockDapperUtilsqlite.New().GetConnSign(isfirst);
+            return LockDapperUtilsqlite.New().GetConn();
         }
         // 不能用单例 单例后面的表别名字典会冲突
 
@@ -110,9 +116,9 @@ namespace DapperSqlMaker.DapperExt
     }
     public partial class LockDapperUtilsqlite<T, Y, Z, O, P, Q> : DapperSqlMaker<T, Y, Z, O, P, Q>
     {
-        protected override IDbConnection GetCurrentConnection(bool isfirst)
+        public override IDbConnection GetConn()
         {
-            return LockDapperUtilsqlite.New().GetConnSign(isfirst);
+            return LockDapperUtilsqlite.New().GetConn();
         }
         // 不能用单例 单例后面的表别名字典会冲突
 

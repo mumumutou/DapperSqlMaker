@@ -55,21 +55,43 @@ namespace DapperSqlMaker.DapperExt
         //{
         //    return true;
         //}
-         
+
         /// <summary>
-        /// 插入数据 子查询拼接
+        /// AddColumn()/EditColumn() 子查询sql拼接  (只给 增加/修改列 子句中使用) 
         /// </summary>
         /// <param name="name">字段名</param>
         /// <param name="sql">子查询</param>
         /// <returns></returns>
         public static bool Sql(string name, string sql) => true;
+        public static bool Sql(int name, string sql) => true;
+        public static bool Sql(int? name, string sql) => true;
+        public static bool Sql(DateTime name, string sql) => true;
+        public static bool Sql(DateTime? name, string sql) => true;
+        public static bool Sql(bool name, string sql) => true;
+        public static bool Sql(bool? name, string sql) => true;
+        public static bool Sql<T>(T name, string sql) => true;
+        public static bool Sql<T>(T? name, string sql) where T :struct   => true; 
 
         public static bool AppendSql2(string str) => false;
 
         /// <summary>
-        /// 直接拼接字符串sql
+        /// Where()直接拼接字符串sql  (只给查询 条件 子句中使用) 
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static bool SQL(string str) => true;
+        /// <summary>
+        /// SM.SQL方法名称：Where()
+        /// </summary>
+        public static string _SQL_Name = "SQL";
+
+        /// <summary>
+        /// Column()直接拼接字符串sql (只给查询 列 子句中使用) 
         /// </summary> 
         public static string Sql(string str) => null;
+        /// <summary>
+        ///  SM.Sql方法名称 ：Column()/AddColumn()/EditColumn()
+        /// </summary>
         public static string _Sql_Name = "Sql";
 
         #region 标记方法
@@ -126,6 +148,13 @@ namespace DapperSqlMaker.DapperExt
 
 
         // sql, pars  单表解析
+        /// <summary>
+        /// 单表没表别名 where条件解析
+        /// ????? 可以废除了  JoinExpression 可以解析单表不生成表别名的 where条件了
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="sb"></param>
+        /// <param name="spars"></param>
         public static void VisitExpression(Expression expression, ref StringBuilder sb, ref DynamicParameters spars)
         {
             if (sb == null)
@@ -253,6 +282,19 @@ namespace DapperSqlMaker.DapperExt
                     //else
                     //{
                     // sql串联or会补上内嵌括号 不影响  调试时c#串联or的表达式也会自动补上内嵌括号
+
+                    //where拼接条件开始 忽略解析该方法  
+                    if (binary.Left.NodeType == ExpressionType.Call)
+                    {
+                        MethodCallExpression startmethod = binary.Left as MethodCallExpression;
+                        if (startmethod.Method.Name == "WhereStartIgnore")
+                        {
+                            VisitExpression(binary.Right, ref sb, ref spars);
+                            return;
+                        }// like in 其他方法继续
+                    }
+
+
                     if (binary.Left.NodeType == ExpressionType.OrElse
                             && (binary.Right.NodeType != ExpressionType.OrElse || binary.Right.NodeType != ExpressionType.AndAlso))
                     { sb.Append(" ( "); }
@@ -324,7 +366,7 @@ namespace DapperSqlMaker.DapperExt
             { // 左边为常量值  右边为字段名
                 MemberExpression Member = binaryg.Right as MemberExpression;
                 ConstantExpression constant = binaryg.Left as ConstantExpression;
-                string parmName = Member.Member.Name + num;
+                string parmName = Member.Member.Name + num + "_"; // 加后缀区分where解析参数
                 spars.Add(parmName, constant.Value); //.ToString()  );
                 sb.Append( formartFunc(Member.Member.Name, parmName, exgl) );// 
                 //sb.AppendFormat(sqlFormart, Member.Member.Name, num, exgl);  // A > @A0  
@@ -333,7 +375,7 @@ namespace DapperSqlMaker.DapperExt
             { // 左边为字段名 右边为常量值
                 MemberExpression Member = binaryg.Left as MemberExpression;
                 ConstantExpression constant = binaryg.Right as ConstantExpression;
-                string parmName = Member.Member.Name + num;
+                string parmName = Member.Member.Name + num + "_"; // 加后缀区分where解析参数
                 spars.Add(parmName, constant.Value); // .ToString());
                 sb.Append( formartFunc(Member.Member.Name, parmName, exgl) );// 
                 //sb.AppendFormat(sqlFormart, Member.Member.Name, num, exgl);
@@ -365,17 +407,16 @@ namespace DapperSqlMaker.DapperExt
         }
 
 
-
         /// <summary>
-        /// sql, pars 多表别名解析
+        /// sql, pars 多表别名解析  表别名按a,b,c来只要读取Lambda表达式参数顺序即可
         /// </summary>
         /// <param name="expression"></param>
-        /// <param name="tabAliasName">别名字典</param>
         /// <param name="sb"></param>
         /// <param name="spars"></param>
         /// <param name="paramsdic">表达式参数字典 参数-参数序号</param>
-        public static void JoinExpression(Expression expression, Dictionary<string, string> tabAliasName
-            , ref StringBuilder sb, ref DynamicParameters spars, Dictionary<string, int> paramsdic = null)
+        /// <param name="isAliasName">是否加表别名</param>
+        public static void JoinExpression(Expression expression, ref StringBuilder sb, ref DynamicParameters spars
+            , Dictionary<string, int> paramsdic = null, bool isAliasName = true)
         {
             if (sb == null)
             {
@@ -396,8 +437,10 @@ namespace DapperSqlMaker.DapperExt
                     {
                         MemberExpression Member = method.Object as MemberExpression;
                         ParameterExpression Parmexr = Member.Expression as ParameterExpression;
-                        var tkey = Parmexr.Type.FullName + paramsdic[Parmexr.Name];
-                        var mberName = tabAliasName[tkey] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名 
+                        //var tkey = Parmexr.Type.FullName + paramsdic[Parmexr.Name];
+                        //var mberName = (isAliasName ? (tabAliasName[tkey] + "." ) : string.Empty) + Member.Member.Name;  //Parmexr.Name 表.字段名  
+                        // 表示参数 ---> 表别名 (char)(1+96) <-->  (int)'a'
+                        var mberName = (isAliasName ? (((char)(paramsdic[Parmexr.Name] + 96)) + ".") : string.Empty) + Member.Member.Name;  //Parmexr.Name 表.字段名 
                         object ctvalue;
                         if (method.Arguments.FirstOrDefault() is ConstantExpression)
                         { //
@@ -416,8 +459,9 @@ namespace DapperSqlMaker.DapperExt
                     { // 自定义方法 like
                         MemberExpression Member = method.Arguments[0] as MemberExpression;
                         ParameterExpression Parmexr = Member.Expression as ParameterExpression;
-                        var tkey = Parmexr.Type.FullName + paramsdic[Parmexr.Name];
-                        var mberName = tabAliasName[tkey] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
+                        //var tkey = Parmexr.Type.FullName + paramsdic[Parmexr.Name]; //tabAliasName[tkey]
+                        var mberName = (isAliasName ? (((char)(paramsdic[Parmexr.Name] + 96)) + ".") : string.Empty)
+                            + Member.Member.Name;  //Parmexr.Name 表.字段名
                         ConstantExpression constant = method.Arguments[1] as ConstantExpression;
                         spars.Add(Member.Member.Name + num, constant.Value); //.ToString());
                         sb.AppendFormat(" {0} like @{1}{2} ", mberName, Member.Member.Name, num);
@@ -426,8 +470,10 @@ namespace DapperSqlMaker.DapperExt
                     { // 自定义方法 in
                         MemberExpression Member = method.Arguments[0] as MemberExpression; // 字段名
                         ParameterExpression Parmexr = Member.Expression as ParameterExpression;
-                        var tkey = Parmexr.Type.FullName + paramsdic[Parmexr.Name];
-                        var mberName = tabAliasName[tkey] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
+                        //var tkey = Parmexr.Type.FullName + paramsdic[Parmexr.Name];
+                        //var mberName = tabAliasName[tkey] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
+                        var mberName = (isAliasName ? (((char)(paramsdic[Parmexr.Name] + 96)) + ".") : string.Empty)
+                            + Member.Member.Name;  //Parmexr.Name 表.字段名
 
                         MemberExpression member2 = method.Arguments[1] as MemberExpression; //第1种 数组传入表达式
                         if (member2 != null)
@@ -461,30 +507,53 @@ namespace DapperSqlMaker.DapperExt
                         //spars.Add(Member.Member.Name + num, constant.Value.ToString()); 
                         //sb.AppendFormat(" {0} in @{0}{1} ", Member.Member.Name, num);
                     }
+                    else if (method.Method.Name == SM._SQL_Name)
+                    { //拼接任意sql
+                        if (method.Arguments[0] is ConstantExpression)
+                        { // sql直接赋值传入
+                            var constValue = (method.Arguments[0] as ConstantExpression).Value;
+                            sb.Append(constValue);
+                        }
+                        else if (method.Arguments[0] is MemberExpression)
+                        {
+                            var constValue = AnalysisExpression.GetMemberValue(method.Arguments[0] as MemberExpression);
+                            sb.Append(constValue);
+                        }
+
+                    }
                     else if (method.Method.Name == "Convert")
                     {
                         MemberExpression Member = method.Object as MemberExpression;
                         ParameterExpression Parmexr = Member.Expression as ParameterExpression;
-                        var tkey = Parmexr.Type.FullName + paramsdic[Parmexr.Name];
-                        var mberName = tabAliasName[tkey] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
+                        //var tkey = Parmexr.Type.FullName + paramsdic[Parmexr.Name];
+                        //var mberName = tabAliasName[tkey] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
+                        var mberName = (isAliasName ? (((char)(paramsdic[Parmexr.Name] + 96)) + ".") : string.Empty)
+                            + Member.Member.Name;  //Parmexr.Name 表.字段名
                         ConstantExpression constant = method.Arguments.FirstOrDefault() as ConstantExpression;
                         spars.Add(Member.Member.Name + num, constant.Value); //.ToString());
                         sb.AppendFormat(" {0} = @{1}{2} ", mberName, Member.Member.Name, num);
                     }
+                    else throw new Exception(method.Method.Name + " 暂未做解析的方法 " + expression);
                     // Console.WriteLine(sb);
                     break;
                 case ExpressionType.Lambda://lambda表达式
                     LambdaExpression lambda = expression as LambdaExpression;
 
                     //Console.WriteLine(lambda+ "");  // 打印lambda表达式
-                    Dictionary<string, int> pdic = new Dictionary<string, int>();
-                    int i = 1;
-                    foreach (var p in lambda.Parameters)
-                    {
-                        pdic.Add(p.Name,i++);
+                    // 表别名按a,b,c,d来
+                    if (paramsdic == null)
+                    {// FromJoin外面动态赋值传入
+                        //Dictionary<string, int> pdic
+                        paramsdic = new Dictionary<string, int>();
+                        int i = 1;
+                        foreach (var p in lambda.Parameters)
+                        {
+                            paramsdic.Add(p.Name, i++);
+                        }
+
                     }
 
-                    JoinExpression(lambda.Body, tabAliasName, ref sb, ref spars, pdic);
+                    JoinExpression(lambda.Body, ref sb, ref spars, paramsdic,isAliasName: isAliasName);
 
                     // BinaryExpression  // 二元表达式
                     // UnaryExpression   // 一元表达式
@@ -524,7 +593,7 @@ namespace DapperSqlMaker.DapperExt
                     if (binary.Left.NodeType == ExpressionType.Call) {
                         MethodCallExpression startmethod = binary.Left as MethodCallExpression;
                         if (startmethod.Method.Name == "WhereStartIgnore") {
-                            JoinExpression(binary.Right, tabAliasName, ref sb, ref spars, paramsdic);
+                            JoinExpression(binary.Right, ref sb, ref spars, paramsdic, isAliasName: isAliasName);
                             return;
                         }// like in 其他方法继续
                     }
@@ -533,7 +602,7 @@ namespace DapperSqlMaker.DapperExt
                             && (binary.Right.NodeType != ExpressionType.OrElse || binary.Right.NodeType != ExpressionType.AndAlso))
                     { sb.Append(" ( "); }
 
-                    JoinExpression(binary.Left, tabAliasName, ref sb, ref spars, paramsdic);
+                    JoinExpression(binary.Left, ref sb, ref spars, paramsdic, isAliasName: isAliasName);
 
                     if (binary.Left.NodeType == ExpressionType.OrElse
                         && (binary.Right.NodeType != ExpressionType.OrElse || binary.Right.NodeType != ExpressionType.AndAlso))
@@ -552,7 +621,7 @@ namespace DapperSqlMaker.DapperExt
                     if (binary.Right.NodeType == ExpressionType.OrElse
                             && (binary.Left.NodeType != ExpressionType.OrElse || binary.Left.NodeType != ExpressionType.AndAlso))
                     { sb.Append(" ( "); }
-                    JoinExpression(binary.Right, tabAliasName, ref sb, ref spars, paramsdic);
+                    JoinExpression(binary.Right, ref sb, ref spars, paramsdic, isAliasName: isAliasName);
                     if (binary.Right.NodeType == ExpressionType.OrElse
                             && (binary.Left.NodeType != ExpressionType.OrElse || binary.Left.NodeType != ExpressionType.AndAlso))
                     { sb.Append(" ) "); }
@@ -582,8 +651,10 @@ namespace DapperSqlMaker.DapperExt
                     { // 左边为常量值  右边为字段名
                         MemberExpression Member = binaryg.Right as MemberExpression;
                         ParameterExpression Parmexr = Member.Expression as ParameterExpression;
-                        var tkey = Parmexr.Type.FullName + paramsdic[Parmexr.Name];
-                        var mberName = tabAliasName[tkey] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
+                        //var tkey = Parmexr.Type.FullName + paramsdic[Parmexr.Name];
+                        //var mberName = tabAliasName[tkey] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
+                        var mberName = (isAliasName? (((char)(paramsdic[Parmexr.Name] + 96)) + "."): string.Empty)
+                            + Member.Member.Name;  //Parmexr.Name 表.字段名
                         ConstantExpression constant = binaryg.Left as ConstantExpression;
                         spars.Add(Member.Member.Name + num, constant.Value); //.ToString()  );
                         sb.AppendFormat(" {0} {1} @{2}{3} ", mberName, exgl, Member.Member.Name, num);  // A > @A0
@@ -592,8 +663,10 @@ namespace DapperSqlMaker.DapperExt
                     { // 左边为字段名 右边为常量值
                         MemberExpression Member = binaryg.Left as MemberExpression;
                         ParameterExpression Parmexr = Member.Expression as ParameterExpression;
-                        var tkey = Parmexr.Type.FullName + paramsdic[Parmexr.Name];
-                        var mberName = tabAliasName[tkey] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
+                        //var tkey = Parmexr.Type.FullName + paramsdic[Parmexr.Name];
+                        //var mberName = tabAliasName[tkey] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
+                        var mberName = (isAliasName? (((char)(paramsdic[Parmexr.Name] + 96)) + "."):string.Empty) 
+                            + Member.Member.Name;  //Parmexr.Name 表.字段名
                         ConstantExpression constant = binaryg.Right as ConstantExpression;
                         spars.Add(Member.Member.Name + num, constant.Value); // .ToString());
                         sb.AppendFormat(" {0} {1} @{2}{3} ", mberName, exgl, Member.Member.Name, num);
@@ -612,16 +685,20 @@ namespace DapperSqlMaker.DapperExt
                     {  // 左边为字段名 右边为传入的外部变量 w => w.Name == varName
                         MemberExpression Member = binaryg.Left as MemberExpression;
                         ParameterExpression Parmexr = Member.Expression as ParameterExpression;
-                        var tkey = Parmexr.Type.FullName + paramsdic[Parmexr.Name];
-                        var mberName = tabAliasName[tkey] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
+                        //var tkey = Parmexr.Type.FullName + paramsdic[Parmexr.Name];
+                        //var mberName = tabAliasName[tkey] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名
+                        var mberName = (isAliasName ? (((char)(paramsdic[Parmexr.Name] + 96)) + "."):string.Empty)
+                        + Member.Member.Name;  //Parmexr.Name 表.字段名
                         MemberExpression Member2 = binaryg.Right as MemberExpression;
                         if (Member2.Expression is ParameterExpression) 
                         { // 联表条件 左右都是表字段条件  on tab1.Id = tab2.Id
                             ParameterExpression pexp = Member2.Expression as ParameterExpression;
 
                             ParameterExpression Parmexr2 = Member2.Expression as ParameterExpression;
-                            var tkey2 = Parmexr2.Type.FullName + paramsdic[Parmexr2.Name];
-                            var mberName2 = tabAliasName[tkey2] + "." + Member2.Member.Name;  //Parmexr.Name 表.字段名
+                            //var tkey2 = Parmexr2.Type.FullName + paramsdic[Parmexr2.Name];
+                            //var mberName2 = tabAliasName[tkey2] + "." + Member2.Member.Name;  //Parmexr.Name 表.字段名
+                            // ################### 注意是 Parmexr2 #############################
+                            var mberName2 = (isAliasName ? ( ((char)(paramsdic[Parmexr2.Name] + 96)) + ".") :string.Empty) + Member2.Member.Name;  //Parmexr.Name 表.字段名
                             sb.AppendFormat(" {0} {1} {2}", mberName, exgl, mberName2);
                             break;
                         }

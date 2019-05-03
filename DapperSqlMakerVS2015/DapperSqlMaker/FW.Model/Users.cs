@@ -10,5 +10,8 @@ namespace FW.Model
         //public Users() { this.LockPerss = new List<LockPers>(); }
 
         public List<LockPers> LockPerss { get; set; }
+
+        public decimal numx { get; set; }
+        public decimal? numxx { get; set; }
     }
 }
