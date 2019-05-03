@@ -8,7 +8,18 @@
 	
 	Dapper-1.50.2\Dapper
 	Dapper-1.50.2\Dapper.Contrib
+----- 
+更新：
 
+
+-----
+> 1 ExcuteSelect 方法名更改为 => ExecuteQuery 
+> 2 s._IsWriteFiled 在实体类默认构造函数中默认为false   赋值时需修改为true
+> 3 非链式解析的curd方法全放到 DapperFuncs类中了
+> 4 新增 c u d 链式解析
+
+
+	
 ###### (依赖Dapper源码版)   
 	Nuget安装:>  未发布
     依赖项:
@@ -139,28 +150,16 @@ public void 删除数据_含子查询_测试lt() {
 ```
 
 
-##### 6.条件方法参数传入规范示例  Column/Where/AddColumn
+##### 6.条件方法参数传入规范示例  Column/Where/AddColumn/EditColumn
 > 1. 直接where()方法中赋值       s.IsDel = 1;
 > 2. 声明变量 接收参数 再传入    int Id = int.Parse( Request.Form["Id"]);  ---->   w.Id == Id_
 > 3. Action参数装载器的参数不能直接传入  int Id_ = Id;  ---->   w.Id == Id_
 > 4. 时间不能直接赋值 需要赋值给外部变量传入  p.Date == DateTime.Now  ------>  var date = DateTime.Now; // 再传入
 ```csharp
-        public ActionResult RemoveSkin(int Id)
-        { 
-            //int Id = int.Parse( Request.Form["Id"]);
-            int Id_ = Id;
-            bool isSuccess = LockDapperUtilsqlite<Skin>.Cud.Update(
-				s => {  s._IsWriteFiled = true; s.IsDel = 1; }
-				, w => w.Id == Id_ && w.UserId == 1);
-            return Content(isSuccess ? "1" : "0");
-        }
+...
 ```
 
------ 
-更新：
-ExcuteSelect 方法名更改为 => ExecuteQuery 
-s._IsWriteFiled  再实体类默认构造函数中 false 赋值是需修改为true
------
+
  
  注意：
 > 1. svn提交到github时 不要再解决方案内复制文件 直接当作新文件添加进来 
