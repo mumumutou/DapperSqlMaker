@@ -101,8 +101,7 @@ public void 添加部分字段和子查询_测试lt2()
 {
     string colm = "img", val = "(select value from skin limit 1 offset 1)"; 
 	DateTime cdate = DateTime.Now;
-    var insert = LockDapperUtilsqlite<Users>.Inser().AddColumn(
-	p => new bool[] {
+    var insert = LockDapperUtilsqlite<Users>.Inser().AddColumn(p => new bool[] {
          p.UserName =="木头人1", p.Password == "666", p.CreateTime == cdate
         , SM.Sql(colm,val), SM.Sql(p.Remark,"(select '荒野高尔夫')")
     }); 
@@ -132,8 +131,7 @@ public void 更新部分字段_含子查询_测试lt()
 ```csharp
 public void 删除数据_含子查询_测试lt() {
     var sql = " UserId = ( select Id from users  where UserName = '木头人1' )";
-    var delete = LockDapperUtilsqlite<LockPers>
-	.Delet().Where(p => 
+    var delete = LockDapperUtilsqlite<LockPers>.Delet().Where(p => 
             p.Name == "H$E22222" && SM.SQL(sql) && SM.SQL(" IsDel = '1' "));
     var efrow = delete.ExecuteDelete();
     Console.WriteLine(efrow + " " + delete.RawSqlParams().Item1);
