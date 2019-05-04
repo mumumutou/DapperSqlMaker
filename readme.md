@@ -180,6 +180,6 @@ public void 删除数据_含子查询_测试lt() {
 > 待测问题：
 > 1. SM这几个方法Like In Convert 值参数为 A.B.C.val VisitExpression和JoinExpression中
 	 Like方法用
-> 2. actin自动装载的参数 传入 不能解析的问题
+> 2.可以解析还有待继续测试 // actin自动装载的参数 传入 不能解析的问题
     ActionResult AddSkin(string name, string url)
       LockSqlite<Skin>.Inser().AddColumn( ...
