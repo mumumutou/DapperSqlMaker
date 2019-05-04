@@ -36,8 +36,8 @@ namespace TestsDapperSqlMaker.DapperExt
         [Test]
         public void 更新部分字段测试lt()
         {
-            DapperFuncs.CurtConn = LockDapperUtilsqlite.New().GetConn();
-            var issucs = DapperFuncs.Update<LockPers>(
+            
+            var issucs = DapperFuncs.New.Update<LockPers>(
                 s =>
                 {
                     s._IsWriteFiled = true;
@@ -53,13 +53,13 @@ namespace TestsDapperSqlMaker.DapperExt
         [Test]
         public void 更新部分字段2测试lt()
         {
-            DapperFuncs.CurtConn = LockDapperUtilsqlite.New().GetConn();
+            
             LockPers set = new LockPers() { Content = "方法外部赋值修改字段实体" };
             set.Name = "测试bool修改2";
             set.IsDel = true;
             set.ContentOld = "忽略Write(false)标记字段";
 
-            var issucs = DapperFuncs.Update<LockPers>(
+            var issucs = DapperFuncs.New.Update<LockPers>(
                 set,
                 w => w.Name == "测试bool修改2" && w.IsDel == true
                 );
@@ -68,7 +68,7 @@ namespace TestsDapperSqlMaker.DapperExt
         [Test]
         public void 根据主键ID更新整个实体lt()
         {
-            DapperFuncs.CurtConn = LockDapperUtilsqlite.New().GetConn();
+            
             var model = LockDapperUtilsqlite<LockPers>
                 .Selec().Column().From().Where(p => p.Name == "测试bool修改2 xxxxxx").ExecuteQuery<LockPers>().FirstOrDefault();
 
@@ -76,7 +76,7 @@ namespace TestsDapperSqlMaker.DapperExt
             model.ContentOld = "忽略Write(false)标记字段";
             model.Prompt = "xxxxxxxxxxx";
 
-            var issucs = DapperFuncs.Updat<LockPers>(model);
+            var issucs = DapperFuncs.New.Updat<LockPers>(model);
             Console.WriteLine(issucs);
 
         }
@@ -97,8 +97,8 @@ namespace TestsDapperSqlMaker.DapperExt
             old.UpdateTime = DateTime.Now;
 
             var id = old.Id;
-            DapperFuncs.CurtConn = LockDapperUtilsqlite.New().GetConn();
-            var t = DapperFuncs.Update<LockPers>(old, w => w.Id == p.Id);
+            
+            var t = DapperFuncs.New.Update<LockPers>(old, w => w.Id == p.Id);
         }
 
 

@@ -30,9 +30,9 @@ namespace TestsDapperSqlMaker.DapperExt
         [Test]
         public void 删除测试_lt()
         {
-            DapperFuncs.CurtConn = LockDapperUtilsqlite.New().GetConn();
+            
             var Name = "mssqlmmmmmmmx1";
-            var issucs = DapperFuncs .Delete<LockPers>(w => w.Name == Name && w.IsDel == true);
+            var issucs = DapperFuncs.New .Delete<LockPers>(w => w.Name == Name && w.IsDel == true);
             Console.WriteLine(issucs);
         }
 
@@ -44,13 +44,13 @@ namespace TestsDapperSqlMaker.DapperExt
             var Name = "测试修改 生成sql回调格式化";
             var Name2 = "mssqlmmmmmmmx2222222222";
 
-            DapperFuncs.CurtConn = LockDapperUtilsqlite.New().GetConn();
+            
             Expression<Func<LockPers, bool>> where = PredicateBuilder.WhereStart<LockPers>();
             where = where.Or(p => p.Name == Name);
             where = where.Or(p => p.Name == Name2);
             where = where.And(p => p.UserId == 3);
 
-            var issucs = DapperFuncs .Deleters<LockPers>(where);
+            var issucs = DapperFuncs.New .Deleters<LockPers>(where);
             Console.WriteLine(issucs);
         }
 
@@ -66,13 +66,13 @@ namespace TestsDapperSqlMaker.DapperExt
             var Name = "mssqlmmmmmmmx1";
             var Name2 = "mssqlmmmmmmmx2222222222";
 
-            DapperFuncs.CurtConn = LockDapperUtilsqlite.New().GetConn();
+            
             Expression<Func<LockPers_ms, bool>> where = PredicateBuilder.WhereStart<LockPers_ms>();
             where = where.Or(p => p.Name == Name);
             where = where.Or(p => p.Name == Name2);
             where = where.And(p => p.UserId == 3);
 
-            var issucs = DapperFuncs.Delete<LockPers_ms>(where);
+            var issucs = DapperFuncs.New.Delete<LockPers_ms>(where);
             Console.WriteLine(issucs);
         }
 

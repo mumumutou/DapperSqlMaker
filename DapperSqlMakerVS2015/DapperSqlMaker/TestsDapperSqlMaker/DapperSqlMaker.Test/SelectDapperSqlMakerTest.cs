@@ -613,7 +613,7 @@ namespace TestsDapperSqlMaker
         //    SynNote_ sn = new SynNote_();
         //    sn.Id = 3;
         //    string updatesql = " select * from SynNote where \"Id\" = @Id";
-        //    var ef = DapperFuncs.QueryFirst<SynNote_>(updatesql, sn, LockDapperUtilsqlite.New().GetConnSign(false));
+        //    var ef = DapperFuncs.New.QueryFirst<SynNote_>(updatesql, sn, LockDapperUtilsqlite.New().GetConnSign(false));
         //    WriteJson(ef);
 
         //}
@@ -621,14 +621,14 @@ namespace TestsDapperSqlMaker
         //public void 查询()
         //{
         //    string updatesql = " select * from SynNote ";
-        //    var ef = DapperFuncs.Query<SynNote_>(updatesql, null, LockDapperUtilsqlite.New().GetConnSign(false));
+        //    var ef = DapperFuncs.New.Query<SynNote_>(updatesql, null, LockDapperUtilsqlite.New().GetConnSign(false));
         //    WriteJson(ef);
         //}
         //[Test]
         //public void 查询首行首列()
         //{
         //    string updatesql = " select Content from SynNote ";
-        //    var ef = DapperFuncs.ExecuteScalar<string>(updatesql, null, LockDapperUtilsqlite.New().GetConnSign(false));
+        //    var ef = DapperFuncs.New.ExecuteScalar<string>(updatesql, null, LockDapperUtilsqlite.New().GetConnSign(false));
         //    WriteJson(ef);
         //}
         //[Test]
@@ -642,7 +642,7 @@ namespace TestsDapperSqlMaker
         //    sn.UserId = 2;
         //    sn.Id = 3;
         //    string updatesql = "update SynNote set \"Content\" = @Content, \"NoteDate\" = @NoteDate, \"Name\" = @Name, \"UserId\" = @UserId, \"IsDel\" = @IsDel where \"Id\" = @Id";
-        //    var ef = DapperFuncs.Execute(updatesql, sn, LockDapperUtilsqlite.New().GetConnSign(false));
+        //    var ef = DapperFuncs.New.Execute(updatesql, sn, LockDapperUtilsqlite.New().GetConnSign(false));
         //    Console.WriteLine(ef);
 
         //}

@@ -7,6 +7,19 @@ using System.Text;
 
 namespace DapperSqlMaker.DapperExt
 {
+
+    public partial class DapperFuncMs : DapperFuncsBase
+    {
+        public override IDbConnection GetConn()
+        {
+            SqlConnection conn = new SqlConnection(DataBaseConfig.DefaultSqlConnectionString);
+            conn.Open();
+            return conn;
+        }
+        private DapperFuncMs() { }
+        public readonly static DapperFuncMs New = new DapperFuncMs();
+
+    }
     /// <summary>
     /// Sqlite库1
     /// </summary>

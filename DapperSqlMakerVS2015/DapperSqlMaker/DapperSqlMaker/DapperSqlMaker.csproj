@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DapperExt\AnalysisExpression.cs" />
+    <Compile Include="DapperExt\DapperFuncsBase.cs" />
     <Compile Include="DapperExt\DapperSqlMaker.cs" />
     <Compile Include="DapperExt\DsmSqlMapperExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

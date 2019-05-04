@@ -4,6 +4,19 @@ using System.Data.SQLite;
 
 namespace DapperSqlMaker.DapperExt
 {
+    public partial class DapperFuncs : DapperFuncsBase
+    {
+        public override IDbConnection GetConn()
+        {
+            SQLiteConnection conn = new SQLiteConnection(DataBaseConfig.LockTestSqlLiteConnectionString);
+            conn.Open();
+            return conn;
+        }
+        private DapperFuncs() { }
+        public readonly static DapperFuncs New = new DapperFuncs();
+
+    }
+
     /// <summary>
     /// Sqlite库1
     /// </summary>
@@ -12,13 +25,7 @@ namespace DapperSqlMaker.DapperExt
 
         private LockDapperUtilsqlite() { }
 
-        private readonly static LockDapperUtilsqlite _New = new LockDapperUtilsqlite();
-        public static LockDapperUtilsqlite New() {
-            return _New;
-        }
-        //public IDbConnection GetConnSign(bool isfirst) {
-        //    return this.GetConn();
-        //}
+        public readonly static LockDapperUtilsqlite New = new LockDapperUtilsqlite();
 
         public override IDbConnection GetConn()
         { 
@@ -34,7 +41,7 @@ namespace DapperSqlMaker.DapperExt
     {
         public override IDbConnection GetConn()
         {
-            return LockDapperUtilsqlite.New().GetConn();
+            return LockDapperUtilsqlite.New.GetConn();
         }
 
         public static DapperSqlMaker<T> Selec()
@@ -64,7 +71,7 @@ namespace DapperSqlMaker.DapperExt
     {
         public override IDbConnection GetConn()
         {
-            return LockDapperUtilsqlite.New().GetConn();
+            return LockDapperUtilsqlite.New.GetConn();
         }
          
         // 不能用单例 单例后面的表别名字典会冲突
@@ -78,7 +85,7 @@ namespace DapperSqlMaker.DapperExt
     {
         public override IDbConnection GetConn()
         {
-            return LockDapperUtilsqlite.New().GetConn();
+            return LockDapperUtilsqlite.New.GetConn();
         }
         // 不能用单例 单例后面的表别名字典会冲突
 
@@ -92,7 +99,7 @@ namespace DapperSqlMaker.DapperExt
     {
         public override IDbConnection GetConn()
         {
-            return LockDapperUtilsqlite.New().GetConn();
+            return LockDapperUtilsqlite.New.GetConn();
         }
         // 不能用单例 单例后面的表别名字典会冲突
 
@@ -105,7 +112,7 @@ namespace DapperSqlMaker.DapperExt
     {
         public override IDbConnection GetConn()
         {
-            return LockDapperUtilsqlite.New().GetConn();
+            return LockDapperUtilsqlite.New.GetConn();
         }
         // 不能用单例 单例后面的表别名字典会冲突
 
@@ -118,7 +125,7 @@ namespace DapperSqlMaker.DapperExt
     {
         public override IDbConnection GetConn()
         {
-            return LockDapperUtilsqlite.New().GetConn();
+            return LockDapperUtilsqlite.New.GetConn();
         }
         // 不能用单例 单例后面的表别名字典会冲突
 
