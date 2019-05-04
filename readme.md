@@ -52,7 +52,6 @@
 ```
 
 ##### 2.查询-联表查询,分页
-
 ```csharp 
 public void 三表联表分页测试()
 {
@@ -144,8 +143,7 @@ public void 删除数据_含子查询_测试lt() {
     Console.WriteLine(efrow + " " + delete.RawSqlParams().Item1);
 }
 ```
-
-
+ 
 ##### 6.条件方法参数传入规范示例  Column/Where/AddColumn/EditColumn
 > 1. 直接where()方法中赋值       s.IsDel = 1;
 > 2. 声明变量 接收参数 再传入    int Id = int.Parse( Request.Form["Id"]);  ---->   w.Id == Id_
@@ -179,6 +177,9 @@ public void 删除数据_含子查询_测试lt() {
 > 3. 有时间把Dapper1.50.2源码和修改过的做分离开
 > 4. t4未加入
 
-> 待测：
+> 待测问题：
 > 1. SM这几个方法Like In Convert 值参数为 A.B.C.val VisitExpression和JoinExpression中
 	 Like方法用
+> 2. actin自动装载的参数 传入 不能解析的问题
+    ActionResult AddSkin(string name, string url)
+      LockSqlite<Skin>.Inser().AddColumn( ...
