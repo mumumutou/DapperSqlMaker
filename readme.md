@@ -31,6 +31,8 @@
 
 添加 [TestsDapperSqlMaker\DapperSqlMaker.Test\...InsertDapperSqlMakerTest.cs](https://github.com/mumumutou/DapperSqlMaker/blob/master/DapperSqlMakerVS2015/DapperSqlMaker/TestsDapperSqlMaker/DapperSqlMaker.Test/InsertDapperSqlMakerTest.cs){:target="_blank"}	
 
+<https://github.com/mumumutou/DapperSqlMaker/blob/master/DapperSqlMakerVS2015/DapperSqlMaker/TestsDapperSqlMaker/DapperSqlMaker.Test/InsertDapperSqlMakerTest.cs>{:target="_blank"}	
+
 	
 ##### 简单栗子：
 ##### 1.单表查询
