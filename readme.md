@@ -31,7 +31,7 @@
 
 添加 [TestsDapperSqlMaker\DapperSqlMaker.Test\...InsertDapperSqlMakerTest.cs](https://github.com/mumumutou/DapperSqlMaker/blob/master/DapperSqlMakerVS2015/DapperSqlMaker/TestsDapperSqlMaker/DapperSqlMaker.Test/InsertDapperSqlMakerTest.cs)	
 添加 [https://github.com/mumumutou/DapperSqlMaker/blob/master/DapperSqlMakerVS2015/DapperSqlMaker/TestsDapperSqlMaker/DapperSqlMaker.Test/InsertDapperSqlMakerTest.cs](TestsDapperSqlMaker\DapperSqlMaker.Test\...InsertDapperSqlMakerTest.cs)
-   
+<a href="https://github.com/mumumutou/DapperSqlMaker/blob/master/DapperSqlMakerVS2015/DapperSqlMaker/TestsDapperSqlMaker/DapperSqlMaker.Test/InsertDapperSqlMakerTest.cs" target="_blank">跳到自己博客列表</a>
 
 	
 ##### 简单栗子：
