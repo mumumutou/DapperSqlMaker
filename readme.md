@@ -24,10 +24,15 @@
 
 ###### Demo:
 	查询       TestsDapperSqlMaker\DapperSqlMaker.Test\  SelectDapperSqlMakerTest.cs
-	添加       [https://github.com/mumumutou/DapperSqlMaker/blob/master/DapperSqlMakerVS2015/DapperSqlMaker/TestsDapperSqlMaker/DapperSqlMaker.Test/InsertDapperSqlMakerTest.cs](TestsDapperSqlMaker\DapperSqlMaker.Test\...InsertDapperSqlMakerTest.cs)
+	添加       [TestsDapperSqlMaker\DapperSqlMaker.Test\...InsertDapperSqlMakerTest.cs](https://github.com/mumumutou/DapperSqlMaker/blob/master/DapperSqlMakerVS2015/DapperSqlMaker/TestsDapperSqlMaker/DapperSqlMaker.Test/InsertDapperSqlMakerTest.cs)
 	更新       TestsDapperSqlMaker\DapperSqlMaker.Test\  UpdateDapperSqlMakerTest.cs
 	删除       TestsDapperSqlMaker\DapperSqlMaker.Test\  DeleteDapperSqlMakerTest.cs
 	上下文类   TestsDapperSqlMaker\DbDapperSqlMaker\     LockDapperUtilsqlite.cs
+
+添加 [TestsDapperSqlMaker\DapperSqlMaker.Test\...InsertDapperSqlMakerTest.cs](https://github.com/mumumutou/DapperSqlMaker/blob/master/DapperSqlMakerVS2015/DapperSqlMaker/TestsDapperSqlMaker/DapperSqlMaker.Test/InsertDapperSqlMakerTest.cs)	
+添加 [https://github.com/mumumutou/DapperSqlMaker/blob/master/DapperSqlMakerVS2015/DapperSqlMaker/TestsDapperSqlMaker/DapperSqlMaker.Test/InsertDapperSqlMakerTest.cs](TestsDapperSqlMaker\DapperSqlMaker.Test\...InsertDapperSqlMakerTest.cs)
+   
+
 	
 ##### 简单栗子：
 ##### 1.单表查询
