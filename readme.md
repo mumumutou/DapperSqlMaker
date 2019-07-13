@@ -30,6 +30,7 @@
 > 更新 [TestsDapperSqlMaker\DapperSqlMaker.Test\...UpdateDapperSqlMakerTest.cs](https://github.com/mumumutou/DapperSqlMaker/blob/master/DapperSqlMakerVS2015/DapperSqlMaker/TestsDapperSqlMaker/DapperSqlMaker.Test/UpdateDapperSqlMakerTest.cs)
 
 > 删除 [TestsDapperSqlMaker\DapperSqlMaker.Test\...DeleteDapperSqlMakerTest.cs](https://github.com/mumumutou/DapperSqlMaker/blob/master/DapperSqlMakerVS2015/DapperSqlMaker/TestsDapperSqlMaker/DapperSqlMaker.Test/DeleteDapperSqlMakerTest.cs)
+
 > 上下文类 TestsDapperSqlMaker\DbDapperSqlMaker\     LockDapperUtilsqlite.cs
 
 
