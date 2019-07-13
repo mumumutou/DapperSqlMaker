@@ -23,11 +23,11 @@
 	Dapper.Contrib (>= 1.50.0)
 
 ###### Demo:
->查询[TestsDapperSqlMaker\DapperSqlMaker.Test\...SelectDapperSqlMakerTest.cs](https://github.com/mumumutou/DapperSqlMaker/blob/master/DapperSqlMakerVS2015/DapperSqlMaker/TestsDapperSqlMaker/DapperSqlMaker.Test/SelectDapperSqlMakerTest.cs)
->添加[TestsDapperSqlMaker\DapperSqlMaker.Test\...InsertDapperSqlMakerTest.cs](https://github.com/mumumutou/DapperSqlMaker/blob/master/DapperSqlMakerVS2015/DapperSqlMaker/TestsDapperSqlMaker/DapperSqlMaker.Test/InsertDapperSqlMakerTest.cs) 
->更新[TestsDapperSqlMaker\DapperSqlMaker.Test\...UpdateDapperSqlMakerTest.cs](https://github.com/mumumutou/DapperSqlMaker/blob/master/DapperSqlMakerVS2015/DapperSqlMaker/TestsDapperSqlMaker/DapperSqlMaker.Test/UpdateDapperSqlMakerTest.cs)
->删除[TestsDapperSqlMaker\DapperSqlMaker.Test\...DeleteDapperSqlMakerTest.cs](https://github.com/mumumutou/DapperSqlMaker/blob/master/DapperSqlMakerVS2015/DapperSqlMaker/TestsDapperSqlMaker/DapperSqlMaker.Test/DeleteDapperSqlMakerTest.cs)
->上下文类TestsDapperSqlMaker\DbDapperSqlMaker\     LockDapperUtilsqlite.cs
+> 1.查询 [TestsDapperSqlMaker\DapperSqlMaker.Test\...SelectDapperSqlMakerTest.cs](https://github.com/mumumutou/DapperSqlMaker/blob/master/DapperSqlMakerVS2015/DapperSqlMaker/TestsDapperSqlMaker/DapperSqlMaker.Test/SelectDapperSqlMakerTest.cs)
+> 2.添加 [TestsDapperSqlMaker\DapperSqlMaker.Test\...InsertDapperSqlMakerTest.cs](https://github.com/mumumutou/DapperSqlMaker/blob/master/DapperSqlMakerVS2015/DapperSqlMaker/TestsDapperSqlMaker/DapperSqlMaker.Test/InsertDapperSqlMakerTest.cs) 
+> 3.更新 [TestsDapperSqlMaker\DapperSqlMaker.Test\...UpdateDapperSqlMakerTest.cs](https://github.com/mumumutou/DapperSqlMaker/blob/master/DapperSqlMakerVS2015/DapperSqlMaker/TestsDapperSqlMaker/DapperSqlMaker.Test/UpdateDapperSqlMakerTest.cs)
+> 4.删除 [TestsDapperSqlMaker\DapperSqlMaker.Test\...DeleteDapperSqlMakerTest.cs](https://github.com/mumumutou/DapperSqlMaker/blob/master/DapperSqlMakerVS2015/DapperSqlMaker/TestsDapperSqlMaker/DapperSqlMaker.Test/DeleteDapperSqlMakerTest.cs)
+> 5.上下文类 TestsDapperSqlMaker\DbDapperSqlMaker\     LockDapperUtilsqlite.cs
 
 
 
