@@ -3,7 +3,7 @@
 
 ###### Gihub地址：
 >[https://github.com/mumumutou/DapperSqlMaker](https://github.com/mumumutou/DapperSqlMaker)   
-###### (引入Dapper源码版 svn版本 93)  
+###### (引入Dapper 源码版 svn版本 93)  
 	Nuget安装:> Install-Package DapperSqlMaker -Version 0.1.8
 	
 	Dapper-1.50.2\Dapper
