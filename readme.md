@@ -2,8 +2,8 @@
 **DapperSqlMaker 链式查询扩展** 
 
 ###### Gihub地址：
->[https://github.com/mumumutou/DapperSqlMaker](https://github.com/mumumutou/DapperSqlMaker)   
-###### (引入Dapper 源码版 svn版本 93)  
+>[https://github.com/mumumutou/DapperSqlMaker](https://github.com/mumumutou/DapperSqlMaker)   欢迎dalao加入来完善
+###### (引入Dapper源码版 svn版本 93)  
 	Nuget安装:> Install-Package DapperSqlMaker -Version 0.1.8
 	
 	Dapper-1.50.2\Dapper
@@ -30,6 +30,8 @@
 > 更新 [TestsDapperSqlMaker\DapperSqlMaker.Test\...UpdateDapperSqlMakerTest.cs](https://github.com/mumumutou/DapperSqlMaker/blob/master/DapperSqlMakerVS2015/DapperSqlMaker/TestsDapperSqlMaker/DapperSqlMaker.Test/UpdateDapperSqlMakerTest.cs)
 
 > 删除 [TestsDapperSqlMaker\DapperSqlMaker.Test\...DeleteDapperSqlMakerTest.cs](https://github.com/mumumutou/DapperSqlMaker/blob/master/DapperSqlMakerVS2015/DapperSqlMaker/TestsDapperSqlMaker/DapperSqlMaker.Test/DeleteDapperSqlMakerTest.cs)
+
+> 一些方法 [DapperSqlMaker\DapperExt\DapperFuncsBase.cs](https://github.com/mumumutou/DapperSqlMaker/blob/master/DapperSqlMakerVS2015/DapperSqlMaker/DapperSqlMaker/DapperExt/DapperFuncsBase.cs)
 
 > 上下文类 TestsDapperSqlMaker\DbDapperSqlMaker\     LockDapperUtilsqlite.cs
 
