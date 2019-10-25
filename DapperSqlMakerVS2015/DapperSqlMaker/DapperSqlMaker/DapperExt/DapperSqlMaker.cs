@@ -863,6 +863,7 @@ namespace DapperSqlMaker.DapperExt
             Update,
             EditColumn,
             Delete,
+            SqlClause,
         }
 
         protected class Clause
@@ -875,7 +876,7 @@ namespace DapperSqlMaker.DapperExt
                 , string order = null, string extra = null
                 , string insert = null, string addcolumn = null, DynamicParameters insertParms = null
                 , string update = null, string editcolumn = null, DynamicParameters updateParms = null
-                , string delete = null)
+                , string delete = null, string sqlclause = null)
             {
                 return new Clause
                 {
@@ -900,7 +901,9 @@ namespace DapperSqlMaker.DapperExt
                     Update = update,
                     EditColumn = editcolumn,
                     UpdateParms = updateParms,
-                    Delete = delete
+                    Delete = delete,
+                    // 任意位置sql
+                    SqlClause = sqlclause
                 };
             }
 
@@ -924,6 +927,7 @@ namespace DapperSqlMaker.DapperExt
             public string EditColumn { get; private set; }
             public DynamicParameters UpdateParms { get; private set; }
             public string Delete { get; private set; }
+            public string SqlClause { get; private set; } //任意位置 sql
         }
 
         //protected class TabAliace {
@@ -1400,6 +1404,10 @@ namespace DapperSqlMaker.DapperExt
                     case ClauseType.Delete: // 删除 -------------------
                         sb.Append(clause.Delete); 
                         break;// ----------删除 where子句公用select的
+
+                    case ClauseType.SqlClause: //任意部分sql字句拼接
+                        sb.Append(clause.SqlClause);
+                        break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -1411,9 +1419,9 @@ namespace DapperSqlMaker.DapperExt
 
 
         /// <summary>
-        /// 值1 select * from ...  值3 from ...  
+        /// 生成分页的 sql和参数 
         /// </summary>
-        /// <returns></returns>
+        /// <returns>值1 select * from ...  值3 from ...  </returns>
         public Tuple<StringBuilder, DynamicParameters, StringBuilder> RawLimitSqlParams()
         {
 
@@ -1452,6 +1460,9 @@ namespace DapperSqlMaker.DapperExt
                     case ClauseType.ActionSelectOrder:
                         sb.Append(clause.Order);
                         countsb.Append(clause.Order);
+                        break;
+                    case ClauseType.SqlClause: //任意部分sql字句拼接
+                        sb.Append(clause.SqlClause);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();

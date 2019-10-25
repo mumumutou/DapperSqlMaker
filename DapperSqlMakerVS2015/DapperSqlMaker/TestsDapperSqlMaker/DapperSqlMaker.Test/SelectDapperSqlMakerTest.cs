@@ -605,6 +605,18 @@ namespace TestsDapperSqlMaker
         }
 
 
+        //MSSql: with 表表达式拼接
+        public void 共用表表达式() {
+
+        }
+
+        [Test]
+        public void DapperFuncMs类直接执行sql() {
+           var r =  DapperFuncMs.New.Query<LockPers>("select * from LockPers where Name like @Name", new { Name = "%蛋蛋%" });
+            WriteJson(r);
+        }
+
+
         ////动态sql
         //#region Dapper已有方法
         //[Test]

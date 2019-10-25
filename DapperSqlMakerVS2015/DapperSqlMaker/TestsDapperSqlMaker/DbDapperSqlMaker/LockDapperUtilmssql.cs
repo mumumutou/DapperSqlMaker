@@ -7,7 +7,9 @@ using System.Text;
 
 namespace DapperSqlMaker.DapperExt
 {
-
+    /// <summary>
+    /// 原生dapper执行sql 上下文类
+    /// </summary>
     public partial class DapperFuncMs : DapperFuncsBase
     {
         public override IDbConnection GetConn()
@@ -21,7 +23,7 @@ namespace DapperSqlMaker.DapperExt
 
     }
     /// <summary>
-    /// Sqlite库1
+    /// 链式封装的上下文类  Sqlite库1
     /// </summary>
     public partial class LockDapperUtilmssql : DapperSqlMaker
     {
