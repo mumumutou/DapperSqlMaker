@@ -40,7 +40,7 @@ namespace FW.Model
         }
         [Write(false)]
         public Users Users { get; set; }
-
+        public string UserName { get; set; }
     }
      
 } // namespace

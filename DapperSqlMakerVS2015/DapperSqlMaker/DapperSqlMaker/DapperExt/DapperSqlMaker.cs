@@ -149,6 +149,14 @@ namespace DapperSqlMaker.DapperExt
             return this;
         }
 
+        /// <summary>
+        /// 任意部分sql拼接
+        /// </summary>
+        public DapperSqlMaker<T, Y, Z, O, P, Q> SqlClause(string sqlClause)
+        {
+            Clauses.Add(Clause.New(ClauseType.SqlClause, sqlclause: sqlClause));
+            return this;
+        }
     }
 
     /// <summary>
@@ -266,8 +274,15 @@ namespace DapperSqlMaker.DapperExt
             Clauses.Add(Clause.New(ClauseType.ActionSelectOrder, order: columns));
             return this;
         }
-
-
+         
+        /// <summary>
+        /// 任意部分sql拼接
+        /// </summary>
+        public DapperSqlMaker<T, Y, Z, O, P> SqlClause(string sqlClause)
+        {
+            Clauses.Add(Clause.New(ClauseType.SqlClause, sqlclause: sqlClause));
+            return this;
+        }
     }
 
     /// <summary>
@@ -391,6 +406,14 @@ namespace DapperSqlMaker.DapperExt
             return this;
         }
 
+        /// <summary>
+        /// 任意部分sql拼接
+        /// </summary>
+        public DapperSqlMaker<T, Y, Z, O> SqlClause(string sqlClause)
+        {
+            Clauses.Add(Clause.New(ClauseType.SqlClause, sqlclause: sqlClause));
+            return this;
+        }
     }
 
     /// <summary>
@@ -502,7 +525,15 @@ namespace DapperSqlMaker.DapperExt
             Clauses.Add(Clause.New(ClauseType.ActionSelectOrder, order: columns));
             return this;
         }
-
+       
+        /// <summary>
+        /// 任意部分sql拼接
+        /// </summary>
+        public DapperSqlMaker<T, Y, Z> SqlClause(string sqlClause)
+        {
+            Clauses.Add(Clause.New(ClauseType.SqlClause, sqlclause: sqlClause));
+            return this;
+        }
     }
 
     public abstract class DapperSqlMaker<T, Y> : DapperSqlMaker
@@ -659,7 +690,14 @@ namespace DapperSqlMaker.DapperExt
             return this;
         }
 
-
+        /// <summary>
+        /// 任意部分sql拼接
+        /// </summary>
+        public DapperSqlMaker<T,Y> SqlClause(string sqlClause)
+        {
+            Clauses.Add(Clause.New(ClauseType.SqlClause, sqlclause: sqlClause));
+            return this;
+        }
     }
 
     public abstract class DapperSqlMaker<T> : DapperSqlMaker
@@ -741,6 +779,14 @@ namespace DapperSqlMaker.DapperExt
             return this;
         }
 
+        /// <summary>
+        /// 任意部分sql拼接
+        /// </summary>
+        public DapperSqlMaker<T> SqlClause(string sqlClause)
+        {
+            Clauses.Add(Clause.New(ClauseType.SqlClause, sqlclause: sqlClause));
+            return this;
+        }
         #endregion
 
         #region 链式 添加数据

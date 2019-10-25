@@ -66,6 +66,11 @@ namespace DapperSqlMaker.DapperExt
             return new LockDapperUtilmssql<T>().Select();
         }
 
+        public static DapperSqlMaker<T> SqlClaus(string sqlClause)
+        {
+            return new LockDapperUtilmssql<T>().SqlClause(sqlClause);
+        }
+
 
         /// <summary>
         /// 增删改 查
@@ -84,7 +89,10 @@ namespace DapperSqlMaker.DapperExt
         {
             return new LockDapperUtilmssql<T, Y>().Select();
         }
-
+        public static DapperSqlMaker<T, Y> SqlClaus(string sqlClause)
+        {
+            return new LockDapperUtilmssql<T, Y>().SqlClause(sqlClause);
+        }
     }
 
     public partial class LockDapperUtilmssql<T, Y, Z> : DapperSqlMaker<T, Y, Z>
@@ -97,6 +105,10 @@ namespace DapperSqlMaker.DapperExt
         public static DapperSqlMaker<T, Y, Z> Selec()
         {
             return new LockDapperUtilmssql<T, Y, Z>().Select();
+        }
+        public static DapperSqlMaker<T, Y, Z> SqlClaus(string sqlClause)
+        {
+            return new LockDapperUtilmssql<T, Y, Z>().SqlClause(sqlClause);
         }
 
     }
@@ -111,6 +123,10 @@ namespace DapperSqlMaker.DapperExt
         {
             return new LockDapperUtilmssql<T, Y, Z, O>().Select();
         }
+        public static DapperSqlMaker<T, Y, Z, O> SqlClaus(string sqlClause)
+        {
+            return new LockDapperUtilmssql<T, Y, Z, O>().SqlClause(sqlClause);
+        }
 
     }
     public partial class LockDapperUtilmssql<T, Y, Z, O, P> : DapperSqlMaker<T, Y, Z, O, P>
@@ -124,6 +140,10 @@ namespace DapperSqlMaker.DapperExt
         {
             return new LockDapperUtilmssql<T, Y, Z, O, P>().Select();
         }
+        public static DapperSqlMaker<T, Y, Z, O, P> SqlClaus(string sqlClause)
+        {
+            return new LockDapperUtilmssql<T, Y, Z, O, P>().SqlClause(sqlClause);
+        }
 
     }
     public partial class LockDapperUtilmssql<T, Y, Z, O, P, Q> : DapperSqlMaker<T, Y, Z, O, P, Q>
@@ -136,6 +156,10 @@ namespace DapperSqlMaker.DapperExt
         public static DapperSqlMaker<T, Y, Z, O, P, Q> Selec()
         {
             return new LockDapperUtilmssql<T, Y, Z, O, P, Q>().Select();
+        }
+        public static DapperSqlMaker<T, Y, Z, O, P, Q> SqlClaus(string sqlClause)
+        {
+            return new LockDapperUtilmssql<T, Y, Z, O, P, Q>().SqlClause(sqlClause);
         }
 
     }
