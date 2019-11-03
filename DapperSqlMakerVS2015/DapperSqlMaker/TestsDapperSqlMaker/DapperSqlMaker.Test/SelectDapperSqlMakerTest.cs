@@ -439,6 +439,9 @@ namespace TestsDapperSqlMaker
         }
 
         #endregion
+
+
+
         [Test]
         public void 查询首行()
         {
@@ -789,6 +792,28 @@ namespace TestsDapperSqlMaker
             //WriteJson(result); //  查询结果
             #endregion
 
+
+        }
+
+
+        [Test]
+        public void where_暂未做解析的方法() {
+
+            var efup = LockDapperUtilsqlite<Users>.Updat().EditColumn(p => new bool[] { p.Remark == "木头人xx" }).Where(p => p.UserName.Contains("%木头人%") ).ExecuteUpdate();
+            Console.WriteLine(efup);
+            var efde = LockDapperUtilsqlite< Users>.Delet().Where(p => p.UserName == "木头人3名称必须唯一19/11/3 21:17:42").ExecuteDelete();
+            Console.WriteLine(efde);
+
+            Expression<Func<LockPers, bool>> where = PredicateBuilder.WhereStart<LockPers>();
+
+            var query = LockDapperUtilmssql<LockPers>.Selec().Column().From().Where(where).ExecuteQuery();
+            WriteJson(query);
+            Console.WriteLine("=======");
+            Console.WriteLine("=======");
+            Console.WriteLine("=======");
+            var q2 = LockDapperUtilsqlite<Users>.Selec().Column().From().Where(p =>  p.UserName.Contains("%木头人%") // p.UserName == "木头人1 名称必须唯一" // 
+            ).ExecuteQuery();
+            WriteJson(q2);
 
         }
 

@@ -23,15 +23,28 @@ namespace TestsDapperSqlMaker.DapperExt
         [Test]
         public void 添加部分字段_含子查询_测试lt()
         {
+            var name = "木头人3名称必须唯一" + DateTime.Now.ToString();
             string colm = "img", val = "(select value from skin limit 1 offset 1)"; DateTime cdate = DateTime.Now;
             var insert = LockDapperUtilsqlite<Users>.Inser().AddColumn(p => new bool[] {
-                p.UserName =="木头人1 名称必须唯一", p.Password == "666", p.CreateTime == cdate
+                p.UserName == name, p.Password == "666", p.CreateTime == cdate
                 , SM.Sql(colm,val), SM.Sql(p.Remark,"(select '荒野高尔夫')")
             });
-
+             
             Console.WriteLine(insert.RawSqlParams().Item1);
             var efrow = insert.ExecuteInsert();
             Console.WriteLine(efrow);
+            string guid = Guid.NewGuid().ToString();
+            var efrow2 = LockDapperUtilsqlite<LockPers>.Inser().AddColumn(p => new bool[] {
+                p.Id            ==   guid,
+                p.Name          == "木头人1"  ,
+                p.Content       == "这是棉花好多好多"         ,
+                p.InsertTime    == DateTime.Now               ,
+                p.IsDel         == false                      ,
+                p.UserId        == 3
+
+            }).ExecuteInsert();
+            Console.WriteLine(efrow2);
+
         }
 
         #endregion

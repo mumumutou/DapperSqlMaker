@@ -1214,6 +1214,17 @@ namespace DapperSqlMaker.DapperExt
             StringBuilder sql = null;
             spars = null;
             // select子句有表别名  update子句不能有表别名
+            //MethodCallExpression method = whereExps as MethodCallExpression;
+            //BinaryExpression binary = whereExps as BinaryExpression;
+            //if (binary.Left.NodeType == ExpressionType.Call)
+            //{
+            //    MethodCallExpression startmethod = binary.Left as MethodCallExpression;
+            //    if (startmethod.Method.Name == "WhereStartIgnore")
+            //    {
+            //        sqlCondition = null;
+            //        return;
+            //    }// like in 其他方法继续
+            //}
 
             AnalysisExpression.JoinExpression(whereExps, ref sql, ref spars, isAliasName: this.ClauseFirst == ClauseType.ActionSelect); //sqlMaker.TabAliasName
 

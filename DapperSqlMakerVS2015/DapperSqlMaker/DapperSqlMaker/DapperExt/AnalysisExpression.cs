@@ -430,9 +430,9 @@ namespace DapperSqlMaker.DapperExt
             {
                 case ExpressionType.Call://执行方法
                     MethodCallExpression method = expression as MethodCallExpression;
-                    //if (method.Method.Name == "WhereStartIgnore") break;
-                    //// where拼接条件开始 忽略解析该方法  
-                    //else 
+                    if (method.Method.Name == "WhereStartIgnore") break;
+                    // where拼接条件开始 忽略解析该方法  
+                    else
                     if (method.Method.Name == "Contains")
                     {
                         MemberExpression Member = method.Object as MemberExpression;
