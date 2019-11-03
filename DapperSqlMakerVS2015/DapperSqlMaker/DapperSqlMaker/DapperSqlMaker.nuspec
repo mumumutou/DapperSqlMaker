@@ -2,13 +2,13 @@
 <package >
   <metadata>
     <id>DapperSqlMaker</id>
-    <version>0.1.8</version>
+    <version>0.1.9</version>
     <title>DapperSqlMaker</title>
     <authors>CC</authors>
     <owners>$author$</owners>
     <licenseUrl>http://LICENSE_URL_HERE_OR_DELETE_THIS_LINE</licenseUrl>
     <projectUrl>https://github.com/mumumutou/DapperSqlMaker</projectUrl>
-    <iconUrl>http://59.80.44.100/pic.iqy.ink/2019/05/04/5ccc9e52b1f08.ico</iconUrl>
+    <iconUrl>http://yiwanbaqianli.com/img/Su-35Flanker.ico</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>CC.DapperSqlMaker Dapper链式查询扩展</description>
     <releaseNotes>CC.DapperSqlMaker Dapper链式查询扩展</releaseNotes>

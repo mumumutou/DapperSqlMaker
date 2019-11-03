@@ -1,4 +1,5 @@
-﻿using DapperSqlMaker;
+﻿using Dapper;
+using DapperSqlMaker;
 using DapperSqlMaker.DapperExt;
 using FW.Model;
 using NUnit.Framework;
@@ -12,6 +13,11 @@ namespace TestsDapperSqlMaker.DapperExt
     [TestFixture()]
     public class UpdateDapperSqlMakerTest
     {
+        private static void WriteJson(object test2)
+        {
+            var str = Newtonsoft.Json.JsonConvert.SerializeObject(test2);
+            Console.WriteLine(str);
+        }
         #region 链式解析 更新数据
 
         [Test]
@@ -27,6 +33,51 @@ namespace TestsDapperSqlMaker.DapperExt
             var efrow = update.ExecuteUpdate();
             Console.WriteLine(efrow);
         }
+
+
+        [Test]
+        public void 事务更新测试ms()
+        {
+            var str = DateTime.Now.ToString();
+            Console.WriteLine(str);
+            var update = LockDapperUtilmssql<Users>.Updat().EditColumn(p => new bool[] { p.UserName == "事务修改 第一条语句", p.Password == str })
+                .Where(p => p.Id == 4 && SM.SQL(" IsDel = 'false' "));
+            var update2 = LockDapperUtilmssql<Users>.Updat().EditColumn(p => new bool[] { p.UserName == "xxxxx 2 sql事务修改", p.Password == str })
+                .Where(p => p.Id == 6 && SM.SQL(" IsDel = 'false' "));
+
+            Console.WriteLine(update.RawSqlParams().Item1);
+            Console.WriteLine(update2.RawSqlParams().Item1);
+
+
+            using (var conn = update.GetConn())
+            {
+                var trans = conn.BeginTransaction();
+                try
+                {
+                    var efrow = conn.Execute(update.RawSqlParams().Item1.ToString(), update.RawSqlParams().Item2, trans);
+                    Console.WriteLine(efrow + "第一执行了");
+
+                    //throw new Exception("机房爆炸了");
+                    var efrow2 = conn.Execute(update2.RawSqlParams().Item1.ToString(), update2.RawSqlParams().Item2, trans);
+                    Console.WriteLine(efrow2 + "第2执行了");
+
+                    trans.Commit();
+                }
+                catch (Exception ex)
+                {
+                    trans.Rollback();
+                    Console.WriteLine(ex.Message);
+                }
+
+            }
+
+
+            //var efrow = update.ExecuteUpdate();
+
+            var rows = LockDapperUtilmssql<Users>.Selec().Column().From().Where(p => p.Id == 4 || p.Id == 6).ExecuteQuery();
+            WriteJson(rows);
+
+        } 
 
         #endregion
 

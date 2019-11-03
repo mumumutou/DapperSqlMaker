@@ -60,10 +60,22 @@ namespace DapperSqlMaker.DapperExt
         {
             return LockDapperUtilmssql.New().GetConn();
         }
-
+         
         public static DapperSqlMaker<T> Selec()
         {
             return new LockDapperUtilmssql<T>().Select();
+        }
+        public static DapperSqlMaker<T> Inser()
+        {
+            return new LockDapperUtilmssql<T>().Insert();
+        }
+        public static DapperSqlMaker<T> Updat()
+        {
+            return new LockDapperUtilmssql<T>().Update();
+        }
+        public static DapperSqlMaker<T> Delet()
+        {
+            return new LockDapperUtilmssql<T>().Delete();
         }
 
         public static DapperSqlMaker<T> SqlClaus(string sqlClause)

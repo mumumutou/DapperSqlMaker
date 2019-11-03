@@ -1702,8 +1702,10 @@ namespace DapperSqlMaker.DapperExt
         {
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
+            var conn = GetConn();
+            var s = conn.State; 
 
-            using (var conn = GetConn())
+            using (conn)
             {
                 var obj = conn.Execute(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
                 return obj;
