@@ -18,7 +18,7 @@ namespace TestsDapperSqlMaker
         {
             var str = Newtonsoft.Json.JsonConvert.SerializeObject(test2);
             Console.WriteLine(str);
-        }
+        } 
 
         // 打印sql和参数
         private static void WriteSqlParams(Tuple<StringBuilder, DynamicParameters> resultsqlparams)
@@ -439,7 +439,35 @@ namespace TestsDapperSqlMaker
         }
 
         #endregion
+        [Test]
+        public void 查询首行()
+        {
+            var m = LockDapperUtilsqlite<LockPers>.Selec().Column().From().ExecuteQueryFirst();
 
+            LockPers t = LockDapperUtilsqlite<LockPers>.Selec().Column().From().ExecuteQueryFirst<LockPers>();
+
+            WriteJson(m); //  查询结果
+            Console.WriteLine("-------------------");
+            WriteJson(t); //  查询结果
+            Console.WriteLine("-------------------");
+
+            LockPers t2 = new LockPers();
+            t2.   Name         =   m. Name           ;
+            t2.   Content      =   m. Content        ;
+            t2.   Prompt       =   m. Prompt         ;
+            t2.   Id           =   m. Id             ;
+            t2.   InsertTime   =   m. InsertTime     ;
+            t2.   IsDel        =   m. IsDel          ;
+            t2.   DelTime      =   m. DelTime        ;
+            t2.   UpdateTime   =   m. UpdateTime     ;
+            t2.   EditCount    =   Convert.ToInt32( m. EditCount)      ;
+            t2.   CheckCount   =   Convert.ToInt32( m. CheckCount  )   ;
+            t2.   UserId       =   Convert.ToInt32( m. UserId   )      ;
+
+            WriteJson(t2);
+
+
+        }
         [Test]
         public void 查询所有数据() {
             // 4表

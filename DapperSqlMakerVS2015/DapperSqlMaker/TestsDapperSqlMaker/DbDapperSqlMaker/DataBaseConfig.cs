@@ -56,5 +56,32 @@ namespace DapperSqlMaker
         }
 
         #endregion
+
+
+        // 读取配置文件栗子
+        //private static Dictionary<string, string> _conns = new Dictionary<string, string>();
+        //public static string GetConfigConn(string name)
+        //{
+        //    if (_conns.ContainsKey(name)) return _conns[name];  //缓存
+
+        //    string configConn = null;
+        //    string mElementPath = HttpContext.Current.Server.MapPath("/XmlConfig/database.config");
+        //    XmlDocument xmlDoc = new XmlDocument(); // System.Xml.dll
+        //    xmlDoc.Load(mElementPath);
+
+        //    foreach (XmlNode node in xmlDoc.ChildNodes)
+        //    {
+        //        if (node.Name != "connectionStrings") continue;
+        //        foreach (XmlNode metNode in node.ChildNodes)
+        //        {
+        //            if (metNode.NodeType != XmlNodeType.Element) continue;
+        //            string configName = metNode.Attributes["name"].Value;
+        //            if (name != configName) continue;
+        //            configConn = metNode.Attributes["connectionString"].Value;
+        //        }
+        //    }
+        //    _conns[name] = configConn;
+        //    return configConn;
+        //}
     }
 }

@@ -1526,8 +1526,8 @@ namespace DapperSqlMaker.DapperExt
         #region 输出sql执行
 
         /// <summary>
-        /// 查询 
-        /// </summary>
+        /// 查询多行 dynamic  
+        /// </summary> 
         public virtual IEnumerable<dynamic> ExecuteQuery()
         {
             // Tuple<sql,entity>
@@ -1539,9 +1539,24 @@ namespace DapperSqlMaker.DapperExt
                 return obj;
             }
         }
+        /// <summary>
+        /// 查询首行 dynamic 
+        /// </summary>
+        /// <returns>dapper封装的dynamic</returns>
+        public virtual dynamic ExecuteQueryFirst()
+        {
+            // Tuple<sql,entity>
+            Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
+
+            using (var conn = GetConn())
+            {
+                var obj = conn.QueryFirst<dynamic>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
+                return obj;
+            }
+        }
 
         /// <summary>
-        /// 查询
+        /// 查询多行 泛型
         /// </summary>
         public virtual IEnumerable<Y> ExecuteQuery<Y>()
         {
@@ -1555,7 +1570,7 @@ namespace DapperSqlMaker.DapperExt
             }
         }
         /// <summary>
-        /// 查询首行
+        /// 查询首行 泛型
         /// </summary>
         public virtual Y ExecuteQueryFirst<Y>()
         {
@@ -1564,8 +1579,8 @@ namespace DapperSqlMaker.DapperExt
 
             using (var conn = GetConn())
             {
-                var obj = conn.Query<Y>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
-                return obj.FirstOrDefault();
+                var obj = conn.QueryFirst<Y>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
+                return obj; //.FirstOrDefault();
             }
         }
         /// <summary>
