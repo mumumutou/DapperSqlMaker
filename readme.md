@@ -17,7 +17,7 @@
 > 6. 新增 事务执行栗子 在修改demo中
 	
 ###### (依赖Dapper源码版)   
-	Nuget安装:>  未发布
+	Nuget安装:>  Install-Package DapperSqlMaker -Version 0.1.9 
     依赖项:
 	Dapper (>= 1.50.0)
 	Dapper.Contrib (>= 1.50.0)
