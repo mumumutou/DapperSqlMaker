@@ -7,6 +7,21 @@ using System.Text;
 
 namespace DapperSqlMaker.DapperExt
 {
+    //public partial class LockContext {
+
+    //    //private LockContext() { }
+    //    //private static LockContext _LockContext = new LockContext();
+    //    //public static LockContext _() => _LockContext;
+
+    //    //public LockDapperUtilmssql<T> Lock1<T>() where T:class,new() => new LockDapperUtilmssql<T>();
+    //    //public LockDapperUtilmssql<T, Z> Lock2<T, Z>() where T : class, new()
+    //    //                                               where Z : class, new() => new LockDapperUtilmssql<T,Z>();
+    //    //public LockDapperUtilmssql<T, Z, Y> Lock3<T, Z, Y>() where T : class, new()
+    //    //                                                     where Z : class, new()
+    //    //                                                     where Y : class, new() => new LockDapperUtilmssql<T, Z, Y>();
+
+    //}
+
     /// <summary>
     /// 原生dapper执行sql 上下文类
     /// </summary>
@@ -25,23 +40,24 @@ namespace DapperSqlMaker.DapperExt
     /// <summary>
     /// 链式封装的上下文类  Sqlite库1
     /// </summary>
-    public partial class LockDapperUtilmssql : DapperSqlMaker
+    public partial class LockDapperUtilmssql : IDapperSqlMakerBase
     {
-        public string a { get; set; }
+        //public string a { get; set; }
+
+        //public readonly static LockDapperUtilmssql _New2 = new LockDapperUtilmssql() { a = "123" };
+
+        //public IDbConnection GetConnSign(bool isfirst)
+        //{
+        //    return this.GetConn();
+        //}
+
         private LockDapperUtilmssql() { }
-
-        public readonly static LockDapperUtilmssql _New2 = new LockDapperUtilmssql() { a = "123" };
-
-        private readonly static LockDapperUtilmssql _New = new LockDapperUtilmssql() { a = "New" };
+        private readonly static LockDapperUtilmssql _New = new LockDapperUtilmssql();
         public static LockDapperUtilmssql New()
         {
             return _New;
         }
-        public IDbConnection GetConnSign(bool isfirst)
-        {
-            return this.GetConn();
-        }
-        public override IDbConnection GetConn()
+        public IDbConnection GetConn()
         {
             //DataBaseConfig.GetSqlConnection();
             //if (isfirst) return null;
@@ -50,12 +66,13 @@ namespace DapperSqlMaker.DapperExt
             conn.Open();
             return conn;
         }
-
+        public string GetSqlParamSymbol() => SM.ParamSymbolMSSql;
     }
 
     public partial class LockDapperUtilmssql<T> : DapperSqlMaker<T>
                                          where T : class, new()
     {
+        public override string GetSqlParamSymbol() => LockDapperUtilmssql.New().GetSqlParamSymbol();
         public override IDbConnection GetConn()
         {
             return LockDapperUtilmssql.New().GetConn();
@@ -78,9 +95,9 @@ namespace DapperSqlMaker.DapperExt
             return new LockDapperUtilmssql<T>().Delete();
         }
 
-        public static DapperSqlMaker<T> SqlClaus(string sqlClause)
+        public static DapperSqlMaker<T> SqlClaus(string sqlClause,int index=-1)
         {
-            return new LockDapperUtilmssql<T>().SqlClause(sqlClause);
+            return new LockDapperUtilmssql<T>().SqlClause(sqlClause, index);
         }
 
 
@@ -92,6 +109,7 @@ namespace DapperSqlMaker.DapperExt
     }
     public partial class LockDapperUtilmssql<T, Y> : DapperSqlMaker<T, Y>
     {
+        public override string GetSqlParamSymbol() => LockDapperUtilmssql.New().GetSqlParamSymbol();
         public override IDbConnection GetConn()
         {
             return LockDapperUtilmssql.New().GetConn();
@@ -101,14 +119,15 @@ namespace DapperSqlMaker.DapperExt
         {
             return new LockDapperUtilmssql<T, Y>().Select();
         }
-        public static DapperSqlMaker<T, Y> SqlClaus(string sqlClause)
+        public static DapperSqlMaker<T, Y> SqlClaus(string sqlClause, int index = -1)
         {
-            return new LockDapperUtilmssql<T, Y>().SqlClause(sqlClause);
+            return new LockDapperUtilmssql<T, Y>().SqlClause(sqlClause, index);
         }
     }
 
     public partial class LockDapperUtilmssql<T, Y, Z> : DapperSqlMaker<T, Y, Z>
     {
+        public override string GetSqlParamSymbol() => LockDapperUtilmssql.New().GetSqlParamSymbol();
         public override IDbConnection GetConn()
         {
             return LockDapperUtilmssql.New().GetConn();
@@ -118,14 +137,15 @@ namespace DapperSqlMaker.DapperExt
         {
             return new LockDapperUtilmssql<T, Y, Z>().Select();
         }
-        public static DapperSqlMaker<T, Y, Z> SqlClaus(string sqlClause)
+        public static DapperSqlMaker<T, Y, Z> SqlClaus(string sqlClause, int index = -1)
         {
-            return new LockDapperUtilmssql<T, Y, Z>().SqlClause(sqlClause);
+            return new LockDapperUtilmssql<T, Y, Z>().SqlClause(sqlClause, index);
         }
 
     }
     public partial class LockDapperUtilmssql<T, Y, Z, O> : DapperSqlMaker<T, Y, Z, O>
     {
+        public override string GetSqlParamSymbol() => LockDapperUtilmssql.New().GetSqlParamSymbol();
         public override IDbConnection GetConn()
         {
             return LockDapperUtilmssql.New().GetConn();
@@ -135,14 +155,15 @@ namespace DapperSqlMaker.DapperExt
         {
             return new LockDapperUtilmssql<T, Y, Z, O>().Select();
         }
-        public static DapperSqlMaker<T, Y, Z, O> SqlClaus(string sqlClause)
+        public static DapperSqlMaker<T, Y, Z, O> SqlClaus(string sqlClause, int index = -1)
         {
-            return new LockDapperUtilmssql<T, Y, Z, O>().SqlClause(sqlClause);
+            return new LockDapperUtilmssql<T, Y, Z, O>().SqlClause(sqlClause, index);
         }
 
     }
     public partial class LockDapperUtilmssql<T, Y, Z, O, P> : DapperSqlMaker<T, Y, Z, O, P>
     {
+        public override string GetSqlParamSymbol() => LockDapperUtilmssql.New().GetSqlParamSymbol();
         public override IDbConnection GetConn()
         {
             return LockDapperUtilmssql.New().GetConn();
@@ -152,14 +173,15 @@ namespace DapperSqlMaker.DapperExt
         {
             return new LockDapperUtilmssql<T, Y, Z, O, P>().Select();
         }
-        public static DapperSqlMaker<T, Y, Z, O, P> SqlClaus(string sqlClause)
+        public static DapperSqlMaker<T, Y, Z, O, P> SqlClaus(string sqlClause, int index = -1)
         {
-            return new LockDapperUtilmssql<T, Y, Z, O, P>().SqlClause(sqlClause);
+            return new LockDapperUtilmssql<T, Y, Z, O, P>().SqlClause(sqlClause, index);
         }
 
     }
     public partial class LockDapperUtilmssql<T, Y, Z, O, P, Q> : DapperSqlMaker<T, Y, Z, O, P, Q>
     {
+        public override string GetSqlParamSymbol() => LockDapperUtilmssql.New().GetSqlParamSymbol();
         public override IDbConnection GetConn()
         {
             return LockDapperUtilmssql.New().GetConn();
@@ -169,9 +191,9 @@ namespace DapperSqlMaker.DapperExt
         {
             return new LockDapperUtilmssql<T, Y, Z, O, P, Q>().Select();
         }
-        public static DapperSqlMaker<T, Y, Z, O, P, Q> SqlClaus(string sqlClause)
+        public static DapperSqlMaker<T, Y, Z, O, P, Q> SqlClaus(string sqlClause, int index = -1)
         {
-            return new LockDapperUtilmssql<T, Y, Z, O, P, Q>().SqlClause(sqlClause);
+            return new LockDapperUtilmssql<T, Y, Z, O, P, Q>().SqlClause(sqlClause, index);
         }
 
     }

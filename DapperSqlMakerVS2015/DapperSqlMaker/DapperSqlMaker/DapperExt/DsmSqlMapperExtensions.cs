@@ -55,6 +55,28 @@ namespace Dapper.Contrib.Extensions
                 {"mysqlconnection", new MySqlAdapter()},
             };
 
+
+        /// <summary>
+        /// 实体泛型类 缓存
+        /// </summary>
+        private static readonly ConcurrentDictionary<RuntimeTypeHandle, Type[]> ChildGenericTypes = new ConcurrentDictionary<RuntimeTypeHandle, Type[]>();
+        /// <summary>
+        /// 实体泛型类 缓存
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static Type[] ChildGenericTypesCache(Type type)
+        {
+            Type[] pi;
+            if (ChildGenericTypes.TryGetValue(type.TypeHandle, out pi))
+            {
+                return pi;
+            }
+            pi = type.GetGenericArguments();
+            ChildGenericTypes[type.TypeHandle] = pi;
+            return pi;
+        }
+
         private static List<PropertyInfo> ComputedPropertiesCache(Type type)
         {
             IEnumerable<PropertyInfo> pi;
@@ -1272,9 +1294,15 @@ public partial class SqlServerAdapter : ISqlAdapter
 
     public void RawPage(StringBuilder sb, DynamicParameters sparams, int page, int rows)
     {
+        //int sbLength = sb.Length;
+        //var pageStart = " select x.* from ( ";
+        //var pageEnd = " ) x  where rownum between (@pageIndex - 1) * @pageSize + 1 and @pageIndex * @pageSize ";
         // counts,rownum 放在字段解析里
-        sb.Insert(0, " select x.* from (  "); //  select count(a.Id) over() as counts , ROW_NUMBER() over(order by a.Id) as rownum 
-        sb.Append("  ) x  where rownum between (@pageIndex - 1) * @pageSize + 1 and @pageIndex * @pageSize ");
+        if(sb != null) //sb未null sql已经拼接好了 只需要添加参数
+        {
+            sb.Insert(0, SM.PageStartms); // pageStart); //  select count(a.Id) over() as counts , ROW_NUMBER() over(order by a.Id) as rownum 
+            sb.Append(SM.PageEndms); // pageEnd);
+        } 
         sparams.Add("@pageIndex", page);
         sparams.Add("@pageSize", rows);
     }

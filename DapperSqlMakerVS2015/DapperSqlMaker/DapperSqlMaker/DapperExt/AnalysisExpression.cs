@@ -9,7 +9,7 @@ using System.Text;
 namespace DapperSqlMaker.DapperExt
 {
     // SQLMethods
-    public static class SM
+    public static partial class SM
     {
         // in
         /// <summary>
@@ -109,6 +109,14 @@ namespace DapperSqlMaker.DapperExt
 
         #region 特定sql值和标记
         /// <summary>
+        /// select语句开头标记 MSSql分页拼接 开头占位符
+        /// </summary>
+        public static string PageStartms = " select x.* from (  ";
+        /// <summary>
+        /// select语句结束标记 MSSql分页拼接 结束占位符
+        /// </summary>
+        public static string PageEndms = " ) x  where rownum between (@pageIndex - 1) * @pageSize + 1 and @pageIndex * @pageSize ";
+        /// <summary>
         /// (内部调用)分页 
         /// </summary>
         public static string ColumnAll = " * ";
@@ -131,7 +139,18 @@ namespace DapperSqlMaker.DapperExt
 
         #endregion
 
-         
+        #region 参数化 标识
+        /// <summary>
+        /// "@" MSSql,Sqlite,MYSql
+        /// </summary>
+        public static string ParamSymbolMSSql = "@";
+        /// <summary>
+        /// ":" Oracle 
+        /// </summary>
+        public static string ParamsSymbolOracle = ":";
+
+        #endregion
+
         public static bool WhereStartIgnore() => true;
 
 
@@ -416,7 +435,7 @@ namespace DapperSqlMaker.DapperExt
         /// <param name="paramsdic">表达式参数字典 参数-参数序号</param>
         /// <param name="isAliasName">是否加表别名</param>
         public static void JoinExpression(Expression expression, ref StringBuilder sb, ref DynamicParameters spars
-            , Dictionary<string, int> paramsdic = null, bool isAliasName = true)
+            , Dictionary<string, int> paramsdic = null, bool isAliasName = true, string sqlParamSymbol = "@")
         {
             if (sb == null)
             {
@@ -453,7 +472,8 @@ namespace DapperSqlMaker.DapperExt
                         else throw new Exception("Contains未解析");
 
                         spars.Add(Member.Member.Name + num, ctvalue); //constant.Value //.ToString());
-                        sb.AppendFormat(" {0} like @{1}{2} ", mberName, Member.Member.Name, num);
+                        //sb.AppendFormat(" {0} like @{1}{2} ", mberName, Member.Member.Name, num);
+                        sb.AppendFormat(" {0} like {3}{1}{2} ", mberName, Member.Member.Name, num, sqlParamSymbol);  // " {0} like @{1}{2} "
                     }
                     else if (method.Method.Name == "Like")
                     { // 自定义方法 like
@@ -464,7 +484,8 @@ namespace DapperSqlMaker.DapperExt
                             + Member.Member.Name;  //Parmexr.Name 表.字段名
                         ConstantExpression constant = method.Arguments[1] as ConstantExpression;
                         spars.Add(Member.Member.Name + num, constant.Value); //.ToString());
-                        sb.AppendFormat(" {0} like @{1}{2} ", mberName, Member.Member.Name, num);
+                        //sb.AppendFormat(" {0} like @{1}{2} ", mberName, Member.Member.Name, num);
+                        sb.AppendFormat(" {0} like {3}{1}{2} ", mberName, Member.Member.Name, num, sqlParamSymbol); //" {0} like @{1}{2} "
                     }
                     else if (method.Method.Name == "In")
                     { // 自定义方法 in
@@ -484,7 +505,8 @@ namespace DapperSqlMaker.DapperExt
 
                             //var arr = (member2.Expression as ConstantExpression).Value;
                             spars.Add(Member.Member.Name + num, constValue);//arr);
-                            sb.AppendFormat(" {0} in @{1}", mberName, Member.Member.Name + num);
+                            //sb.AppendFormat(" {0} in @{1}", mberName, Member.Member.Name + num);
+                            sb.AppendFormat(" {0} in {2}{1}", mberName, Member.Member.Name + num, sqlParamSymbol); //" {0} in @{1}"
                             break;
                         }
                         NewArrayExpression constant = method.Arguments[1] as NewArrayExpression;  //第2种 表达式内构建数组
@@ -531,7 +553,8 @@ namespace DapperSqlMaker.DapperExt
                             + Member.Member.Name;  //Parmexr.Name 表.字段名
                         ConstantExpression constant = method.Arguments.FirstOrDefault() as ConstantExpression;
                         spars.Add(Member.Member.Name + num, constant.Value); //.ToString());
-                        sb.AppendFormat(" {0} = @{1}{2} ", mberName, Member.Member.Name, num);
+                        //sb.AppendFormat(" {0} = @{1}{2} ", mberName, Member.Member.Name, num);
+                        sb.AppendFormat(" {0} = {3}{1}{2} ", mberName, Member.Member.Name, num, sqlParamSymbol); // " {0} = @{1}{2} "
                     }
                     else throw new Exception(method.Method.Name + " 暂未做解析的方法 " + expression);
                     // Console.WriteLine(sb);
@@ -553,7 +576,7 @@ namespace DapperSqlMaker.DapperExt
 
                     }
 
-                    JoinExpression(lambda.Body, ref sb, ref spars, paramsdic,isAliasName: isAliasName);
+                    JoinExpression(lambda.Body, ref sb, ref spars, paramsdic,isAliasName: isAliasName, sqlParamSymbol: sqlParamSymbol);
 
                     // BinaryExpression  // 二元表达式
                     // UnaryExpression   // 一元表达式
@@ -593,7 +616,7 @@ namespace DapperSqlMaker.DapperExt
                     if (binary.Left.NodeType == ExpressionType.Call) {
                         MethodCallExpression startmethod = binary.Left as MethodCallExpression;
                         if (startmethod.Method.Name == "WhereStartIgnore") {
-                            JoinExpression(binary.Right, ref sb, ref spars, paramsdic, isAliasName: isAliasName);
+                            JoinExpression(binary.Right, ref sb, ref spars, paramsdic, isAliasName: isAliasName, sqlParamSymbol :sqlParamSymbol);
                             return;
                         }// like in 其他方法继续
                     }
@@ -602,7 +625,7 @@ namespace DapperSqlMaker.DapperExt
                             && (binary.Right.NodeType != ExpressionType.OrElse || binary.Right.NodeType != ExpressionType.AndAlso))
                     { sb.Append(" ( "); }
 
-                    JoinExpression(binary.Left, ref sb, ref spars, paramsdic, isAliasName: isAliasName);
+                    JoinExpression(binary.Left, ref sb, ref spars, paramsdic, isAliasName: isAliasName, sqlParamSymbol: sqlParamSymbol);
 
                     if (binary.Left.NodeType == ExpressionType.OrElse
                         && (binary.Right.NodeType != ExpressionType.OrElse || binary.Right.NodeType != ExpressionType.AndAlso))
@@ -621,7 +644,7 @@ namespace DapperSqlMaker.DapperExt
                     if (binary.Right.NodeType == ExpressionType.OrElse
                             && (binary.Left.NodeType != ExpressionType.OrElse || binary.Left.NodeType != ExpressionType.AndAlso))
                     { sb.Append(" ( "); }
-                    JoinExpression(binary.Right, ref sb, ref spars, paramsdic, isAliasName: isAliasName);
+                    JoinExpression(binary.Right, ref sb, ref spars, paramsdic, isAliasName: isAliasName, sqlParamSymbol: sqlParamSymbol);
                     if (binary.Right.NodeType == ExpressionType.OrElse
                             && (binary.Left.NodeType != ExpressionType.OrElse || binary.Left.NodeType != ExpressionType.AndAlso))
                     { sb.Append(" ) "); }
@@ -657,7 +680,8 @@ namespace DapperSqlMaker.DapperExt
                             + Member.Member.Name;  //Parmexr.Name 表.字段名
                         ConstantExpression constant = binaryg.Left as ConstantExpression;
                         spars.Add(Member.Member.Name + num, constant.Value); //.ToString()  );
-                        sb.AppendFormat(" {0} {1} @{2}{3} ", mberName, exgl, Member.Member.Name, num);  // A > @A0
+                        //sb.AppendFormat(" {0} {1} @{2}{3} ", mberName, exgl, Member.Member.Name, num);  // A > @A0
+                        sb.AppendFormat(" {0} {1} {4}{2}{3} ", mberName, exgl, Member.Member.Name, num, sqlParamSymbol);  //" {0} {1} @{2}{3} "  // A > @A0
                     }
                     else if (binaryg.Left.NodeType == ExpressionType.MemberAccess && binaryg.Right is ConstantExpression)
                     { // 左边为字段名 右边为常量值
@@ -669,7 +693,8 @@ namespace DapperSqlMaker.DapperExt
                             + Member.Member.Name;  //Parmexr.Name 表.字段名
                         ConstantExpression constant = binaryg.Right as ConstantExpression;
                         spars.Add(Member.Member.Name + num, constant.Value); // .ToString());
-                        sb.AppendFormat(" {0} {1} @{2}{3} ", mberName, exgl, Member.Member.Name, num);
+                        //sb.AppendFormat(" {0} {1} @{2}{3} ", mberName, exgl, Member.Member.Name, num);
+                        sb.AppendFormat(" {0} {1} {4}{2}{3} ", mberName, exgl, Member.Member.Name, num, sqlParamSymbol); // " {0} {1} @{2}{3} "
                     }
                     // 时间格式化处理
                     //else if (binaryg.Left.NodeType == ExpressionType.MemberAccess && binaryg.Right.NodeType == ExpressionType.Convert)
@@ -710,8 +735,9 @@ namespace DapperSqlMaker.DapperExt
                         //var constValue = constant.Value.GetType().GetField(constMember.Member.Name).GetValue(constant.Value);
 
                         spars.Add(Member.Member.Name + num, constValue); //.ToString());
-                        sb.AppendFormat(" {0} {1} @{2}{3} ", mberName, exgl, Member.Member.Name, num);
-                            
+                        //sb.AppendFormat(" {0} {1} @{2}{3} ", mberName, exgl, Member.Member.Name, num);
+                        sb.AppendFormat(" {0} {1} {4}{2}{3} ", mberName, exgl, Member.Member.Name, num, sqlParamSymbol); // " {0} {1} @{2}{3} "
+
                     }
                     // Console.WriteLine(sb);
                     break;
@@ -723,6 +749,9 @@ namespace DapperSqlMaker.DapperExt
             }
         }
 
+        /// <summary>
+        /// 获取 成员值
+        /// </summary> 
         public static object GetMemberValue(MemberExpression ctmber,string mberName = null) //)MethodCallExpression method)
         {
             // ctmber.Member.Name

@@ -54,7 +54,34 @@ namespace DapperSqlMaker.DapperExt
         //public dynamic Models = new { A = new T(), B = new Y(), C = new Z(), D = new O(), E = new P(), F = new Q() };
         public abstract override IDbConnection GetConn();
         public override DapperSqlMaker<T, Y, Z, O, P, Q> GetChild() => this;
-         
+        //public DapperSqlMaker<T, Y, Z, O, P, Q> Select()
+        //{
+        //    //1.存表序号和表别名 //
+        //    var tabAliasName1 = "a"; //fielambda.Parameters[0].Name;
+        //    var tabAliasName2 = "b"; //fielambda.Parameters[1].Name;
+        //    var tabAliasName3 = "c"; //fielambda.Parameters[2].Name;
+        //    var tabAliasName4 = "d"; //fielambda.Parameters[3].Name;
+
+
+        //    var tabAliasName6 = "f"; //fielambda.Parameters[3].Name;
+        //    var tab6fname = typeof(Q).FullName;
+        //    if (!TabAliaceDic.ContainsKey(tab6fname)) TabAliaceDic.Add(tab6fname + 6, tabAliasName6);
+
+        //    var tabAliasName5 = "e"; //fielambda.Parameters[3].Name;
+        //    var tab5fname = typeof(P).FullName;
+        //    if (!TabAliaceDic.ContainsKey(tab5fname)) TabAliaceDic.Add(tab5fname + 5, tabAliasName5);
+
+        //    TabAliaceDic.Add(typeof(T).FullName + 1, tabAliasName1);
+        //    var tab2fname = typeof(Y).FullName;
+        //    if (!TabAliaceDic.ContainsKey(tab2fname)) TabAliaceDic.Add(tab2fname + 2, tabAliasName2);
+        //    var tab3fname = typeof(Z).FullName;
+        //    if (!TabAliaceDic.ContainsKey(tab3fname)) TabAliaceDic.Add(tab3fname + 3, tabAliasName3);
+        //    var tab4fname = typeof(O).FullName;
+        //    if (!TabAliaceDic.ContainsKey(tab4fname)) TabAliaceDic.Add(tab4fname + 4, tabAliasName4);
+
+        //    Clauses.Add(Clause.New(ClauseType.ActionSelect, select: " select "));
+        //    return this;
+        //}
         /// <summary>
         /// MSSQL RowRumber OrderBy 字段  p => p.Id  orderfiesExps必须有返回值 后面的orderby就不要拼接了
         /// </summary> 
@@ -63,7 +90,18 @@ namespace DapperSqlMaker.DapperExt
             LambdaExpression fielambda = orderfiesExps as LambdaExpression;
             if (!(fielambda.Body is NewExpression)) throw new Exception("RowRumber字段未解析");
             return base.RowRumberOrderBy(fielambda);
-             
+
+            //// 2. 解析RowRumber_OrderBy字段
+            //string columns;
+
+            //// 查指定字段 
+            //NewExpression arryexps = fielambda.Body as NewExpression;
+            //Dictionary<string, int> pdic = base.GetLmdparamsDic(fielambda);
+            //columns = GetFieldrrExps(arryexps.Arguments, pdic); //"select " +
+            //columns = string.Format(SM.LimitRowNumber_Sql, columns);
+
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectRowRumberOrderBy, rowRumberOrderBy: columns));
+            //return this;
         }
         /// <summary>
         /// 查询指定字段(默认查询*所有字段) 匿名类型传入Fileds t =>  new { t.f1, t.f2, t2.f3, string SM.Sql() }   ==>   tab1.f1, tab1.f2, tab2.f3
@@ -72,7 +110,16 @@ namespace DapperSqlMaker.DapperExt
         {
             LambdaExpression fielambda = fiesExps as LambdaExpression;
             return base.Column(fielambda);
-             
+
+            //string columns;
+            //if (fiesExps == null) { columns = SM.ColumnAll; goto columnsall; }
+
+            //LambdaExpression fielambda = fiesExps as LambdaExpression;
+            //columns = base.GetColumnStr(fielambda);
+
+            //columnsall:
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectColumn, selectColumn: columns));
+            //return this;
         }
         public DapperSqlMaker<T, Y, Z, O, P, Q> FromJoin(
             JoinType joinType2, Expression<Func<T, Y, Z, O, P, Q, bool>> joinExps2
@@ -84,20 +131,65 @@ namespace DapperSqlMaker.DapperExt
             //Models.A
             return base.FromJoin(
                       new JoinType[] { joinType2, joinType3, joinType4, joinType5, joinType6 }
-            , new LambdaExpression[] { joinExps2, joinExps3, joinExps4, joinExps5, joinExps6 }); 
+            , new LambdaExpression[] { joinExps2, joinExps3, joinExps4, joinExps5, joinExps6 });
+
+            //// 1. 表别名
+            //var tabAliasName1 = "a";
+            //var tabAliasName2 = "b";
+            //var tabAliasName3 = "c";
+            //var tabAliasName4 = "d";
+            //var tabAliasName5 = "e";
+            //var tabAliasName6 = "f";
+
+            //// 2. 主表和查询字段 sel ... from tab
+            //var tabname1 = DsmSqlMapperExtensions.GetTableName(typeof(T));
+            //var selstr = $" from {tabname1} {tabAliasName1}"; // sel .. from 表明 别名
+            //// 3. 生成联表2sql join tab on ...
+            //string jointabstr2 = GetJoinTabStr(typeof(Y), tabAliasName2, joinType2, joinExps2);
+            //// 生成联表3sql
+            //string jointabstr3 = GetJoinTabStr(typeof(Z), tabAliasName3, joinType3, joinExps3);
+            //// 生成联表4sql
+            //string jointabstr4 = GetJoinTabStr(typeof(O), tabAliasName4, joinType4, joinExps4);
+            //// 生成联表5sql
+            //string jointabstr5 = GetJoinTabStr(typeof(P), tabAliasName5, joinType5, joinExps5);
+            //// 生成联表6sql
+            //string jointabstr6 = GetJoinTabStr(typeof(Q), tabAliasName6, joinType6, joinExps6);
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectFrom, fromJoin: selstr + jointabstr2 + jointabstr3 + jointabstr4 + jointabstr5 + jointabstr6));
+            //return this;
         }
         public DapperSqlMaker<T, Y, Z, O, P, Q> Where(Expression<Func<T, Y, Z, O, P, Q, bool>> whereExps)
         {
-            return base.Where(whereExps); 
+            return base.Where(whereExps);
+
+            //DynamicParameters spars;
+            //string sqlCondition;
+            //base.GetWhereStr(whereExps, out spars, out sqlCondition);
+
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectWhereOnHaving, condition: sqlCondition, conditionParms: spars));
+
+            //return this;
         }
         /// <param name="fiesExps"></param>
         /// <param name="isDesc">最后一个字段是否降序</param>
         /// <returns></returns>
         public DapperSqlMaker<T, Y, Z, O, P, Q> Order(Expression<Func<T, Y, Z, O, P, Q, object>> fiesExps, bool isDesc = false)
         {
-            return base.Order(fiesExps, isDesc); 
+            return base.Order(fiesExps, isDesc);
+
+            //LambdaExpression fielambda = fiesExps as LambdaExpression;
+            //string columns = base.GetOrderStr(fielambda, isDesc);
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectOrder, order: columns));
+            //return this;
         }
-         
+
+        /// <summary>
+        /// 任意部分sql拼接
+        /// </summary>
+        public DapperSqlMaker<T, Y, Z, O, P, Q> SqlClause(string sqlClause)
+        {
+            Clauses.Add(Clause.New(ClauseType.SqlClause, sqlclause: sqlClause));
+            return this;
+        }
     }
 
     /// <summary>
@@ -111,7 +203,30 @@ namespace DapperSqlMaker.DapperExt
     public abstract class DapperSqlMaker<T, Y, Z, O, P> : DapperSqlMakerBase<DapperSqlMaker<T, Y, Z, O, P>>
     {
         public abstract override IDbConnection GetConn();
-        public override DapperSqlMaker<T, Y, Z, O, P> GetChild() => this; 
+        public override DapperSqlMaker<T, Y, Z, O, P> GetChild() => this;
+        //public DapperSqlMaker<T, Y, Z, O, P> Select()
+        //{
+        //    //1.存表序号和表别名 //FromJoin 得用到
+        //    var tabAliasName1 = "a"; //fielambda.Parameters[0].Name;
+        //    var tabAliasName2 = "b"; //fielambda.Parameters[1].Name;
+        //    var tabAliasName3 = "c"; //fielambda.Parameters[2].Name;
+        //    var tabAliasName4 = "d"; //fielambda.Parameters[3].Name;
+
+        //    var tabAliasName5 = "e"; //fielambda.Parameters[3].Name;
+        //    var tab5fname = typeof(P).FullName;
+        //    if (!TabAliaceDic.ContainsKey(tab5fname)) TabAliaceDic.Add(tab5fname + 5, tabAliasName5);
+
+        //    TabAliaceDic.Add(typeof(T).FullName + 1, tabAliasName1);
+        //    var tab2fname = typeof(Y).FullName;
+        //    if (!TabAliaceDic.ContainsKey(tab2fname)) TabAliaceDic.Add(tab2fname + 2, tabAliasName2);
+        //    var tab3fname = typeof(Z).FullName;
+        //    if (!TabAliaceDic.ContainsKey(tab3fname)) TabAliaceDic.Add(tab3fname + 3, tabAliasName3);
+        //    var tab4fname = typeof(O).FullName;
+        //    if (!TabAliaceDic.ContainsKey(tab4fname)) TabAliaceDic.Add(tab4fname + 4, tabAliasName4);
+
+        //    Clauses.Add(Clause.New(ClauseType.ActionSelect, select: " select "));
+        //    return this;
+        //}
         /// <summary>
         /// MSSQL RowRumber OrderBy 字段  p => p.Id  orderfiesExps必须有返回值 后面的orderby就不要拼接了
         /// </summary> 
@@ -119,7 +234,19 @@ namespace DapperSqlMaker.DapperExt
         {
             LambdaExpression fielambda = orderfiesExps as LambdaExpression;
             if (!(fielambda.Body is NewExpression)) throw new Exception("RowRumber字段未解析");
-            return base.RowRumberOrderBy(fielambda); 
+            return base.RowRumberOrderBy(fielambda);
+
+            //// 2. 解析RowRumber_OrderBy字段
+            //string columns;
+
+            //// 查指定字段 
+            //NewExpression arryexps = fielambda.Body as NewExpression;
+            //Dictionary<string, int> pdic = base.GetLmdparamsDic(fielambda);
+            //columns = GetFieldrrExps(arryexps.Arguments, pdic); //"select " +
+            //columns = string.Format(SM.LimitRowNumber_Sql, columns);
+
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectRowRumberOrderBy, rowRumberOrderBy: columns));
+            //return this;
         }
         /// <summary>
         /// 查询指定字段(默认查询*所有字段) 匿名类型传入Fileds t =>  new { t.f1, t.f2, t2.f3, string SM.Sql() }   ==>   tab1.f1, tab1.f2, tab2.f3
@@ -127,7 +254,17 @@ namespace DapperSqlMaker.DapperExt
         public DapperSqlMaker<T, Y, Z, O, P> Column(Expression<Func<T, Y, Z, O, P, object>> fiesExps = null)
         {
             LambdaExpression fielambda = fiesExps as LambdaExpression;
-            return base.Column(fielambda); 
+            return base.Column(fielambda);
+
+            //string columns;
+            //if (fiesExps == null) { columns = SM.ColumnAll; goto columnsall; }
+
+            //LambdaExpression fielambda = fiesExps as LambdaExpression;
+            //columns = base.GetColumnStr(fielambda);
+
+            //columnsall:
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectColumn, selectColumn: columns));
+            //return this;
         }
         public DapperSqlMaker<T, Y, Z, O, P> FromJoin(
             JoinType joinType2, Expression<Func<T, Y, Z, O, P, bool>> joinExps2
@@ -137,20 +274,62 @@ namespace DapperSqlMaker.DapperExt
         {
             return base.FromJoin(
                       new JoinType[] { joinType2, joinType3, joinType4, joinType5 }
-            , new LambdaExpression[] { joinExps2, joinExps3, joinExps4, joinExps5 }); 
+            , new LambdaExpression[] { joinExps2, joinExps3, joinExps4, joinExps5 });
+
+            //// 1. 表别名
+            //var tabAliasName1 = "a";
+            //var tabAliasName2 = "b";
+            //var tabAliasName3 = "c";
+            //var tabAliasName4 = "d";
+            //var tabAliasName5 = "e";
+
+            //// 2. 主表和查询字段 sel ... from tab
+            //var tabname1 = DsmSqlMapperExtensions.GetTableName(typeof(T));
+            //var selstr = $" from {tabname1} {tabAliasName1}"; // sel .. from 表明 别名
+            //// 3. 生成联表2sql join tab on ...
+            //string jointabstr2 = GetJoinTabStr(typeof(Y), tabAliasName2, joinType2, joinExps2);
+            //// 生成联表3sql
+            //string jointabstr3 = GetJoinTabStr(typeof(Z), tabAliasName3, joinType3, joinExps3);
+            //// 生成联表4sql
+            //string jointabstr4 = GetJoinTabStr(typeof(O), tabAliasName4, joinType4, joinExps4);
+            //// 生成联表5sql
+            //string jointabstr5 = GetJoinTabStr(typeof(P), tabAliasName5, joinType5, joinExps5);
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectFrom, fromJoin: selstr + jointabstr2 + jointabstr3 + jointabstr4 + jointabstr5));
+            //return this;
         }
         public DapperSqlMaker<T, Y, Z, O, P> Where(Expression<Func<T, Y, Z, O, P, bool>> whereExps)
         {
-            return base.Where(whereExps); 
+            return base.Where(whereExps);
+
+            //DynamicParameters spars;
+            //string sqlCondition;
+            //base.GetWhereStr(whereExps, out spars, out sqlCondition);
+
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectWhereOnHaving, condition: sqlCondition, conditionParms: spars));
+
+            //return this;
         }
         /// <param name="fiesExps"></param>
         /// <param name="isDesc">最后一个字段是否降序</param>
         /// <returns></returns>
         public DapperSqlMaker<T, Y, Z, O, P> Order(Expression<Func<T, Y, Z, O, P, object>> fiesExps, bool isDesc = false)
         {
-            return base.Order(fiesExps, isDesc); 
+            return base.Order(fiesExps, isDesc);
+
+            //LambdaExpression fielambda = fiesExps as LambdaExpression;
+            //string columns = base.GetOrderStr(fielambda, isDesc);
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectOrder, order: columns));
+            //return this;
         }
-         
+
+        /// <summary>
+        /// 任意部分sql拼接
+        /// </summary>
+        public DapperSqlMaker<T, Y, Z, O, P> SqlClause(string sqlClause)
+        {
+            Clauses.Add(Clause.New(ClauseType.SqlClause, sqlclause: sqlClause));
+            return this;
+        }
     }
 
     /// <summary>
@@ -164,15 +343,60 @@ namespace DapperSqlMaker.DapperExt
     {
         public abstract override IDbConnection GetConn();
         public override DapperSqlMaker<T, Y, Z, O> GetChild() => this;
-         
+
+        //public DapperSqlMaker<T, Y, Z, O> Select()
+        //{
+        //    // 1. 存表序号和表别名 //FromJoin 得用到
+        //    var tabAliasName1 = "a"; //fielambda.Parameters[0].Name;
+        //    var tabAliasName2 = "b"; //fielambda.Parameters[1].Name;
+        //    var tabAliasName3 = "c"; //fielambda.Parameters[2].Name;
+        //    var tabAliasName4 = "d"; //fielambda.Parameters[3].Name;
+        //    TabAliaceDic.Add(typeof(T).FullName + 1, tabAliasName1);
+        //    var tab2fname = typeof(Y).FullName;
+        //    if (!TabAliaceDic.ContainsKey(tab2fname)) TabAliaceDic.Add(tab2fname + 2, tabAliasName2);
+        //    var tab3fname = typeof(Z).FullName;
+        //    if (!TabAliaceDic.ContainsKey(tab3fname)) TabAliaceDic.Add(tab3fname + 3, tabAliasName3);
+        //    var tab4fname = typeof(O).FullName;
+        //    if (!TabAliaceDic.ContainsKey(tab4fname)) TabAliaceDic.Add(tab4fname + 4, tabAliasName4);
+
+        //    Clauses.Add(Clause.New(ClauseType.ActionSelect, select: " select "));
+        //    return this;
+        //}
         /// <summary>
         /// MSSQL RowRumber OrderBy 字段  p => p.Id  orderfiesExps必须有返回值 后面的orderby就不要拼接了
         /// </summary> 
         public DapperSqlMaker<T, Y, Z, O> RowRumberOrderBy(Expression<Func<T, Y, Z, O, object>> orderfiesExps)
-        { 
+        {
+
             LambdaExpression fielambda = orderfiesExps as LambdaExpression;
             if (!(fielambda.Body is NewExpression)) throw new Exception("RowRumber字段未解析");
-            return base.RowRumberOrderBy(fielambda); 
+            return base.RowRumberOrderBy(fielambda);
+
+            //// 2. 解析RowRumber_OrderBy字段
+            //string columns;
+
+            //// 查指定字段 
+            //NewExpression arryexps = fielambda.Body as NewExpression;
+            //Dictionary<string, int> pdic = base.GetLmdparamsDic(fielambda);
+            //columns = GetFieldrrExps(arryexps.Arguments, pdic); //"select " +  //TabAliaceDic
+            //columns = string.Format(SM.LimitRowNumber_Sql, columns);
+            ///*
+            // * else if (p.NodeType == ExpressionType.Call)
+            ////{ 
+            ////    MethodCallExpression method = p as MethodCallExpression;
+            ////    if (method.Method.Name == SM.LimitRowNumber_Name) goto LimitRowNumber;
+
+            ////    LimitRowNumber:
+            ////    MemberExpression Member = method.Arguments[0] as MemberExpression;
+            ////    ParameterExpression Parmexr = Member.Expression as ParameterExpression;
+            ////    var rntkey = Parmexr.Type.FullName + paramsdic[Parmexr.Name];
+            ////    var mberName = tabalis[rntkey] + "." + Member.Member.Name;  //Parmexr.Name 表.字段名 
+            ////    var rnname = string.Format(SM.LimitRowNumber_Sql, mberName);
+            ////    return rnname;
+            //} 
+            //*/
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectRowRumberOrderBy, rowRumberOrderBy: columns));
+            //return this;
         }
         /// <summary>
         /// 查询指定字段(默认查询*所有字段) 匿名类型传入Fileds t =>  new { t.f1, t.f2, t2.f3, string SM.Sql() }   ==>   tab1.f1, tab1.f2, tab2.f3
@@ -180,7 +404,17 @@ namespace DapperSqlMaker.DapperExt
         public DapperSqlMaker<T, Y, Z, O> Column(Expression<Func<T, Y, Z, O, object>> fiesExps = null)
         {
             LambdaExpression fielambda = fiesExps as LambdaExpression;
-            return base.Column(fielambda); 
+            return base.Column(fielambda);
+
+            //string columns;
+            //if (fiesExps == null) { columns = SM.ColumnAll; goto columnsall; }
+
+            //LambdaExpression fielambda = fiesExps as LambdaExpression;
+            //columns = base.GetColumnStr(fielambda);
+
+            //columnsall:
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectColumn, selectColumn: columns));
+            //return this;
         }
         public DapperSqlMaker<T, Y, Z, O> FromJoin(
             JoinType joinType2, Expression<Func<T, Y, Z, O, bool>> joinExps2
@@ -189,21 +423,58 @@ namespace DapperSqlMaker.DapperExt
         {
             return base.FromJoin(
                       new JoinType[] { joinType2, joinType3, joinType4 }
-            , new LambdaExpression[] { joinExps2, joinExps3, joinExps4 }); 
+            , new LambdaExpression[] { joinExps2, joinExps3, joinExps4 });
+
+            //var tabAliasName1 = "a";
+            //var tabAliasName2 = "b";
+            //var tabAliasName3 = "c";
+            //var tabAliasName4 = "d";
+            //// 3. 主表和查询字段 sel ... from tab
+            //var tabname1 = DsmSqlMapperExtensions.GetTableName(typeof(T));
+            //var selstr = $" from {tabname1} {tabAliasName1}"; // sel .. from 表明 别名
+            //// 4. 生成联表2sql join tab on ...
+            //string jointabstr2 = GetJoinTabStr(typeof(Y), tabAliasName2, joinType2, joinExps2);
+            //// 5. 生成联表3sql
+            //string jointabstr3 = GetJoinTabStr(typeof(Z), tabAliasName3, joinType3, joinExps3);
+            //// 6. 生成联表4sql
+            //string jointabstr4 = GetJoinTabStr(typeof(O), tabAliasName4, joinType4, joinExps4);
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectFrom, fromJoin: selstr + jointabstr2 + jointabstr3 + jointabstr4));
+            //return this;
         }
 
         public DapperSqlMaker<T, Y, Z, O> Where(Expression<Func<T, Y, Z, O, bool>> whereExps)
         {
-            return base.Where(whereExps); 
+            return base.Where(whereExps);
+
+            //DynamicParameters spars;
+            //string sqlCondition;
+            //base.GetWhereStr(whereExps, out spars, out sqlCondition);
+
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectWhereOnHaving, condition: sqlCondition, conditionParms: spars));
+
+            //return this;
         }
         /// <param name="fiesExps"></param>
         /// <param name="isDesc">是否降序</param>
         /// <returns></returns>
         public DapperSqlMaker<T, Y, Z, O> Order(Expression<Func<T, Y, Z, O, object>> fiesExps, bool isDesc = false)
         {
-            return base.Order(fiesExps, isDesc); 
+            return base.Order(fiesExps, isDesc);
+
+            //LambdaExpression fielambda = fiesExps as LambdaExpression;
+            //string columns = base.GetOrderStr(fielambda, isDesc);
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectOrder, order: columns));
+            //return this;
         }
-         
+
+        /// <summary>
+        /// 任意部分sql拼接
+        /// </summary>
+        public DapperSqlMaker<T, Y, Z, O> SqlClause(string sqlClause)
+        {
+            Clauses.Add(Clause.New(ClauseType.SqlClause, sqlclause: sqlClause));
+            return this;
+        }
     }
 
     /// <summary>
@@ -216,7 +487,22 @@ namespace DapperSqlMaker.DapperExt
     {
         public abstract override IDbConnection GetConn();
         public override DapperSqlMaker<T, Y, Z> GetChild() => this;
-         
+
+        //public DapperSqlMaker<T, Y, Z> Select()
+        //{
+        //    // 1. 存表序号和表别名 //FromJoin 得用到
+        //    var tabAliasName1 = "a"; //fielambda.Parameters[0].Name;
+        //    var tabAliasName2 = "b"; //fielambda.Parameters[1].Name;
+        //    var tabAliasName3 = "c"; //fielambda.Parameters[2].Name;
+        //    TabAliaceDic.Add(typeof(T).FullName + 1, tabAliasName1);
+        //    var tab2fname = typeof(Y).FullName;
+        //    if (!TabAliaceDic.ContainsKey(tab2fname)) TabAliaceDic.Add(tab2fname + 2, tabAliasName2);
+        //    var tab3fname = typeof(Z).FullName;
+        //    if (!TabAliaceDic.ContainsKey(tab3fname)) TabAliaceDic.Add(tab3fname + 3, tabAliasName3);
+
+        //    Clauses.Add(Clause.New(ClauseType.ActionSelect, select: " select "));
+        //    return this;
+        //}
         /// <summary>
         /// MSSQL RowRumber OrderBy 字段  p => p.Id  orderfiesExps必须有返回值 后面的orderby就不要拼接了
         /// </summary> 
@@ -224,7 +510,18 @@ namespace DapperSqlMaker.DapperExt
         {
             LambdaExpression fielambda = orderfiesExps as LambdaExpression;
             if (!(fielambda.Body is NewExpression)) throw new Exception("RowRumber字段未解析");
-            return base.RowRumberOrderBy(fielambda); 
+            return base.RowRumberOrderBy(fielambda);
+
+            //// 2. 解析RowRumber_OrderBy字段
+            //string columns;
+
+            //// 查指定字段 
+            //NewExpression arryexps = fielambda.Body as NewExpression;
+            //Dictionary<string, int> pdic = base.GetLmdparamsDic(fielambda);
+            //columns = GetFieldrrExps(arryexps.Arguments, pdic); //"select " +  //, TabAliaceDic
+            //columns = string.Format(SM.LimitRowNumber_Sql, columns);
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectRowRumberOrderBy, rowRumberOrderBy: columns));
+            //return this;
         }
         /// <summary>
         /// 查询指定字段(默认查询*所有字段) 匿名类型传入Fileds t =>  new { t.f1, t.f2, t2.f3, string SM.Sql() }   ==>   tab1.f1, tab1.f2, tab2.f3
@@ -232,7 +529,17 @@ namespace DapperSqlMaker.DapperExt
         public DapperSqlMaker<T, Y, Z> Column(Expression<Func<T, Y, Z, object>> fiesExps = null)
         {
             LambdaExpression fielambda = fiesExps as LambdaExpression;
-            return base.Column(fielambda); 
+            return base.Column(fielambda);
+
+            //string columns;
+            //if (fiesExps == null) { columns = SM.ColumnAll; goto columnsall; }
+
+            //LambdaExpression fielambda = fiesExps as LambdaExpression;
+            //columns = base.GetColumnStr(fielambda);
+
+            //columnsall:
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectColumn, selectColumn: columns));
+            //return this;
         }
         public DapperSqlMaker<T, Y, Z> FromJoin(
             JoinType joinType2, Expression<Func<T, Y, Z, bool>> joinExps2
@@ -240,12 +547,45 @@ namespace DapperSqlMaker.DapperExt
         { 
             return base.FromJoin(
                       new JoinType[] { joinType2, joinType3 }
-            , new LambdaExpression[] { joinExps2, joinExps3 }); 
+            , new LambdaExpression[] { joinExps2, joinExps3 });
+
+            //var tabAliasName1 = "a"; //fielambda.Parameters[0].Name;
+            //var tabAliasName2 = "b"; //fielambda.Parameters[1].Name;
+            //var tabAliasName3 = "c"; //fielambda.Parameters[2].Name;
+            //                         //// 1. 存表别名
+            //                         //var tabAliasName1 = fielambda.Parameters[0].Name;
+            //                         //var tabAliasName2 = fielambda.Parameters[1].Name;
+            //                         //var tabAliasName3 = fielambda.Parameters[2].Name;
+            //                         //TabAliaceDic.Add(typeof(T).FullName + 1, tabAliasName1);
+            //                         //var tab2fname = typeof(Y).FullName;
+            //                         //if (!TabAliaceDic.ContainsKey(tab2fname)) TabAliaceDic.Add(tab2fname + 2, tabAliasName2);
+            //                         //var tab3fname = typeof(Z).FullName;
+            //                         //if (!TabAliaceDic.ContainsKey(tab3fname)) TabAliaceDic.Add(tab3fname + 3, tabAliasName3);
+
+            //// 3. 主表和查询字段 sel ... from tab
+            //var tabname1 = DsmSqlMapperExtensions.GetTableName(typeof(T));
+            //var selstr = $" from {tabname1} {tabAliasName1}"; // sel .. from 表明 别名
+
+            //// 4. 生成联表2sql join tab on ...
+            //string jointabstr2 = base.GetJoinTabStr(typeof(Y), tabAliasName2, joinType2, joinExps2);
+            //// 5. 生成联表3sql
+            //string jointabstr3 = base.GetJoinTabStr(typeof(Z), tabAliasName3, joinType3, joinExps3);
+
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectFrom, fromJoin: selstr + jointabstr2 + jointabstr3));
+            //return this;
         }
 
         public DapperSqlMaker<T, Y, Z> Where(Expression<Func<T, Y, Z, bool>> whereExps)
         {
-            return base.Where(whereExps); 
+            return base.Where(whereExps);
+
+            //DynamicParameters spars;
+            //string sqlCondition;
+            //base.GetWhereStr(whereExps, out spars, out sqlCondition);
+
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectWhereOnHaving, condition: sqlCondition, conditionParms: spars));
+
+            //return this;
         }
 
         /// <param name="fiesExps"></param>
@@ -253,9 +593,22 @@ namespace DapperSqlMaker.DapperExt
         /// <returns></returns>
         public DapperSqlMaker<T, Y, Z> Order(Expression<Func<T, Y, Z, object>> fiesExps, bool isDesc = false)
         {
-            return base.Order(fiesExps, isDesc); 
+            return base.Order(fiesExps, isDesc);
+
+            //LambdaExpression fielambda = fiesExps as LambdaExpression;
+            //string columns = base.GetOrderStr(fielambda, isDesc);
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectOrder, order: columns));
+            //return this;
         }
-         
+
+        /// <summary>
+        /// 任意部分sql拼接
+        /// </summary>
+        public DapperSqlMaker<T, Y, Z> SqlClause(string sqlClause)
+        {
+            Clauses.Add(Clause.New(ClauseType.SqlClause, sqlclause: sqlClause));
+            return this;
+        }
     }
     /// <summary>
     /// 2表查询
@@ -279,7 +632,19 @@ namespace DapperSqlMaker.DapperExt
                 var obj = conn.Query<dynamic>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
                 return obj;
             }
-        } 
+        }
+
+        //public DapperSqlMaker<T, Y> Select()
+        //{
+        //    // 1. 存表序号和表别名 //FromJoin 得用到
+        //    var tabAliasName1 = "a"; //fielambda.Parameters[0].Name;
+        //    var tabAliasName2 = "b"; //fielambda.Parameters[1].Name; 
+        //    TabAliaceDic.Add(typeof(T).FullName + 1, tabAliasName1);
+        //    var tab2fname = typeof(Y).FullName;
+        //    if (!TabAliaceDic.ContainsKey(tab2fname)) TabAliaceDic.Add(tab2fname + 2, tabAliasName2);
+        //    Clauses.Add(Clause.New(ClauseType.ActionSelect, select: " select "));
+        //    return this;
+        //}
         /// <summary>
         /// MSSQL RowRumber OrderBy 字段  p => p.Id  orderfiesExps必须有返回值 后面的orderby就不要拼接了
         /// </summary> 
@@ -287,7 +652,18 @@ namespace DapperSqlMaker.DapperExt
         {
             LambdaExpression fielambda = orderfiesExps as LambdaExpression;
             if (!(fielambda.Body is NewExpression)) throw new Exception("RowRumber字段未解析");
-            return base.RowRumberOrderBy(fielambda); 
+            return base.RowRumberOrderBy(fielambda);
+
+            //// 2. 解析RowRumber_OrderBy字段
+            //string columns;
+
+            //// 查指定字段 
+            //NewExpression arryexps = fielambda.Body as NewExpression;
+            //Dictionary<string, int> pdic = base.GetLmdparamsDic(fielambda);
+            //columns = GetFieldrrExps(arryexps.Arguments, pdic); //"select " +//, TabAliaceDic
+            //columns = string.Format(SM.LimitRowNumber_Sql, columns);
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectRowRumberOrderBy, rowRumberOrderBy: columns));
+            //return this;
         }
         /// <summary>
         /// 查询指定字段(默认查询*所有字段) 匿名类型传入Fileds t =>  new { t.f1, t.f2, t2.f3, string SM.Sql() }   ==>   tab1.f1, tab1.f2, tab2.f3
@@ -295,12 +671,23 @@ namespace DapperSqlMaker.DapperExt
         public DapperSqlMaker<T, Y> Column(Expression<Func<T, Y, object>> fiesExps = null)
         {
             LambdaExpression fielambda = fiesExps as LambdaExpression;
-            return base.Column(fielambda); 
+            return base.Column(fielambda);
+
+            //string columns;
+            //if (fiesExps == null) { columns = SM.ColumnAll; goto columnsall; }
+
+            //LambdaExpression fielambda = fiesExps as LambdaExpression;
+            //columns = base.GetColumnStr(fielambda);
+
+            //columnsall:
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectColumn, selectColumn: columns));
+            //return this;
         }
 
         /// <summary>
         /// 查询字段连表  待完善扩展列 分页行号 ????
         /// </summary>
+        /// <param name="fiesExps">查询指定字段 栗 (lp, u) => new { t.f1, t.f2, t2.f3 }  Func返回值为空时查询所有字段 </param>
         /// <param name="joinType">表连接类型</param>
         /// <param name="joinExps">表连接条件</param>
         /// <returns></returns>
@@ -308,7 +695,21 @@ namespace DapperSqlMaker.DapperExt
         {
             return base.FromJoin(
                       new JoinType[] { joinType }
-            , new LambdaExpression[] { joinExps }); 
+            , new LambdaExpression[] { joinExps });
+
+            //var tabAliasName1 = "a"; //fielambda.Parameters[0].Name;
+            //var tabAliasName2 = "b"; //fielambda.Parameters[1].Name;
+
+            //// sel ... from tab
+            //var tabname1 = DsmSqlMapperExtensions.GetTableName(typeof(T));
+            //var selstr = $" from {tabname1} {tabAliasName1}"; // sel .. from 表明 别名
+
+            //// 4. 生成联表2sql join tab on ...
+            //string jointabstr2 = base.GetJoinTabStr(typeof(Y), tabAliasName2, joinType, joinExps);
+
+            ////sqlMaker.
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectFrom, fromJoin: selstr + jointabstr2));
+            //return this;//sqlMaker;
         }
 
         //public DapperSqlMaker<T, Y> JoinTable(JoinType joinType, Expression<Func<T, Y, bool>> joinExps)
@@ -358,15 +759,36 @@ namespace DapperSqlMaker.DapperExt
 
         public DapperSqlMaker<T, Y> Where(Expression<Func<T, Y, bool>> whereExps)
         {
-            return base.Where(whereExps); 
+            return base.Where(whereExps);
+
+            //DynamicParameters spars;
+            //string sqlCondition;
+            //base.GetWhereStr(whereExps, out spars, out sqlCondition);
+
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectWhereOnHaving, condition: sqlCondition, conditionParms: spars));
+
+            //return this;
         }
 
         // 扩展列 分页行号
         public DapperSqlMaker<T, Y> Order(Expression<Func<T, Y, object>> fiesExps, bool isDesc = false)
         {
-            return base.Order(fiesExps, isDesc); 
+            return base.Order(fiesExps, isDesc);
+
+            //LambdaExpression fielambda = fiesExps as LambdaExpression;
+            //string columns = base.GetOrderStr(fielambda, isDesc);
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectOrder, order: columns));
+            //return this;
         }
-         
+
+        /// <summary>
+        /// 任意部分sql拼接
+        /// </summary>
+        public DapperSqlMaker<T,Y> SqlClause(string sqlClause)
+        {
+            Clauses.Add(Clause.New(ClauseType.SqlClause, sqlclause: sqlClause));
+            return this;
+        }
     }
     /// <summary>
     /// 1表查询
@@ -379,7 +801,17 @@ namespace DapperSqlMaker.DapperExt
 
         #region 链式查询数据
 
-        // 查询 
+        // 查询
+        //public DapperSqlMaker<T> Select()
+        //{
+        //    // 1. 存表序号和表别名 //FromJoin 得用到
+        //    var tabAliasName1 = "a"; //fielambda.Parameters[0].Name; 
+        //    TabAliaceDic.Add(typeof(T).FullName + 1, tabAliasName1);
+
+        //    Clauses.Add(Clause.New(ClauseType.ActionSelect, select: " select "));
+        //    base.ClauseFirst = ClauseType.ActionSelect;
+        //    return this;
+        //}
         /// <summary>
         /// MSSQL RowRumber OrderBy 字段  p => p.Id  orderfiesExps必须有返回值 后面的orderby就不要拼接了
         /// </summary> 
@@ -387,7 +819,17 @@ namespace DapperSqlMaker.DapperExt
         {
             LambdaExpression fielambda = orderfiesExps as LambdaExpression;
             if (!(fielambda.Body is NewExpression)) throw new Exception("RowRumber字段未解析");
-            return base.RowRumberOrderBy(fielambda); 
+            return base.RowRumberOrderBy(fielambda);
+
+            //// 2. 解析RowRumber_OrderBy字段
+            //string columns;
+            //// 查指定字段 
+            //NewExpression arryexps = fielambda.Body as NewExpression;
+            //Dictionary<string, int> pdic = base.GetLmdparamsDic(fielambda);
+            //columns = GetFieldrrExps(arryexps.Arguments, pdic); //"select " + //, TabAliaceDic
+            //columns = string.Format(SM.LimitRowNumber_Sql, columns);
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectRowRumberOrderBy, rowRumberOrderBy: columns));
+            //return this;
         }
         /// <summary>
         /// 查询指定字段(默认查询*所有字段) 匿名类型传入Fileds t =>  new { t.f1, t.f2, t2.f3, string SM.Sql() }   ==>   tab1.f1, tab1.f2, tab2.f3
@@ -395,7 +837,17 @@ namespace DapperSqlMaker.DapperExt
         public DapperSqlMaker<T> Column(Expression<Func<T, object>> fiesExps = null)
         {
             LambdaExpression fielambda = fiesExps as LambdaExpression;
-            return base.Column(fielambda); 
+            return base.Column(fielambda);
+
+            //string columns;
+            //if (fiesExps == null) { columns = SM.ColumnAll; goto columnsall; }
+
+            //LambdaExpression fielambda = fiesExps as LambdaExpression;
+            //columns = base.GetColumnStr(fielambda);
+
+            //columnsall:
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectColumn, selectColumn: columns));
+            //return this;
         }
 
         /// <summary>
@@ -421,12 +873,42 @@ namespace DapperSqlMaker.DapperExt
         /// <param name="whereExps">查询条件(lp) => lp.Name == lpmodel.Name </param>
         public DapperSqlMaker<T> Where(Expression<Func<T, bool>> whereExps)
         {
-            return base.Where(whereExps); 
+            return base.Where(whereExps);
+
+            //DynamicParameters spars;
+            //string sqlCondition;
+            //base.GetWhereStr(whereExps, out spars, out sqlCondition);
+
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectWhereOnHaving, condition: sqlCondition, conditionParms: spars));
+
+            //return this;
         }
         public DapperSqlMaker<T> Order(Expression<Func<T, object>> fiesExps, bool isDesc = false)
         {
-            return base.Order(fiesExps,isDesc); 
-        } 
+            return base.Order(fiesExps,isDesc);
+
+            //LambdaExpression fielambda = fiesExps as LambdaExpression;
+            //string columns = base.GetOrderStr(fielambda, isDesc);
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectOrder, order: columns));
+            //return this;
+        }
+
+        /// <summary>
+        /// 任意部分sql拼接
+        /// </summary>
+        /// <param name="sqlClause">拼接语句</param>
+        /// <returns></returns>
+        //public DapperSqlMaker<T> SqlClause(string sqlClause) => this; // base.SqlClauseAddClauses(sqlClause).GetChild<DapperSqlMaker<T>>(this);
+        ///// <summary>
+        ///// MSSql 分页开头语句(配合CTEWith拼接)
+        ///// </summary>
+        ///// <returns></returns>
+        //public DapperSqlMaker<T> PageStartms() => base.SqlClauseTypeAddClauses(SqlClauseType.PageStartms).GetChild<DapperSqlMaker<T>>(this);
+        ///// <summary>
+        ///// MSSql 分页结束语句(配合CTEWith拼接)
+        ///// </summary>
+        ///// <returns></returns>
+        //public DapperSqlMaker<T> PageEndms() => base.SqlClauseTypeAddClauses(SqlClauseType.PageEndms).GetChild<DapperSqlMaker<T>>(this);
 
         #endregion
 
@@ -513,6 +995,19 @@ namespace DapperSqlMaker.DapperExt
 
     }
 
+    public interface IDapperSqlMakerBase
+    {
+        /// <summary>
+        /// 当前库连接
+        /// </summary>
+        /// <returns></returns>
+        IDbConnection GetConn();
+        /// <summary>
+        /// 参数化 占位符 "@" ":"
+        /// </summary>
+        /// <returns></returns>
+        string GetSqlParamSymbol();
+    }
 
     /// <summary>
     /// 内部基础方法封装
@@ -656,14 +1151,24 @@ namespace DapperSqlMaker.DapperExt
             /// </summary>
             public DynamicParameters SqlClauseParms { get; private set; }
         }
-          
+
+        //protected class TabAliace {
+        //    public static Dictionary<string, string> Dic = new Dictionary<string, string>();
+        //    //public static TabAliace New(string name, string aliace) {
+        //    //    return new TabAliace { Name = name,Aliace = aliace };
+        //    //}
+        //    //public string Name { get; private set; }
+        //    //public string Aliace { get; private set; } 
+        //}
+
         protected List<Clause> _clauses;
         protected List<Clause> Clauses
         {
             get { return _clauses ?? (_clauses = new List<Clause>()); }
         }
         #endregion
-         
+
+
         #region 表别名字典 缓存数据
         //表别名 ConcurrentDictionary FullName, tabAliasName
 
@@ -873,7 +1378,21 @@ namespace DapperSqlMaker.DapperExt
             AnalysisExpression.JoinExpression(joinlambda, ref sql, ref spars, paramsdic: paramsdic); //sqlMaker.TabAliasName
             string onCondition = sql.ToString();
             var jointabstr = $" {joinstr} {tabname2} on {onCondition} ";
-             
+
+            //BinaryExpression binaryg = joinlambda.Body as BinaryExpression;
+
+            //MemberExpression Member1 = binaryg.Left as MemberExpression;
+            //MemberExpression Member2 = binaryg.Right as MemberExpression;
+
+            //ParameterExpression Parmexr1 = Member1.Expression as ParameterExpression;
+            //var tabalias1 = TabAliaceDic[Parmexr1.Type.FullName]; //sqlMaker.TabAliasName Parmexr1.Name
+            //var mberName1 = tabalias1 + "." + Member1.Member.Name;  // 表(别名).字段名
+
+            //ParameterExpression Parmexr2 = Member2.Expression as ParameterExpression;
+            //var tabalias2 = TabAliaceDic[Parmexr2.Type.FullName]; //sqlMaker.TabAliasName Parmexr2.Name
+            //var mberName2 = tabalias2 + "." + Member2.Member.Name;  // 表(别名).字段名
+
+            //var jointabstr = $" {joinstr} {tabname2} on {mberName1} = {mberName2} ";
             return jointabstr;
         }
         /// <summary>
@@ -901,7 +1420,19 @@ namespace DapperSqlMaker.DapperExt
         protected void GetWhereStr(Expression whereExps, out DynamicParameters spars, out string sqlCondition)
         {
             StringBuilder sql = null;
-            spars = null; 
+            spars = null;
+            // select子句有表别名  update子句不能有表别名
+            //MethodCallExpression method = whereExps as MethodCallExpression;
+            //BinaryExpression binary = whereExps as BinaryExpression;
+            //if (binary.Left.NodeType == ExpressionType.Call)
+            //{
+            //    MethodCallExpression startmethod = binary.Left as MethodCallExpression;
+            //    if (startmethod.Method.Name == "WhereStartIgnore")
+            //    {
+            //        sqlCondition = null;
+            //        return;
+            //    }// like in 其他方法继续
+            //}
 
             AnalysisExpression.JoinExpression(whereExps, ref sql, ref spars, isAliasName: this.ClauseFirst == ClauseType.ActionSelect, sqlParamSymbol: this.GetSqlParamSymbol()); //sqlMaker.TabAliasName
 
@@ -915,16 +1446,9 @@ namespace DapperSqlMaker.DapperExt
         /// 任意部分sql拼接
         /// </summary>
         /// <param name="sqlClause"></param>
-        /// <param name="index">拼接到指定位置 默认按顺序拼接</param>
         /// <returns></returns>
-        private DapperSqlMakerBase<Child> SqlClauseAddClauses(string sqlClause , int index = -1) {
-            if (index == -1)
-            {
-                Clauses.Add(Clause.New(ClauseType.SqlClause, sqlclause: sqlClause));
-            }
-            else { // 不为-1则拼接到 指定位置
-                Clauses.Insert(index, Clause.New(ClauseType.SqlClause, sqlclause: sqlClause));
-            }
+        private DapperSqlMakerBase<Child> SqlClauseAddClauses(string sqlClause) {
+            Clauses.Add(Clause.New(ClauseType.SqlClause, sqlclause: sqlClause));
             return this;
         }
         /// <summary>
@@ -966,18 +1490,19 @@ namespace DapperSqlMaker.DapperExt
                         return this;
                 }
             }
-             
+
+            //string sqlclause = base.SqlClauseTypeStr(sqlClauseType);
+            ;
+            //return sqlClause;
         }
 
-        // ####################################################################################
 
         /// <summary>
         /// 任意部分sql拼接
         /// </summary>
         /// <param name="sqlClause">拼接语句</param>
-        /// <param name="index">拼接到指定位置 默认按顺序拼接</param>
         /// <returns></returns>
-        public Child SqlClause(string sqlClause,int index=-1) => this.SqlClauseAddClauses(sqlClause,index).GetChild();
+        public Child SqlClause(string sqlClause) => this.SqlClauseAddClauses(sqlClause).GetChild();
         /// <summary>
         /// MSSql 分页开头语句(配合CTEWith拼接) 拼接内容SM.PageStartms
         /// </summary>
@@ -1012,7 +1537,15 @@ namespace DapperSqlMaker.DapperExt
                 this.tabAliasList.Add(tabAliasName);
             }
             Clauses.Add(Clause.New(ClauseType.ActionSelect, select: " select "));
-              
+
+            //var tabAliasName1 = "a"; //fielambda.Parameters[0].Name;
+            //var tabAliasName2 = "b"; //fielambda.Parameters[1].Name; 
+            //TabAliaceDic.Add(typeof(T).FullName + 1, tabAliasName1);
+            //var tab2fname = typeof(Y).FullName;
+            //if (!TabAliaceDic.ContainsKey(tab2fname)) TabAliaceDic.Add(tab2fname + 2, tabAliasName2);
+            //Clauses.Add(Clause.New(ClauseType.ActionSelect, select: " select "));
+            //return this;
+
             return r;
         }
         /// <summary>
@@ -1049,7 +1582,15 @@ namespace DapperSqlMaker.DapperExt
             Clauses.Add(Clause.New(ClauseType.ActionSelectColumn, selectColumn: columns));
             return this.GetChild();
         }
-        public Child FromJoin(  JoinType[] joinTypes, LambdaExpression[] joinExps  )
+        public Child FromJoin(
+            //JoinType joinType2, Expression<Func<T, Y, Z, O, P, Q, bool>> joinExps2
+            JoinType[] joinTypes, LambdaExpression[] joinExps
+          // ,JoinType joinType2, LambdaExpression joinExps2
+          //, JoinType joinType3, LambdaExpression joinExps3
+          //, JoinType joinType4, LambdaExpression joinExps4
+          //, JoinType joinType5, LambdaExpression joinExps5
+          //, JoinType joinType6, LambdaExpression joinExps6
+          )
         {
             //List<string> tabAliasList = new List<string>(); // 表别名集合 a,b,c ...
             if (this.tabAliasList.Count < 2) throw new Exception("FromJoin方法至少需要两表以上的 上下文类调用");
@@ -1058,7 +1599,14 @@ namespace DapperSqlMaker.DapperExt
             //RuntimeTypeHandle rth = rtype.TypeHandle;
             //Type[] ChildTypes = rtype.GetGenericArguments();
             Type[] ChildTypes = DsmSqlMapperExtensions.ChildGenericTypesCache(rtype);
-             
+
+            // 1. 表别名
+            //var tabAliasName1 = "a";
+            //var tabAliasName2 = "b";
+            //var tabAliasName3 = "c";
+            //var tabAliasName4 = "d";
+            //var tabAliasName5 = "e";
+            //var tabAliasName6 = "f";
 
             StringBuilder sb = new StringBuilder();
             // 2. 主表和查询字段 sel ... from tab
@@ -1074,7 +1622,19 @@ namespace DapperSqlMaker.DapperExt
 
             Clauses.Add(Clause.New(ClauseType.ActionSelectFrom, fromJoin: sb.ToString() ));
             return this.GetChild();
-             
+
+            //// 3. 生成联表2sql join tab on ...
+            //string jointabstr2 = GetJoinTabStr(typeof(Y), tabAliasName2, joinType2, joinExps2);
+            //// 生成联表3sql
+            //string jointabstr3 = GetJoinTabStr(typeof(Z), tabAliasName3, joinType3, joinExps3);
+            //// 生成联表4sql
+            //string jointabstr4 = GetJoinTabStr(typeof(O), tabAliasName4, joinType4, joinExps4);
+            //// 生成联表5sql
+            //string jointabstr5 = GetJoinTabStr(typeof(P), tabAliasName5, joinType5, joinExps5);
+            //// 生成联表6sql
+            //string jointabstr6 = GetJoinTabStr(typeof(Q), tabAliasName6, joinType6, joinExps6);
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectFrom, fromJoin: selstr + jointabstr2 + jointabstr3 + jointabstr4 + jointabstr5 + jointabstr6));
+            //return this;
         }
 
         /// <summary>
@@ -1200,8 +1760,66 @@ namespace DapperSqlMaker.DapperExt
         }
 
         #endregion
-         
-        #region 输出sql执行
+
+        //protected static DapperSqlMaker _sqlMaker;
+        //public static DapperSqlMaker New()
+        //{ 
+        //    //Clauses.Clear();
+        //    _sqlMaker = new DapperSqlMaker();
+        //    _sqlMaker.Clauses.Clear();
+        //    return _sqlMaker;
+        //}
+
+        //public DapperSqlMaker SELECT(string columns = null)
+        //{
+        //    //Clauses.Add(Clause.New(ClauseType.ActionSelect, "SELECT"));
+        //    return this;
+        //}
+
+        //public virtual string RawSql()
+        //{
+        //    string sqlResult = null;
+        //    if (Clauses.Count == 0)
+        //    {
+        //        throw new Exception("Empty query");
+        //    }
+        //    var first = Clauses.First();
+        //    switch (first.ClauseType)
+        //    { 
+        //        case ClauseType.ActionSelect:
+        //            sqlResult = ResolveSelect(Clauses);
+        //            break; 
+        //        default:
+        //            throw new Exception("Wrong start of query");
+        //    }
+        //    return sqlResult;
+        //}
+
+        protected static string ResolveSelect(List<Clause> list)
+        {
+            var sb = new StringBuilder();
+            foreach (var clause in list)
+            {
+                switch (clause.ClauseType)
+                {
+                    case ClauseType.ActionSelect:
+                        sb.Append(clause.SeletTable);
+                        break;
+                    //case ClauseType.ActionSelectJoin:
+                    //    sb.Append(clause.JoinTable);
+                    //    break; 
+                    case ClauseType.ActionSelectWhereOnHaving:
+                        sb.Append(clause.Condition);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+            sb.Append(";");
+            return sb.ToString();
+        }
+
+
 
         /// <summary>
         /// 生成sql和参数
@@ -1268,7 +1886,7 @@ namespace DapperSqlMaker.DapperExt
                         dparam.AddDynamicParams(clause.UpdateParms);
                         break;// ----------更新 where子句公用select的
                     case ClauseType.Delete: // 删除 -------------------
-                        sb.Append(clause.Delete);
+                        sb.Append(clause.Delete); 
                         break;// ----------删除 where子句公用select的
 
                     case ClauseType.SqlClause: //任意部分sql字句拼接
@@ -1341,6 +1959,9 @@ namespace DapperSqlMaker.DapperExt
 
         // 数据库类型 conn.GetType().Name.ToLower()  sqliteconnection
         // "sqlconnection", "sqlceconnection","npgsqlconnection","sqliteconnection","mysqlconnection",
+
+
+        #region 输出sql执行
 
         /// <summary>
         /// 查询多行 dynamic  
@@ -1568,23 +2189,12 @@ namespace DapperSqlMaker.DapperExt
 
 
         #endregion
-         
+
+
+
         //public virtual IEnumerable<dynamic> ExecuteQuery() { throw new Exception("子类未重写该方法"); }
 
     }
 
-    public interface IDapperSqlMakerBase
-    {
-        /// <summary>
-        /// 当前库连接
-        /// </summary>
-        /// <returns></returns>
-        IDbConnection GetConn();
-        /// <summary>
-        /// 参数化 占位符 "@" ":"
-        /// </summary>
-        /// <returns></returns>
-        string GetSqlParamSymbol();
-    }
 
 }
