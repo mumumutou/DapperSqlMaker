@@ -644,63 +644,63 @@ namespace TestsDapperSqlMaker
             string withsql = " with u as ( select * from Users )";
             string uname = " , (select u.UserName from u where u.Id = a.UserId) UserNamex ";
 
-            //// 单表
-            //LockPers lpmodel = new LockPers();
-            //lpmodel.Name = "%蛋蛋%";
-            //lpmodel.IsDel = false;
-            //Expression<Func<LockPers, bool>> where = PredicateBuilder.WhereStart<LockPers>();
-            //where = where.And((lpw) => lpw.Name.Contains(lpmodel.Name));
-            //where = where.And((lpw) => lpw.IsDel == lpmodel.IsDel);
+            // 单表
+            LockPers lpmodel = new LockPers();
+            lpmodel.Name = "%蛋蛋%";
+            lpmodel.IsDel = false;
+            Expression<Func<LockPers, bool>> where = PredicateBuilder.WhereStart<LockPers>();
+            where = where.And((lpw) => lpw.Name.Contains(lpmodel.Name));
+            where = where.And((lpw) => lpw.IsDel == lpmodel.IsDel);
 
-            //DapperSqlMaker<LockPers> query = LockDapperUtilmssql<LockPers>
-            //    .SqlClaus(withsql)  // 公用表表达式
-            //    .Select()
-            //    .RowRumberOrderBy(lp => new { lp.EditCount, lp.Name })
-            //    .Column() //p => new { p.Name, p.Prompt }) // lp => new {SM.Sql("*") lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel }) // null查询所有字段
-            //    .SqlClause(uname)   // 查询cte字段
-            //    .From()
-            //    .Where(where); //lp => lp.Name == lpmodel.Name && lp.IsDel == lpmodel.IsDel  )
-            //                   //.Order(lp => new { lp.EditCount, lp.Name }); // .ExecuteQuery();
-            //var result = query.ExecuteQuery();
-            //WriteJson(result); //  查询结果
-            //query.PageStartms(1).PageEndms();
-            //int records;
-            //var pageresult = query.LoadPagemscte(1, 2, out records); // mssql cte 分页
-            //Console.WriteLine(records);
-            //WriteJson(pageresult);
+            DapperSqlMaker<LockPers> query = LockDapperUtilmssql<LockPers>
+                .SqlClaus(withsql)  // 公用表表达式
+                .Select()
+                .RowRumberOrderBy(lp => new { lp.EditCount, lp.Name })
+                .Column() //p => new { p.Name, p.Prompt }) // lp => new {SM.Sql("*") lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel }) // null查询所有字段
+                .SqlClause(uname)   // 查询cte字段
+                .From()
+                .Where(where); //lp => lp.Name == lpmodel.Name && lp.IsDel == lpmodel.IsDel  )
+                               //.Order(lp => new { lp.EditCount, lp.Name }); // .ExecuteQuery();
+            var result = query.ExecuteQuery();
+            WriteJson(result); //  查询结果
+            query.PageStartms(1).PageEndms();
+            int records;
+            var pageresult = query.LoadPagemscte(1, 2, out records); // mssql cte 分页
+            Console.WriteLine(records);
+            WriteJson(pageresult);
 
 
             #region 4表测试
-            // 4表
-            LockPers lpmodel = new LockPers() { Name = "%蛋蛋%", IsDel = false };
-            Users umodel = new Users() { UserName = "jiaojiao" };
-            SynNote snmodel = new SynNote() { Name = "%木头%" };
-            Expression<Func<LockPers_ms, Users_ms, SynNote_ms, SynNote_ms, bool>> where = PredicateBuilder.WhereStart<LockPers_ms, Users_ms, SynNote_ms, SynNote_ms>();
-            where = where.And((lpw, uw, sn, snn) => lpw.Name.Contains(lpmodel.Name));
-            where = where.And((lpw, uw, sn, snn) => lpw.IsDel == lpmodel.IsDel);
-            where = where.And((lpw, uw, sn, snn) => uw.UserName == umodel.UserName);
-            where = where.And((lpw, uw, sn, snn) => sn.Name.Contains(snmodel.Name));
-            //  SM.LimitCount,
-            DapperSqlMaker<LockPers_ms, Users_ms, SynNote_ms, SynNote_ms> query =
-                LockDapperUtilmssql<LockPers_ms, Users_ms, SynNote_ms, SynNote_ms>
-                .SqlClaus(withsql)  // 公用表表达式
-                .Select()
-                .RowRumberOrderBy((lp, u, s, sn) => new { lp.Id, a = u.Id, xu = SM.OrderDesc(lp.UserId) })
-                .Column((lp, u, s, sn) =>
-                   new { SM.LimitCount, lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName, s.Content, s.Name })//null查询所有字段
-                .SqlClause(uname)
-                .FromJoin(JoinType.Left, (lpp, uu, snn, snnn) => uu.Id == lpp.UserId
-                    , JoinType.Inner, (lpp, uu, snn, snnn) => uu.Id == snn.UserId && snn.Id == snn.UserId
-                    , JoinType.Inner, (lpp, uu, snn, snnn) => snnn.Id == snn.UserId)
-                .Where(where); //(lpp, uu, snn, snnn) => uu.Id == snn.UserId && snnn.Id == snn.UserId)//)
-                               // .Order((lp, w, sn, snn) => new { lp.EditCount, lp.Name, sn.Content });
-            Tuple<StringBuilder, DynamicParameters> resultsqlparams = query.RawSqlParams();
-            WriteSqlParams(resultsqlparams);
-            var result = query.ExecuteQuery();
-            WriteJson(result); //  查询结果
-            int records;
-            var result2 = query.PageStartms(1).PageEndms().LoadPagemscte(1, 2, out records);
-            WriteJson(result2);
+            //// 4表
+            //LockPers lpmodel = new LockPers() { Name = "%蛋蛋%", IsDel = false };
+            //Users umodel = new Users() { UserName = "jiaojiao" };
+            //SynNote snmodel = new SynNote() { Name = "%木头%" };
+            //Expression<Func<LockPers_ms, Users_ms, SynNote_ms, SynNote_ms, bool>> where = PredicateBuilder.WhereStart<LockPers_ms, Users_ms, SynNote_ms, SynNote_ms>();
+            //where = where.And((lpw, uw, sn, snn) => lpw.Name.Contains(lpmodel.Name));
+            //where = where.And((lpw, uw, sn, snn) => lpw.IsDel == lpmodel.IsDel);
+            //where = where.And((lpw, uw, sn, snn) => uw.UserName == umodel.UserName);
+            //where = where.And((lpw, uw, sn, snn) => sn.Name.Contains(snmodel.Name));
+            ////  SM.LimitCount,
+            //DapperSqlMaker<LockPers_ms, Users_ms, SynNote_ms, SynNote_ms> query =
+            //    LockDapperUtilmssql<LockPers_ms, Users_ms, SynNote_ms, SynNote_ms>
+            //    .SqlClaus(withsql)  // 公用表表达式
+            //    .Select()
+            //    .RowRumberOrderBy((lp, u, s, sn) => new { lp.Id, a = u.Id, xu = SM.OrderDesc(lp.UserId) })
+            //    .Column((lp, u, s, sn) =>
+            //       new { SM.LimitCount, lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName, s.Content, s.Name })//null查询所有字段
+            //    .SqlClause(uname)
+            //    .FromJoin(JoinType.Left, (lpp, uu, snn, snnn) => uu.Id == lpp.UserId
+            //        , JoinType.Inner, (lpp, uu, snn, snnn) => uu.Id == snn.UserId && snn.Id == snn.UserId
+            //        , JoinType.Inner, (lpp, uu, snn, snnn) => snnn.Id == snn.UserId)
+            //    .Where(where); //(lpp, uu, snn, snnn) => uu.Id == snn.UserId && snnn.Id == snn.UserId)//)
+            //                   // .Order((lp, w, sn, snn) => new { lp.EditCount, lp.Name, sn.Content });
+            //Tuple<StringBuilder, DynamicParameters> resultsqlparams = query.RawSqlParams();
+            //WriteSqlParams(resultsqlparams);
+            //var result = query.ExecuteQuery();
+            //WriteJson(result); //  查询结果
+            //int records;
+            //var result2 = query.PageStartms(1).PageEndms().LoadPagemscte(1, 2, out records);
+            //WriteJson(result2);
             #endregion
 
             #region 多表测试 2 3 5 6
