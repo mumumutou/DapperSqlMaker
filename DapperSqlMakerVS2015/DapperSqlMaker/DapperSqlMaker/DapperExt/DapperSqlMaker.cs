@@ -1343,7 +1343,7 @@ namespace DapperSqlMaker.DapperExt
         // "sqlconnection", "sqlceconnection","npgsqlconnection","sqliteconnection","mysqlconnection",
 
         /// <summary>
-        /// 查询多行 dynamic  
+        /// 查询多行 dynamic 空数据返回Count=0的IEnumerable&lt;dynamic&gt;
         /// </summary> 
         public virtual IEnumerable<dynamic> ExecuteQuery()
         {
@@ -1361,7 +1361,45 @@ namespace DapperSqlMaker.DapperExt
             }
         }
         /// <summary>
-        /// 查询首行 dynamic 
+        /// 查询多行 泛型 空数据返回Count=0的IEnumerable&lt;Y&gt;
+        /// </summary>
+        public virtual IEnumerable<Y> ExecuteQuery<Y>()
+        {
+            // Tuple<sql,entity>
+            Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
+
+            using (var conn = GetConn())
+            {
+                var obj = conn.Query<Y>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
+                return obj;
+            }
+        }
+
+        /// <summary>
+        /// 同 ExecuteQuery().ToList()
+        /// </summary>
+        public virtual List<dynamic> ExecuteQueryList() => this.ExecuteQuery().ToList();
+        /// <summary>
+        /// 同 ExecuteQuery&lt;Y&gt;().ToList&lt;Y&gt;()
+        /// </summary>
+        public virtual List<Y> ExecuteQueryList<Y>() => this.ExecuteQuery<Y>().ToList<Y>();
+
+        /// <summary>
+        /// 查询首行 泛型 (空数据报错)
+        /// </summary>
+        public virtual Y ExecuteQueryFirst<Y>()
+        {
+            // Tuple<sql,entity>
+            Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
+
+            using (var conn = GetConn())
+            {
+                var obj = conn.QueryFirst<Y>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
+                return obj; //.FirstOrDefault();
+            }
+        }
+        /// <summary>
+        /// 查询首行 dynamic  (空数据报错)
         /// </summary>
         /// <returns>dapper封装的dynamic</returns>
         public virtual dynamic ExecuteQueryFirst()
@@ -1377,35 +1415,19 @@ namespace DapperSqlMaker.DapperExt
         }
 
         /// <summary>
-        /// 查询多行 泛型
+        /// 查询首行 泛型 空数据返回默认值null 同ExecuteQuery&lt;Y&gt;().FirstOrDefault&lt;Y&gt;()
         /// </summary>
-        public virtual IEnumerable<Y> ExecuteQuery<Y>()
-        {
-            // Tuple<sql,entity>
-            Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
-
-            using (var conn = GetConn())
-            {
-                var obj = conn.Query<Y>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
-                return obj;
-            }
-        }
+        /// <typeparam name="Y"></typeparam>
+        /// <returns>Y</returns>
+        public virtual Y ExecuteQueryFirstOrDefault<Y>() => this.ExecuteQuery<Y>().FirstOrDefault<Y>();
         /// <summary>
-        /// 查询首行 泛型
-        /// </summary>
-        public virtual Y ExecuteQueryFirst<Y>()
-        {
-            // Tuple<sql,entity>
-            Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
+        /// 查询首行 dynamic 空数据返回默认值null 同ExecuteQuery().FirstOrDefault()
+        /// </summary> 
+        /// <returns>dynamic</returns>
+        public virtual dynamic ExecuteQueryFirstOrDefault() => this.ExecuteQuery().FirstOrDefault();
 
-            using (var conn = GetConn())
-            {
-                var obj = conn.QueryFirst<Y>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
-                return obj; //.FirstOrDefault();
-            }
-        }
         /// <summary>
-        /// 查询首列
+        /// 查询首列 T 空数据返回默认值null
         /// </summary>
         public virtual Y ExecuteScalar<Y>()
         {
@@ -1488,7 +1510,7 @@ namespace DapperSqlMaker.DapperExt
         }
 
         /// <summary>
-        /// sqlite分页
+        /// sqlite分页 dynamic 空数据返回Count=0的IEnumerable&lt;dynamic&gt;
         /// </summary> 
         public virtual IEnumerable<dynamic> LoadPagelt(int page, int rows, out int records)
         {
@@ -1513,7 +1535,7 @@ namespace DapperSqlMaker.DapperExt
             }
         }
         /// <summary>
-        /// sqlite分页
+        /// sqlite分页 T 空数据返回Count=0的IEnumerable&lt;T&gt;
         /// </summary> 
         public virtual IEnumerable<T> LoadPagelt<T>(int page, int rows, out int records)
         {

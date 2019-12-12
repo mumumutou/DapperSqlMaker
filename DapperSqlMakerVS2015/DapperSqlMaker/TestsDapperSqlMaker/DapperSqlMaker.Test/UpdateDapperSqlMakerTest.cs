@@ -6,6 +6,8 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 
 namespace TestsDapperSqlMaker.DapperExt
@@ -23,16 +25,84 @@ namespace TestsDapperSqlMaker.DapperExt
         [Test]
         public void 更新部分字段_含子查询_测试lt()
         {
+            var model = new Users() { CreateTime = DateTime.Now };
             string colm = "img", val = "(select value from skin limit 1 offset 1)"; DateTime cdate = DateTime.Now;
             var update = LockDapperUtilsqlite<Users>.Updat().EditColumn(p => new bool[] {
                p.UserName =="几十行代码几十个错 调一步改一步....", p.Password == "bug制造者"
-               , p.CreateTime == cdate,  SM.Sql(p.Remark,"(select '奥德赛 终于改好了')")
+               , p.CreateTime == model.CreateTime,  SM.Sql(p.Remark,"(select '奥德赛 终于改好了')")
             }).Where(p => p.Id == 6 && SM.SQL("IsDel == 0"));
 
             Console.WriteLine(update.RawSqlParams().Item1);
             var efrow = update.ExecuteUpdate();
             Console.WriteLine(efrow);
         }
+
+        [Test]
+        public void 根据条件_动态拼修改的字段() {
+            DateTime cdate = DateTime.Now; ;
+            Expression<Func<Users, bool[]>> xxexp = p => new bool[] {
+               p.UserName =="几十行....", p.Password == "bug制造者"
+               , p.CreateTime == cdate,  SM.Sql(p.Remark,"(select '奥德赛 终于改好了')")
+            };
+
+
+
+            var lambdap = Expression.Parameter(typeof(Users), "p");
+            //var lambdamod = Expression.MakeMemberAccess(Expression.Constant("测试12",typeof(string)));
+            var leftmb= Expression.Property(lambdap, "UserName");
+            var rightmb = Expression.Property(Expression.Property(Expression.Constant(DateTime.Now), typeof(Users).GetProperty("UserName")), typeof(Users).GetProperty("UserName"));
+            var eqexp = Expression.Equal(leftmb,rightmb);
+
+            var lambdamod2 = Expression.MakeMemberAccess(Expression.Constant(DateTime.Now), typeof(Users).GetMember("CreateTime")[0]);
+            var leftmb2 = Expression.MakeMemberAccess(lambdap, typeof(Users).GetMember("CreateTime")[0]);
+            var rightmb2 = Expression.MakeMemberAccess(lambdamod2, typeof(Users).GetMember("CreateTime")[0]);
+            var eqexp2 = Expression.Equal(leftmb2, rightmb2);
+            var exparrss = NewArrayExpression.NewArrayInit(typeof(bool), eqexp, eqexp2);
+
+            LambdaExpression lambdaExpr = Expression.Lambda(exparrss, new List<ParameterExpression>() { lambdap });
+            Console.WriteLine(lambdaExpr);// arg => (arg +1)
+
+            var func = lambdaExpr.Compile() as Func<Users,bool[]>;
+            var resu = func(new Users() { UserName = "1" }); //, new Users());
+
+            // ################
+            ////BinaryExpression.
+            //var x = Expression.Equal(Expression.MakeMemberAccess(Expression.Variable(typeof(Users), "UserName"), typeof(Users).GetMember("UserName")[0])
+            //    , Expression.MakeMemberAccess(Expression.Variable(typeof(Users), "UserName"), typeof(Users).GetMember("UserName")[0]));
+
+            //LambdaExpression lambdaExpr = Expression.Lambda(Expression.Add(paramExpr, Expression.Constant(1)), new List<ParameterExpression>() { paramExpr });
+            //Console.WriteLine(lambdaExpr);// arg => (arg +1)
+
+
+            //List <bool> edcolms = new List<bool>();
+            ////Expression.Constant(" "); // 常量表达式
+
+            //DateTime cdatec = DateTime.Now;
+            //Users model = new Users() { UserName="数组表达式构建", CreateTime = cdate };
+
+            ////BinaryExpression.New()
+
+            ////NewArrayExpression.New(typeof(Func<Users,bool>), )
+
+            //List<Expression> exparrxx = new List<Expression>();
+            ////exparrxx.Add(, ));
+
+            //List<Expression<Func<Users, bool>>> exparr = new List<Expression<Func<Users, bool>>>();
+            //exparr.Add( p => p.UserName == model.UserName );
+            //exparr.Add( p => p.CreateTime == model.CreateTime );
+
+            //var arrexp =  NewArrayExpression.NewArrayInit(typeof(bool), exparr);
+
+
+            //var exparrs = Expression.NewArrayInit(typeof(bool), exparr);
+
+            //LockDapperUtilsqlite<Users>.Updat().EditColumn( )
+
+            // ###########
+            //把editcolumn改为 where == 形式才能 随意拼接
+
+        }
+
 
 
         [Test]

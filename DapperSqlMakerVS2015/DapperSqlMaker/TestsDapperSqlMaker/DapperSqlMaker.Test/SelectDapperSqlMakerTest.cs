@@ -440,7 +440,51 @@ namespace TestsDapperSqlMaker
 
         #endregion
 
+        [Test]
+        public void 空数据查询() {
 
+            try
+            { // 首行空数据 T (空数据报错)
+                LockPers tnull = LockDapperUtilsqlite<LockPers>.Selec().Column().From().Where(p => p.Name == "null").ExecuteQueryFirst<LockPers>();
+            }
+            catch (Exception) { Console.WriteLine("查询首行报错啦"); }
+            try
+            {   // 首行空数据 dynamic (空数据报错)
+                var mnull = LockDapperUtilsqlite<LockPers>.Selec().Column().From().Where(p => p.Name == "null").ExecuteQueryFirst();
+            }
+            catch (Exception) { Console.WriteLine("查询首行报错啦"); }
+            // 首行空数据 T (空数据返回null)
+            LockPers dftnull = LockDapperUtilsqlite<LockPers>.Selec().Column().From().Where(p => p.Name == "null").ExecuteQueryFirstOrDefault<LockPers>();
+            // 首行空数据 T (空数据返回null)
+            var dfmnull = LockDapperUtilsqlite<LockPers>.Selec().Column().From().Where(p => p.Name == "null").ExecuteQueryFirstOrDefault();
+
+
+            // 首行首列 (空数据返回null)
+            var mcolumnnull = LockDapperUtilsqlite<LockPers>.Selec().Column(p => new { p.Name }).From().Where(p => p.Name == "null").ExecuteScalar<string>();
+            // 首行首列 (空数据返回0)
+            var icolumnnull = LockDapperUtilsqlite<LockPers>.Selec().Column(p => new { p.Name }).From().Where(p => p.Name == "null").ExecuteScalar<int>();
+
+
+            // 以下多行空数据 都返回Count=0的集合
+
+            // 多行空数据 dynamic
+            var tdsmlistnullist = LockDapperUtilsqlite<LockPers>.Selec().Column().From().Where(p => p.Name == "null").ExecuteQuery();
+            // 多行空数据 T
+            var tlistnull = LockDapperUtilsqlite<LockPers>.Selec().Column().From().Where(p => p.Name == "null").ExecuteQuery<LockPers>();
+            // 多行空数据 dynamic
+            var tdsmlistnull = LockDapperUtilsqlite<LockPers>.Selec().Column().From().Where(p => p.Name == "null").ExecuteQueryList();
+            // 多行空数据 T
+            var tlistnullist = LockDapperUtilsqlite<LockPers>.Selec().Column().From().Where(p => p.Name == "null").ExecuteQueryList<LockPers>();
+
+            int records;
+            // 多行空数据 T
+            var pagesnull = LockDapperUtilsqlite<LockPers>.Selec().Column().From().Where(p => p.Name == "null").LoadPagelt<LockPers>(1,10,out records);
+            // 多行空数据 T
+            var pagesdsmnull = LockDapperUtilsqlite<LockPers>.Selec().Column().From().Where(p => p.Name == "null").LoadPagelt(1, 10, out records);
+
+
+
+        }
 
         [Test]
         public void 查询首行()
