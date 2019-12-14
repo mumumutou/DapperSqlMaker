@@ -17,6 +17,8 @@ namespace DapperSqlMaker
         /// 默认的Sql Server的链接字符串
         /// </summary>
         public static string DefaultSqlConnectionString = @"server=127.0.0.1,1433;database=LockTest;uid=sa;pwd=sa123;";
+        public static string EshineCloudBaseConnectionString = @"server=127.0.0.1,1433;database=Eshine.CloudBase;uid=sa;pwd=sa123;";
+
         public static IDbConnection GetSqlConnection(string sqlConnectionString = null)
         {
             if (string.IsNullOrWhiteSpace(sqlConnectionString))

@@ -130,42 +130,52 @@ namespace FW.Model
 		private int _UserId ;
         #endregion
 
+[StringLength(100,Nullable=true,NVarchar = true)]
 		public virtual string Name { 
 			set { _Name = value; }
 			get { return _Name; }
 		}
+[StringLength(200,Nullable=true,NVarchar = true)]
 		public virtual string Content { 
 			set { _Content = value; }
 			get { return _Content; }
 		}
+[StringLength(200,Nullable=true,NVarchar = true)]
 		public virtual string Prompt { 
 			set { _Prompt = value; }
 			get { return _Prompt; }
 		}
+[StringLength(100,Nullable=false,NVarchar = false)]
 		public virtual string Id { 
 			set { _Id = value; }
 			get { return _Id; }
 		}
+
 		public virtual DateTime? InsertTime { 
 			set { _InsertTime = value; }
 			get { return _InsertTime; }
 		}
+
 		public virtual bool IsDel { 
 			set { _IsDel = value; }
 			get { return _IsDel; }
 		}
+
 		public virtual DateTime? DelTime { 
 			set { _DelTime = value; }
 			get { return _DelTime; }
 		}
+
 		public virtual DateTime? UpdateTime { 
 			set { _UpdateTime = value; }
 			get { return _UpdateTime; }
 		}
+
 		public virtual int? EditCount { 
 			set { _EditCount = value; }
 			get { return _EditCount; }
 		}
+
 		public virtual int UserId { 
 			set { _UserId = value; }
 			get { return _UserId; }

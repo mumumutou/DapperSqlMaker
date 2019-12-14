@@ -405,5 +405,177 @@ namespace DapperSqlMaker.DapperExt
         #endregion
 
 
+        #region CodeFirst
+        /// <summary>
+        /// CodeFirst粗暴模式 先删再键
+        /// </summary>
+        /// <param name="bak">默认备份 备份表明前缀bak_yyyyMMdd_HHmmss_</param>
+        /// <param name="types">更新的实体</param>
+        /// <returns></returns>
+        public int CodeFirstInitgg(bool bak = true, params Type[] types) {
+
+            Type curType = null;
+            var length = types.Length;
+            int i = 0;
+            List<string> suctabs = new List<string>();
+
+            var filterTabs = string.Join(",", types.Select(p => $"'{(p.GetCustomAttributes(typeof(TableAttribute), true).FirstOrDefault() as TableAttribute).Name}'").ToList());
+
+            // 库中表结构 读取指定表
+            var tabColumns = this.Query<ColumnInfo>(CodeFirstCommon.COLUMN_SQL.Replace("-- where", $" where d.name in ({filterTabs}) --"), null).ToList<ColumnInfo>();
+            var groups = tabColumns.GroupBy(p => p.Table_Name).ToList();
+            var tabs = groups.Select(p => new TableInfo(p.FirstOrDefault().Table_Name, p.ToList())).ToList();
+
+
+            genwhile:
+            while (true)
+            {
+                if (i == length) goto genbreak;
+                curType = types[i++];
+                goto generate;
+            }
+
+            generate:
+
+            // 当前CodeFirst实体
+            var mtype = curType;//typeof(modelxxx_ms_);
+
+
+            var attrTab = mtype.GetCustomAttributes(typeof(TableAttribute), true).FirstOrDefault() as TableAttribute;
+            var TabBak = DateTime.Now.ToString("bak_yyyyMMdd_HHmmss_") + attrTab.Name; //备份表名
+            var TabOld = attrTab.Name;// 原表名
+            var TabOldLower = TabOld.ToLower(); 
+
+            // CodeFirst列数据
+            var mTypeColumns = mtype.GetProperties().Where(DsmSqlMapperExtensions.IsWriteable) // 过滤Write false字段
+                     .Select<System.Reflection.PropertyInfo, ColumnInfo>(p => new ColumnInfo(p, TabOld)).ToList<ColumnInfo>();
+            // 当前表(库)结构
+            var tab = tabs.FirstOrDefault(p => p.Table_Name.ToLower() == TabOldLower);
+
+            if (tab == null) goto gennew;// 新表 直接新建 
+            if (!bak) goto breakbak; // 不备份
+            // 已有表 备份并删除
+            // 备份表
+            var bakef = this.Query(CodeFirstCommon.TABLE_BUK_SQL.Replace("@TabBak", TabBak).Replace("@TabOld", TabOld), null);
+
+            breakbak: //不备份
+            // 删除旧表
+            var delef = this.Query($"drop table {TabOld} ", null);
+
+            gennew: // 新表
+            var addTab = new TableInfo(TabOld, mTypeColumns);
+            var createtab = addTab.GetCreateTable();
+            Console.WriteLine(createtab);
+            // 创建表
+            var ef = this.Query(createtab, null);
+            suctabs.Add(attrTab.Name);
+
+            goto genwhile; // 循环下一个
+
+            genbreak: // 实体循环完
+            return suctabs.Count();
+        }
+        /// <summary>
+        /// CodeFirst更新表到库MSSql
+        /// </summary>
+        /// <param name="bak">默认备份 备份表明前缀bak_yyyyMMdd_HHmmss_</param>
+        /// <param name="types">更新的实体</param>
+        /// <returns></returns>
+        public int CodeFirstInit(bool bak, params Type[] types) {
+            Type curType = null;
+            var length = types.Length;
+            int i = 0;
+            List<string> suctabs = new List<string>();
+
+            var filterTabs = string.Join(",", types.Select(p => $"'{(p.GetCustomAttributes(typeof(TableAttribute), true).FirstOrDefault() as TableAttribute).Name}'").ToList() );
+
+            // 库中表结构 读取指定表
+            var tabColumns = this.Query<ColumnInfo>(CodeFirstCommon.COLUMN_SQL.Replace("-- where",$" where d.name in ({filterTabs}) --"), null).ToList<ColumnInfo>();
+            var groups = tabColumns.GroupBy(p => p.Table_Name).ToList();
+            var tabs = groups.Select(p => new TableInfo(p.FirstOrDefault().Table_Name, p.ToList())).ToList();
+
+            genwhile:
+            while (true)
+            {
+                if (i == length) goto genbreak;
+                curType = types[i++];
+                goto generate;
+            }
+
+            generate:
+            // 默认约束更新不支持 需要先删在改
+
+            // 当前CodeFirst实体
+            var mtype = curType;//typeof(modelxxx_ms_);
+            var attrTab = mtype.GetCustomAttributes(typeof(TableAttribute), true).FirstOrDefault() as TableAttribute;
+            var TabBak = DateTime.Now.ToString("bak_yyyyMMdd_HHmmss_") + attrTab.Name;  // 备份表名
+            var TabOld = attrTab.Name;// 原表名
+            var TabOldLower = TabOld.ToLower();
+
+
+
+            // CodeFirst列数据
+            var mTypeColumns = mtype.GetProperties().Where(DsmSqlMapperExtensions.IsWriteable) // 过滤Write false字段
+                     .Select<System.Reflection.PropertyInfo, ColumnInfo>(p => new ColumnInfo(p, TabOld)).ToList<ColumnInfo>();
+
+            // 当前表(库)结构
+            var tab = tabs.FirstOrDefault(p => p.Table_Name.ToLower() == TabOldLower);
+            // 判断库中是否有该表
+            if (tab == null) // 不存在直接新建表
+            {
+                var addTab = new TableInfo(TabOld, mTypeColumns);
+                var createtab = addTab.GetCreateTable();
+                Console.WriteLine(createtab);
+                // 创建表
+                var ef = this.Query(createtab, null);
+                suctabs.Add(attrTab.Name);
+                goto genwhile; // 循环下一个
+            }
+
+            // 有就备份该表
+            if (!bak) goto breakbak; // 不备份
+            var bakef = this.Query(CodeFirstCommon.TABLE_BUK_SQL.Replace("@TabBak", TabBak).Replace("@TabOld", TabOld), null);
+            if (bakef.Count() != 0) throw new Exception($"{TabOld}备份失败");// 备份失败
+            breakbak:
+
+            // 备份成功 开始对比 库中表 和CodeFirst表结构
+            var alterTab = new TableInfo(TabOld, mTypeColumns);
+            var alterTab_ret = alterTab.GetAlterTable(tab);
+
+            //EshineCloudBase.New().Query
+            using (var conn = this.GetConn())
+            {
+                var trans = conn.BeginTransaction();
+                try
+                {
+                    // 执行所有改列名列存储过程
+                    alterTab_ret.Item2.ForEach(p => {
+                        Console.WriteLine(p);
+                        conn.Query(p, transaction: trans);
+                    });
+
+                    Console.WriteLine(alterTab_ret.Item1);
+                    // 修改/新增/删除的列
+                    conn.Query(alterTab_ret.Item1, transaction: trans);
+
+                    suctabs.Add(attrTab.Name);
+                    trans.Commit();
+                }
+                catch (Exception ex)
+                {
+                    trans.Rollback();
+                    Console.WriteLine(ex.Message);
+                }
+
+            }
+            goto genwhile; // 循环下一个
+
+            genbreak: //循环完毕
+
+            return suctabs.Count();
+        }
+
+        #endregion
+
     }
 }

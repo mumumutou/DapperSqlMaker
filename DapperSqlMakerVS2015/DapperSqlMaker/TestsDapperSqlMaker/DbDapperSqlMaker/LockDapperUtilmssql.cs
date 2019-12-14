@@ -7,20 +7,107 @@ using System.Text;
 
 namespace DapperSqlMaker.DapperExt
 {
-    //public partial class LockContext {
 
-    //    //private LockContext() { }
-    //    //private static LockContext _LockContext = new LockContext();
-    //    //public static LockContext _() => _LockContext;
+    public partial class EshineCloudBase : DapperFuncsBase
+    {
+        //public string a { get; set; }
 
-    //    //public LockDapperUtilmssql<T> Lock1<T>() where T:class,new() => new LockDapperUtilmssql<T>();
-    //    //public LockDapperUtilmssql<T, Z> Lock2<T, Z>() where T : class, new()
-    //    //                                               where Z : class, new() => new LockDapperUtilmssql<T,Z>();
-    //    //public LockDapperUtilmssql<T, Z, Y> Lock3<T, Z, Y>() where T : class, new()
-    //    //                                                     where Z : class, new()
-    //    //                                                     where Y : class, new() => new LockDapperUtilmssql<T, Z, Y>();
+        //public readonly static LockDapperUtilmssql _New2 = new LockDapperUtilmssql() { a = "123" };
 
-    //}
+        //public IDbConnection GetConnSign(bool isfirst)
+        //{
+        //    return this.GetConn();
+        //}
+
+        private EshineCloudBase() { }
+        private readonly static EshineCloudBase _New = new EshineCloudBase();
+        public static EshineCloudBase New()
+        {
+            return _New;
+        }
+        public override IDbConnection GetConn()
+        {
+            //DataBaseConfig.GetSqlConnection();
+            //if (isfirst) return null;
+
+            SqlConnection conn = new SqlConnection(DataBaseConfig.EshineCloudBaseConnectionString);
+            conn.Open();
+            return conn;
+        }
+        public string GetSqlParamSymbol() => SM.ParamSymbolMSSql;
+
+    }
+
+    public partial class EshineCloudBaseUtil : IDapperSqlMakerBase
+    {
+        //public string a { get; set; }
+
+        //public readonly static LockDapperUtilmssql _New2 = new LockDapperUtilmssql() { a = "123" };
+
+        //public IDbConnection GetConnSign(bool isfirst)
+        //{
+        //    return this.GetConn();
+        //}
+
+        private EshineCloudBaseUtil() { }
+        private readonly static EshineCloudBaseUtil _New = new EshineCloudBaseUtil();
+        public static EshineCloudBaseUtil New()
+        {
+            return _New;
+        }
+        public IDbConnection GetConn()
+        {
+            //DataBaseConfig.GetSqlConnection();
+            //if (isfirst) return null;
+
+            SqlConnection conn = new SqlConnection(DataBaseConfig.EshineCloudBaseConnectionString);
+            conn.Open();
+            return conn;
+        }
+        public string GetSqlParamSymbol() => SM.ParamSymbolMSSql;
+    }
+
+    public partial class EshineCloudBaseUtil<T> : DapperSqlMaker<T>
+                                         where T : class, new()
+    {
+        public override string GetSqlParamSymbol() => EshineCloudBaseUtil.New().GetSqlParamSymbol();
+        public override IDbConnection GetConn()
+        {
+            return EshineCloudBaseUtil.New().GetConn();
+        }
+
+        public static DapperSqlMaker<T> Selec()
+        {
+            return new EshineCloudBaseUtil<T>().Select();
+        }
+        public static DapperSqlMaker<T> Inser()
+        {
+            return new EshineCloudBaseUtil<T>().Insert();
+        }
+        public static DapperSqlMaker<T> Updat()
+        {
+            return new EshineCloudBaseUtil<T>().Update();
+        }
+        public static DapperSqlMaker<T> Delet()
+        {
+            return new EshineCloudBaseUtil<T>().Delete();
+        }
+
+        public static DapperSqlMaker<T> SqlClaus(string sqlClause, int index = -1)
+        {
+            return new EshineCloudBaseUtil<T>().SqlClause(sqlClause, index);
+        }
+
+
+        /// <summary>
+        /// 增删改 查
+        /// </summary>
+        public readonly static DapperSqlMaker<T> Cud = new EshineCloudBaseUtil<T>();
+
+    }
+
+
+    // #############
 
     /// <summary>
     /// 原生dapper执行sql 上下文类
@@ -36,7 +123,8 @@ namespace DapperSqlMaker.DapperExt
         private DapperFuncMs() { }
         public readonly static DapperFuncMs New = new DapperFuncMs();
 
-    }
+    } 
+
     /// <summary>
     /// 链式封装的上下文类  Sqlite库1
     /// </summary>

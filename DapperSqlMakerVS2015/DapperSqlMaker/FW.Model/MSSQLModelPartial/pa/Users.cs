@@ -100,26 +100,32 @@ namespace FW.Model
         #endregion
 
 		[Key]
+
 		public virtual int Id { 
 			set { _Id = value; }
 			get { return _Id; }
 		}
+[StringLength(100,Nullable=false,NVarchar = true)]
 		public virtual string UserName { 
 			set { _UserName = value; }
 			get { return _UserName; }
 		}
+[StringLength(200,Nullable=false,NVarchar = true)]
 		public virtual string Password { 
 			set { _Password = value; }
 			get { return _Password; }
 		}
+
 		public virtual DateTime CreateTime { 
 			set { _CreateTime = value; }
 			get { return _CreateTime; }
 		}
+[StringLength(200,Nullable=true,NVarchar = true)]
 		public virtual string Remark { 
 			set { _Remark = value; }
 			get { return _Remark; }
 		}
+
 		public virtual bool IsDel { 
 			set { _IsDel = value; }
 			get { return _IsDel; }

@@ -186,7 +186,7 @@ namespace Dapper.Contrib.Extensions
             }
         }
 
-        private static bool IsWriteable(PropertyInfo pi)
+        public static bool IsWriteable(PropertyInfo pi)
         {
             var attributes = pi.GetCustomAttributes(typeof(WriteAttribute), false).AsList();
             if (attributes.Count != 1) return true;
@@ -1208,7 +1208,391 @@ namespace Dapper.Contrib.Extensions
     {
     }
 
+    #region CodeFirst 标注
+    /// <summary>
+    /// 默认值 codefirst未完善 修改默认值就得删约束在加约束。可以考虑在新增修改时读取这个 不在数据库层约束 
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property)]
+    public class DefaultAttribute : Attribute
+    {
+        /// <summary>
+        /// 默认值
+        /// </summary>
+        public string Value { get; set; }
 
+        /// <summary>
+        /// 默认值
+        /// </summary>
+        public DefaultAttribute(string val)
+        {
+            this.Value = val;
+        }
+    }
+    /// <summary>
+    /// 修改字段的 原始字段名
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property)]
+    public class OldFieldAttribute : Attribute
+    {
+        public string Name { get; set; }
+        public OldFieldAttribute(string name) {
+            Name = name;
+        }
+    }
+
+    /// <summary>
+    /// 字符串长度/可空
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property)]
+    public class StringLengthAttribute : Attribute
+    {
+        /// <summary>
+        /// 字符串长度
+        /// </summary>
+        public int Length { get; set; }
+        /// <summary>
+        /// 可空类型 true 
+        /// </summary>
+        public bool Nullable { get; set; }
+        /// <summary>
+        /// nvarchar类型 true
+        /// </summary>
+        public bool NVarchar { get; set; }
+        /// <summary>
+        /// 字符串长度 (默认可空 varchar类型)
+        /// </summary>
+        /// <param name="length">长度</param>
+        /// <param name="nullable">可空类型 true</param>
+        /// <param name="nvarchar">nvarchar类型 true</param>
+        public StringLengthAttribute(int length, bool nullable = true, bool nvarchar = false)
+        {
+            this.Length = length;
+            this.Nullable = nullable;
+            this.NVarchar = nvarchar;
+
+        }
+    }
+
+    /// <summary>
+    /// 表信息MSSql
+    /// </summary>
+    public class TableInfo
+    {
+        public TableInfo(string table, List<ColumnInfo> columns)
+        {
+            Table_Name = table;
+            Columns = columns;
+        }
+        public string Table_Schema { get; set; }
+        public string Table_Name { get; set; }
+        public List<ColumnInfo> Columns { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dbTab"></param>
+        /// <returns>item2 每行一个存储过程</returns>
+        public Tuple<string,List<string>> GetAlterTable(TableInfo dbTab)
+        {
+            var dbTabCols = dbTab.Columns;
+            foreach (ColumnInfo codeCol in this.Columns)
+            {
+                CodeFirstCommon.SetSqlType(codeCol); // 解析字段类型 和标注
+
+                bool isOldField = codeCol.OldField != null; // 是否修改字段名
+                string codeColName = isOldField ? codeCol.OldField : codeCol.ColumnName;
+                ColumnInfo dbTabCol = dbTabCols.FirstOrDefault(
+                    p => p.ColumnName == codeColName);
+
+                if (dbTabCol == null) { // 新增的列
+                    addcol:
+                    if (isOldField)
+                    { // 修改字段名 
+                      // 新增列 又时修改字段名 // 这是上次运行改完字段名 [OldField("Pie2")] 标注没有取消的字段
+                      // 根据成员名称就能查找到库中字段
+                        dbTabCol = dbTabCols.FirstOrDefault(p => p.ColumnName == codeCol.ColumnName);
+                        if (dbTabCol == null) {
+                            //修改字段名和成员名都没找到 库里就是没这个字段 标注乱写的
+                            isOldField = false;
+                            goto addcol;
+                        }
+
+                        dbTabCol.AlterDrop = false; // 标记为 非删除字段
+                        codeCol.OldField = null; // 移除更新字段名
+                        isOldField = false;  // 重置为非更新字段名
+                    }
+                    else
+                    { // 新增的列
+                        codeCol.AlterSql = codeCol.GetAddColumn();
+                        continue;
+                    }
+                }
+
+                // 判断字段名是否修改
+                if (isOldField)
+                { //修改字段名的列
+                    codeCol.SetAlterName(); // 设置修改字段名存储过程语句
+                }
+
+                // 判断字段类型是否修改  类型和可空不一致
+                if (codeCol.DataType.Trim() == dbTabCol.DataType && codeCol.IsNullable == dbTabCol.IsNullable /*' null' ' not null'*/)
+                { // 类型和可空一致 
+                    // 判断是不是字符串 
+                    if ((codeCol.DataType == "varchar" || codeCol.DataType == "nvarchar"))
+                    { // 字符串类型 char 暂未处理
+                        // 判断长度是否修改  
+                        if (codeCol.Length == dbTabCol.Length)
+                        {   // code列结构和 库中一致 不更新 
+                            dbTabCol.AlterDrop = false; // 标记未非删除字段
+                            continue;
+                        } // else 更新长度
+                    }
+                    else // 其他类型 int datetime ...
+                    { // code列结构和库中一致 不更新
+                        dbTabCol.AlterDrop = false; // 标记未非删除字段
+                        continue;
+                    }
+                }
+
+                dbTabCol.AlterDrop = false; // 标记未非删除字段
+                codeCol.AlterSql = codeCol.GetAlterColumn();
+
+            }
+            var alterNameRows = this.Columns.Where(p => p.AlterNameSql != null).Select(p => p.AlterNameSql).ToList();
+            var alterRows = this.Columns.Where(p => p.AlterSql != null).Select(p => p.AlterSql).ToList();
+            var dropRows = dbTabCols.Where( p => p.AlterDrop).Select(p => p.GetDropColumn()).ToList();
+            alterRows.AddRange(dropRows);
+            //dbTabCol.AlterDrop = false; //实体没有 库中有列 删除该列
+
+            var colsql = string.Join(";", alterRows); // 多行sql
+            return new Tuple<string, List<string>>(colsql,alterNameRows);
+        }
+        public string GetCreateTable()
+        {
+            var colsql = string.Join(","
+                , Columns.Select<ColumnInfo, string>(p => CodeFirstCommon.SetSqlType(p).GetCreateColumn()).ToArray<string>());
+            var sql = $" CREATE TABLE {Table_Name}( {colsql} )";
+            return sql;
+        }
+    }
+    /// <summary>
+    /// 列信息MSSql
+    /// </summary>
+    public class ColumnInfo
+    {
+        public ColumnInfo() { }
+        public ColumnInfo(PropertyInfo proInfo, string table)
+        {
+            this.ProInfo = proInfo;
+            this.ColumnName = proInfo.Name;
+            Table_Name = table;
+        }
+        public string Table_Name { get; set; }
+        public PropertyInfo ProInfo { get; set; }
+        public int IsPK { get; set; }
+        public string PrimaryKey { get; set; }
+        public string ColumnName { get; set; }
+        public string DataType { get; set; }
+        public string Length { get; set; }
+        public string IsNullable { get; set; }
+        public string DefaultVal { get; set; }
+        public string GetAddColumn()
+        {
+            //alter table 表名 add 列名 类型
+            //alter table 表名 add ReviewState int constraint CR_表名_DF default 0 not null 
+            //if (!string.IsNullOrEmpty(DefaultVal))
+            //{
+            //    if (DataType == "varchar" || DataType == "nvarchar" || DataType == "datetime")
+            //        DefaultVal = $"constraint CR_{Table_Name}_DF default '{DefaultVal}'"; // string datetime
+            //    else
+            //        DefaultVal = $"constraint CR_{Table_Name}_DF default {DefaultVal}"; // int bit float double
+            //}
+            //var addcolumn = $" alter table {Table_Name} add {ColumnName} {DataType}{Length} {DefaultVal} {IsNullable} ";
+            
+            // 不在数据库层弄约束
+            var addcolumn = $" alter table {Table_Name} add {ColumnName} {DataType}{Length} {IsNullable} ";
+            return addcolumn;
+        }
+        /// <summary>
+        /// 旧字段名
+        /// </summary>
+        public string OldField { get; set; }
+        public string AlterSql { get; set; }
+        public bool AlterDrop = true;
+        public string AlterNameSql { get; set; }
+        /// <summary>
+        /// 设置更新列名exec 在alter语句之前执行
+        /// </summary>
+        public void SetAlterName() {
+            this.AlterNameSql = $" EXEC sp_rename '{Table_Name}.[{OldField}]', '{ColumnName}' , 'COLUMN'" ;
+        }
+        public string GetAlterColumn()
+        {
+            var sql = $" alter table {Table_Name} alter column {ColumnName} {DataType}{Length}";
+            if (OldField != null) SetAlterName();
+            return sql;
+        }
+        public string GetDropColumn()
+        {
+            var sql = $" alter table {Table_Name} drop column {ColumnName}";
+            return sql;
+        }
+        public string GetCreateColumn()
+        {
+            //if (!string.IsNullOrEmpty(DefaultVal))
+            //{
+            //    if ( new string[]{ "varchar","nvarchar","datetime"} .Contains(DataType.Trim()))
+            //        DefaultVal = $"default '{DefaultVal}'"; // string datetime
+            //    else
+            //        DefaultVal = $"default {DefaultVal}"; // int bit float double
+            //}
+            //var sql = $" {ColumnName}{DataType}{Length} {PrimaryKey} {DefaultVal} {IsNullable} "; 
+            // 不在数据库层弄约束
+
+            var sql = $" {ColumnName}{DataType}{Length} {PrimaryKey} {IsNullable} ";
+            return sql;
+        }
+
+    }
+    /// <summary>
+    /// MSSql
+    /// </summary>
+    public class CodeFirstCommon {
+
+        public readonly static string TABLE_BUK_SQL = " select * into @TabBak from @TabOld";
+        /// <summary>
+        /// 查询表名sql
+        /// </summary>
+        public readonly static string TABLE_SQL =
+@"SELECT * FROM  INFORMATION_SCHEMA.TABLES
+		WHERE (TABLE_TYPE='BASE TABLE' OR TABLE_TYPE='VIEW') ";
+        /// <summary>
+        /// 查询表名-表结构sql  -- where  d.name= 'Model'    --查询指定表
+        /// </summary>
+        public readonly static string COLUMN_SQL =
+@"with tabs as ( SELECT * FROM  INFORMATION_SCHEMA.TABLES WHERE (TABLE_TYPE='BASE TABLE' OR TABLE_TYPE='VIEW') )
+SELECT	Table_Name = d.name,
+	--字段序号   = a.colorder, 
+	ColumnName = a.name, -- 字段名 
+	--IsIdentity = case when COLUMNPROPERTY( a.id,a.name,'IsIdentity')=1 then 'YES'else 'NO' end, -- 自增标识
+	IsPK       = case when exists(SELECT 1 FROM sysobjects where xtype='PK' and parent_obj=a.id and name in (
+						SELECT name FROM sysindexes WHERE indid in( SELECT indid FROM sysindexkeys WHERE id = a.id AND colid=a.colid))) then 1 else 0 end, -- 主键  'YES' else 'NO'
+	DataType   = b.name, -- 类型 
+	Length       = COLUMNPROPERTY(a.id,a.name,'PRECISION'), -- 长度
+	--小数位数   = isnull(COLUMNPROPERTY(a.id,a.name,'Scale'),0),
+	IsNullable = case when a.isnullable=1 then ' null'else ' not null' end , -- 允许空
+	DefaultVal     = isnull(e.text,'') --,默认值
+	--ColumnDesc = isnull(g.[value],'') -- 字段说明
+FROM  syscolumns a
+left join  systypes b on  a.xusertype=b.xusertype
+inner join sysobjects d on a.id=d.id and  d.name<>'dtproperties' 
+left join  syscomments e on  a.cdefault=e.id
+left join sys.extended_properties g on a.id=G.major_id and a.colid=g.minor_id  
+inner join tabs on tabs.Table_name = d.name
+-- where  d.name= 'Model'    --查询指定表
+order by d.name, a.id,a.colorder   ";
+
+        /// <summary>
+        /// 查询默认约束sql
+        /// </summary>
+        public readonly static string Default_Sql =
+@"SELECT
+  tab.name AS [表名],
+  chk.name AS [Check约束名],
+  col.name AS [列名],
+  chk.definition
+FROM
+  sys.default_constraints chk
+    JOIN sys.tables tab
+      ON (chk.parent_object_id = tab.object_id)
+    JOIN sys.columns col
+      ON (chk.parent_object_id = col.object_id
+          AND chk.parent_column_id = col.column_id)";
+
+        /// <summary>
+        /// 解析字段 类型和标注
+        /// </summary>
+        /// <param name="col"></param>
+        /// <returns></returns>
+        public static ColumnInfo SetSqlType(ColumnInfo col)
+        {
+            string typestr;
+            // 判断是否是可空类型
+            if (col.ProInfo.PropertyType.IsGenericType && col.ProInfo.PropertyType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
+            {
+                col.IsNullable = " null"; // 可空类型
+                typestr = col.ProInfo.PropertyType.GetGenericArguments()[0].ToString();
+            }
+            else
+            {
+                col.IsNullable = " not null"; // 可空类型
+                typestr = col.ProInfo.PropertyType.ToString();
+            }
+
+
+            // SqlType
+            switch (typestr)
+            {
+                case "System.String": col.DataType = " varchar"; goto varchar;
+                case "System.Int32": col.DataType = " int"; break;
+                case "System.Boolean": col.DataType = " bit"; break;
+                case "System.DateTime": col.DataType = " datetime"; break;
+                case "System.Decimal": col.DataType = " decimal"; break;
+                case "System.Double": col.DataType = " float"; break;
+                case "System.Single": col.DataType = " real"; break; // C# float -> Sql real
+                default: col.DataType = " varchar"; break;
+            }
+
+            key:
+
+            // 主键
+            var attrKey = col.ProInfo.GetCustomAttributes(typeof(KeyAttribute), true).FirstOrDefault()
+                as KeyAttribute;
+            var attrExpKey = col.ProInfo.GetCustomAttributes(typeof(ExplicitKeyAttribute), true).FirstOrDefault()
+                as ExplicitKeyAttribute;
+            if (attrKey != null || attrExpKey != null)
+            {
+                col.PrimaryKey = " Primary Key";
+                col.IsNullable = " not null";
+            }
+
+            //// 默认约束 // 修改默认值 就要删约束在键约束 麻烦
+            //var attrDefault = col.ProInfo.GetCustomAttributes(typeof(DefaultAttribute), true)
+            //    .FirstOrDefault() as DefaultAttribute;
+            //if (attrDefault != null) col.DefaultVal = attrDefault.Value;
+
+            // 是否修改字段名
+            var attrOldFiled = col.ProInfo.GetCustomAttributes(typeof(OldFieldAttribute), true)
+                .FirstOrDefault() as OldFieldAttribute;
+            if (attrOldFiled != null) col.OldField = attrOldFiled.Name; // 旧字段名 
+
+            return col;
+
+
+            varchar: // 字符串类型特殊处理
+            {
+                var attrStrlen = col.ProInfo.GetCustomAttributes(typeof(StringLengthAttribute), true).FirstOrDefault() as StringLengthAttribute;
+
+                if (attrStrlen == null) // 未添加字符串长度标注   生成默认长度 带改成可配置默认长度
+                {
+                    col.Length = "(100)"; // 默认100长度
+                    col.IsNullable = " null";
+                }
+                else
+                { // 读取标注属性
+                    col.Length = $"({attrStrlen.Length})";
+                    col.IsNullable = attrStrlen.Nullable ? " null" : " not null";
+                    col.DataType = attrStrlen.NVarchar ? " nvarchar" : " varchar";
+                }
+            }
+            goto key;
+
+
+        }
+
+
+    }
+
+    #endregion
 
 
 }

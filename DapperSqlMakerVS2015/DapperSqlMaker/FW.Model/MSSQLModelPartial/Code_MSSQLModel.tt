@@ -53,15 +53,16 @@ namespace <#=Namespace #>
 foreach(Table tbl in from t in tables where !t.Ignore select t){
 		if(IsExcluded(tbl.Name, ExcludeTablePrefixes)) continue;
 		 
-		fileManager.StartNewFile(tbl.Name+".cs"); // 新建文件
+		fileManager.StartNewFile(tbl.Name+"_cd.cs"); // 新建文件
 #>
+	   /* <#foreach(Column col in from c in tbl.Columns where !c.Ignore select c) {#> <#=col.PropertyName #> <#}#> */ 
+	/*
     /// <summary>
     /// A class which represents the <#=tbl.Name#> <#=(tbl.IsView)?"view":"table"#>.
     /// </summary>
 	[Table("<#=tbl.Name#>")]
 	public partial class <#=tbl.ClassName#>
 	{  
-	   /* <#foreach(Column col in from c in tbl.Columns where !c.Ignore select c) {#> <#=col.PropertyName #> <#}#> */ 
 
 	    
         #region 待写入字段集合 可抽象出来
@@ -103,6 +104,7 @@ foreach(Table tbl in from t in tables where !t.Ignore select t){
 <#}#>
 
 	}
+	*/
 
 //	################
     /// <summary>
@@ -113,23 +115,15 @@ foreach(Table tbl in from t in tables where !t.Ignore select t){
 	{  
 	   /* <#foreach(Column col in from c in tbl.Columns where !c.Ignore select c) {#> <#=col.PropertyName #> <#}#> */ 
 
-	      
-        #region Field
-<#foreach(Column col in from c in tbl.Columns where !c.Ignore select c) {#>
-		private <#=col.PropertyType #><#=CheckNullable(col)#> _<#=col.PropertyName #> ;
-<#}#>
-        #endregion
+	       
 
 <#foreach(Column col in from c in tbl.Columns where !c.Ignore select c){ 
 	if (tbl.PK!=null && tbl.PK.Name==col.PropertyName && col.PropertyType == "int") { #>
 		[Key]
 <#} if (tbl.PK!=null && tbl.PK.Name==col.PropertyName && col.PropertyType == "string") { #>
 		[ExplicitKey] // 手动插入(主)键
-<#}#><#=col.StringLengthAttr#>
-		public virtual <#=col.PropertyType #><#=CheckNullable(col)#> <#=col.PropertyName #> { 
-			set { _<#=col.PropertyName #> = value; }
-			get { return _<#=col.PropertyName #>; }
-		}
+<#}#>		<#=col.StringLengthAttr#>
+		public virtual <#=col.PropertyType #><#=CheckNullable(col)#> <#=col.PropertyName #> {  get;set;}
 <#}#>
 
 	}

@@ -142,6 +142,8 @@ class SqlServerSchemaReader : SchemaReader
 			{
 				Column col=new Column();
 				col.Name=rdr["ColumnName"].ToString();
+				col.DataType=rdr["DataType"].ToString();
+				col.Length=int.Parse(rdr["Length"].ToString());
 				col.PropertyName=CleanUp(col.Name);
 				col.PropertyType=GetPropertyType(rdr["DataType"].ToString());
 				col.IsNullable=rdr["IsNullable"].ToString()=="YES";
@@ -149,6 +151,9 @@ class SqlServerSchemaReader : SchemaReader
 				col.IsAutoIncrement=rdr["IsIdentity"] == "YES";
 			    col.IsPK = rdr["IsPK"].ToString() == "YES";
 				col.ColumnDesc = rdr["ColumnDesc"].ToString();
+				if(col.DataType == "varchar") col.StringLengthAttr = "[StringLength("+ col.Length.ToString() +",Nullable="+ col.IsNullable.ToString().ToLower()+",NVarchar = false)]";
+				else if(col.DataType == "nvarchar") col.StringLengthAttr = "[StringLength("+ col.Length.ToString() +",Nullable="+ col.IsNullable.ToString().ToLower()+",NVarchar = true)]";
+				
 				result.Add(col);
 			}
 		}
@@ -248,10 +253,10 @@ class SqlServerSchemaReader : SchemaReader
 			IsPK       = case when exists(SELECT 1 FROM sysobjects where xtype='PK' and parent_obj=a.id and name in (
 							 SELECT name FROM sysindexes WHERE indid in( SELECT indid FROM sysindexkeys WHERE id = a.id AND colid=a.colid))) then 'YES' else 'NO' end, -- 主键
 			DataType   = b.name, -- 类型 
-			长度       = COLUMNPROPERTY(a.id,a.name,'PRECISION'),
+			Length       = COLUMNPROPERTY(a.id,a.name,'PRECISION'),    --长度
 			小数位数   = isnull(COLUMNPROPERTY(a.id,a.name,'Scale'),0),
 			IsNullable = case when a.isnullable=1 then 'YES'else 'NO' end, -- 允许空
-			默认值     = isnull(e.text,''),
+			DefaultVal     = isnull(e.text,'') ,  -- 默认值
 			ColumnDesc = isnull(g.[value],'') -- 字段说明
 		FROM  syscolumns a
 		left join  systypes b on  a.xusertype=b.xusertype

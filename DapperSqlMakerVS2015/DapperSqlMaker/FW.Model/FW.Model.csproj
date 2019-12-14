@@ -78,15 +78,9 @@
     <Compile Include="ModelPartial\Users.cs">
       <DependentUpon>SQLiteModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="MSSQLModelPartial\LockPers.cs">
-      <DependentUpon>MSSQLModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="MSSQLModelPartial\SynNote.cs">
-      <DependentUpon>MSSQLModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="MSSQLModelPartial\Users.cs">
-      <DependentUpon>MSSQLModel.tt</DependentUpon>
-    </Compile>
+    <Compile Include="MSSQLModelPartial\pa\LockPers.cs" />
+    <Compile Include="MSSQLModelPartial\pa\SynNote.cs" />
+    <Compile Include="MSSQLModelPartial\pa\Users.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SynNote.cs" />
     <Compile Include="Users.cs" />
@@ -98,6 +92,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="MSSQLModelPartial\Code_MSSQLModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Code_MSSQLModel.cst</LastGenOutput>
+    </Content>
     <Content Include="MSSQLModelPartial\MSSQLModel.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>MSSQLModel.cst</LastGenOutput>
@@ -115,11 +113,6 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>SQLiteModel.tt</DependentUpon>
-    </None>
-    <None Include="MSSQLModelPartial\MSSQLModel.cst">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>MSSQLModel.tt</DependentUpon>
     </None>
     <None Include="MSSQLModelPartial\MSSQLModel.tt.temp" />
     <None Include="packages.config" />

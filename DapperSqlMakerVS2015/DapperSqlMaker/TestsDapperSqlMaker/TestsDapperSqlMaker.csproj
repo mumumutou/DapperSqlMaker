@@ -75,6 +75,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="DapperSqlMaker.Test\CodeFirstTest.cs" />
     <Compile Include="DapperSqlMaker.Test\DeleteDapperSqlMakerTest.cs" />
     <Compile Include="DapperSqlMaker.Test\InsertDapperSqlMakerTest.cs" />
     <Compile Include="DapperSqlMaker.Test\SelectDapperSqlMakerTest.cs" />
