@@ -8,13 +8,12 @@
 	
 	Dapper-1.50.2\Dapper
 	Dapper-1.50.2\Dapper.Contrib 
-###### 更新：
+###### ：
 > 1. ExcuteSelect 方法名更改为 => ExecuteQuery 
 > 2. s._IsWriteFiled 在实体类默认构造函数中默认为false   赋值时需修改为true
 > 3. 非链式解析的curd方法全放到 DapperFuncs类中了
-> 4. 新增 c u d 链式解析
-> 5. 新增 .SqlClaus(withsql) 任意段拼接方法(公用表表达式 带完善)
-> 6. 新增 事务执行栗子 在修改demo中
+> 4. 新增 .SqlClaus(withsql) 任意段拼接方法(公用表表达式 带完善)
+> 5. 新增 事务执行栗子 在修改demo中
 	
 ###### (依赖Dapper源码版)   
 	Nuget安装:>  Install-Package DapperSqlMaker -Version 0.1.9 
@@ -32,6 +31,8 @@
 > 删除 [TestsDapperSqlMaker\DapperSqlMaker.Test\...DeleteDapperSqlMakerTest.cs](https://github.com/mumumutou/DapperSqlMaker/blob/master/DapperSqlMakerVS2015/DapperSqlMaker/TestsDapperSqlMaker/DapperSqlMaker.Test/DeleteDapperSqlMakerTest.cs)
 
 > 一些方法 [DapperSqlMaker\DapperExt\DapperFuncsBase.cs](https://github.com/mumumutou/DapperSqlMaker/blob/master/DapperSqlMakerVS2015/DapperSqlMaker/DapperSqlMaker/DapperExt/DapperFuncsBase.cs)
+
+> CodeFirst [TestsDapperSqlMaker\DapperSqlMaker.Test\...CodeFirstTest.cs](https://github.com/mumumutou/DapperSqlMaker/blob/master/DapperSqlMakerVS2015/DapperSqlMaker/TestsDapperSqlMaker/DapperSqlMaker.Test/CodeFirstTest.cs)
 
 > 上下文类 TestsDapperSqlMaker\DbDapperSqlMaker\     LockDapperUtilsqlite.cs
 
