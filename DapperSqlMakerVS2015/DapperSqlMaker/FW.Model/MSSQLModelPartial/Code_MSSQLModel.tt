@@ -123,6 +123,9 @@ foreach(Table tbl in from t in tables where !t.Ignore select t){
 <#} if (tbl.PK!=null && tbl.PK.Name==col.PropertyName && col.PropertyType == "string") { #>
 		[ExplicitKey] // 手动插入(主)键
 <#}#>		<#=col.StringLengthAttr#>
+        /// <summary>
+        /// <#=col.ColumnDesc#>
+        /// </summary>
 		public virtual <#=col.PropertyType #><#=CheckNullable(col)#> <#=col.PropertyName #> {  get;set;}
 <#}#>
 

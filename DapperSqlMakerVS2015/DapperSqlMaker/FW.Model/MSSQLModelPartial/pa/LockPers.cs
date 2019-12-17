@@ -53,7 +53,6 @@ namespace FW.Model
 		private int? _EditCount ; 
 		private int _UserId ; 
         #endregion
-
 		public virtual string Name { 
 			set { _Name = value; 
 					if(_IsWriteFiled) _WriteFiled.Add(this.GetType().GetProperty(Field_Name) ); }

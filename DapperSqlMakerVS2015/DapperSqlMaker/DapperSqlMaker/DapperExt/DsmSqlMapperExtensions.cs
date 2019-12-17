@@ -1393,7 +1393,14 @@ namespace Dapper.Contrib.Extensions
         public string ColumnName { get; set; }
         public string DataType { get; set; }
         public string Length { get; set; }
+        /// <summary>
+        /// 是否可空
+        /// </summary>
         public string IsNullable { get; set; }
+        /// <summary>
+        /// 字段注释
+        /// </summary>
+        public string ColumnDesc { get; set; }
         public string DefaultVal { get; set; }
         public string GetAddColumn()
         {
@@ -1480,8 +1487,8 @@ SELECT	Table_Name = d.name,
 	Length       = COLUMNPROPERTY(a.id,a.name,'PRECISION'), -- 长度
 	--小数位数   = isnull(COLUMNPROPERTY(a.id,a.name,'Scale'),0),
 	IsNullable = case when a.isnullable=1 then ' null'else ' not null' end , -- 允许空
-	DefaultVal     = isnull(e.text,'') --,默认值
-	--ColumnDesc = isnull(g.[value],'') -- 字段说明
+	DefaultVal     = isnull(e.text,''), --默认值
+	ColumnDesc = isnull(g.[value],'') -- 字段说明
 FROM  syscolumns a
 left join  systypes b on  a.xusertype=b.xusertype
 inner join sysobjects d on a.id=d.id and  d.name<>'dtproperties' 
