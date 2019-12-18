@@ -83,8 +83,8 @@ namespace DapperSqlMaker.DapperExt
         /// <summary>
         /// SM.SQL方法名称：Where()
         /// </summary>
-        public static string _SQL_Name = "SQL";
-
+        public readonly static string _SQL_Name = "SQL";
+         
         /// <summary>
         /// Column()直接拼接字符串sql (只给查询 列 子句中使用) 
         /// </summary> 
@@ -92,7 +92,7 @@ namespace DapperSqlMaker.DapperExt
         /// <summary>
         ///  SM.Sql方法名称 ：Column()/AddColumn()/EditColumn()
         /// </summary>
-        public static string _Sql_Name = "Sql";
+        public readonly static string _Sql_Name = "Sql";
 
         #region 标记方法
 
@@ -111,31 +111,32 @@ namespace DapperSqlMaker.DapperExt
         /// <summary>
         /// select语句开头标记 MSSql分页拼接 开头占位符
         /// </summary>
-        public static string PageStartms = " select x.* from (  ";
+        public readonly static string PageStartms = " select x.* from (  ";
         /// <summary>
         /// select语句结束标记 MSSql分页拼接 结束占位符
         /// </summary>
-        public static string PageEndms = " ) x  where rownum between (@pageIndex - 1) * @pageSize + 1 and @pageIndex * @pageSize ";
+        public readonly static string PageEndms = " ) x  where rownum between (@pageIndex - 1) * @pageSize + 1 and @pageIndex * @pageSize ";
         /// <summary>
         /// (内部调用)分页 
         /// </summary>
-        public static string ColumnAll = " * ";
+        public readonly static string ColumnAll = " * ";
         /// <summary>
         /// SQLite分页总记录 特定sql值 (SQLite分页方法内部调用)
         /// </summary>
-        public static string LimitSelectCount = " select count(1) counts ";
+        public readonly static string LimitSelectCount = " select count(1) counts ";
         /// <summary>
         /// MSSql分页总记录 特定sql值和标记 (MSQL分页查询时 Column()方法中显示标记)
+        /// <para>生成语句 count(1) over() as counts </para>
         /// </summary>
-        public static string LimitCount = " count(1) over() as counts ";
+        public readonly static string LimitCount = " count(1) over() as counts ";
         /// <summary>
         /// (内部调用)
         /// </summary>
-        public static string _limitcount_Name = "SM.LimitCount";
+        public readonly static string _limitcount_Name = "SM.LimitCount";
         /// <summary>
         /// (内部调用)MSSql分页
         /// </summary>
-        public static string LimitRowNumber_Sql = " row_number() over(order by {0}) as rownum, ";
+        public readonly static string LimitRowNumber_Sql = " row_number() over(order by {0}) as rownum, ";
 
         #endregion
 
@@ -143,11 +144,11 @@ namespace DapperSqlMaker.DapperExt
         /// <summary>
         /// "@" MSSql,Sqlite,MYSql
         /// </summary>
-        public static string ParamSymbolMSSql = "@";
+        public readonly static string ParamSymbolMSSql = "@";
         /// <summary>
         /// ":" Oracle 
         /// </summary>
-        public static string ParamsSymbolOracle = ":";
+        public readonly static string ParamsSymbolOracle = ":";
 
         #endregion
 

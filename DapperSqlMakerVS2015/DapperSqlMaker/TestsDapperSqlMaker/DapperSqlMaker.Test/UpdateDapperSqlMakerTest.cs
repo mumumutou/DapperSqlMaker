@@ -45,6 +45,12 @@ namespace TestsDapperSqlMaker.DapperExt
                , p.CreateTime == cdate,  SM.Sql(p.Remark,"(select '奥德赛 终于改好了')")
             };
 
+            Expression<Func<Users, bool>>[] xxp =
+                {
+                p => p.UserName == p.UserName,
+                p => p.Remark == p.Remark,
+            };
+                
 
 
             var lambdap = Expression.Parameter(typeof(Users), "p");
@@ -175,7 +181,7 @@ namespace TestsDapperSqlMaker.DapperExt
         public void 更新部分字段2测试lt()
         {
             
-            LockPers set = new LockPers() { Content = "方法外部赋值修改字段实体" };
+            LockPers set = new LockPers() {_IsWriteFiled = true, Content = "方法外部赋值修改字段实体" };
             set.Name = "测试bool修改2";
             set.IsDel = true;
             set.ContentOld = "忽略Write(false)标记字段";

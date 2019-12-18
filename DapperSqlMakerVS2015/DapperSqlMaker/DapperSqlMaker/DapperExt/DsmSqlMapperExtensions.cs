@@ -1608,7 +1608,7 @@ FROM
 
 
 /// <summary>
-/// 不通数据库 参数格式适配器 "\"{0}\" = @{1}"
+/// 不同数据库 参数格式适配器 "\"{0}\" = @{1}"
 /// </summary>
 public partial interface ISqlAdapter
 {

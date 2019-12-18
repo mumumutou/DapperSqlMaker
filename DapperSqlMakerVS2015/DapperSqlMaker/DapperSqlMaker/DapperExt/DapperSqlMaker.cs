@@ -54,9 +54,13 @@ namespace DapperSqlMaker.DapperExt
         //public dynamic Models = new { A = new T(), B = new Y(), C = new Z(), D = new O(), E = new P(), F = new Q() };
         public abstract override IDbConnection GetConn();
         public override DapperSqlMaker<T, Y, Z, O, P, Q> GetChild() => this;
-         
+
         /// <summary>
-        /// MSSQL RowRumber OrderBy 字段  p => p.Id  orderfiesExps必须有返回值 后面的orderby就不要拼接了
+        /// MSSQL RowRumber OrderBy 字段  p => new { p.Id }  
+        /// <para>orderfiesExps必须有返回值 </para>
+        /// <para>where子句后不能再拼接orderby子句</para>
+        /// <para>生成语句: row_number() over(order by {0}) as rownum, </para>
+        /// <para>总记录字段 .Column(p => new { SM.LimitCount, a = SM.Sql("*") })</para>
         /// </summary> 
         public DapperSqlMaker<T, Y, Z, O, P, Q> RowRumberOrderBy(Expression<Func<T, Y, Z, O, P, Q, object>> orderfiesExps)
         {
@@ -66,7 +70,8 @@ namespace DapperSqlMaker.DapperExt
              
         }
         /// <summary>
-        /// 查询指定字段(默认查询*所有字段) 匿名类型传入Fileds t =>  new { t.f1, t.f2, t2.f3, string SM.Sql() }   ==>   tab1.f1, tab1.f2, tab2.f3
+        /// 查询指定字段(默认查询*所有字段)  t =>  new { t.Id, t2.Id, x = SM.Sql("*") }
+        /// <para>MS Sql总记录字段 .Column(p => new { SM.LimitCount, a = SM.Sql("*") })</para>
         /// </summary> 
         public DapperSqlMaker<T, Y, Z, O, P, Q> Column(Expression<Func<T, Y, Z, O, P, Q, object>> fiesExps = null)
         {
@@ -111,9 +116,13 @@ namespace DapperSqlMaker.DapperExt
     public abstract class DapperSqlMaker<T, Y, Z, O, P> : DapperSqlMakerBase<DapperSqlMaker<T, Y, Z, O, P>>
     {
         public abstract override IDbConnection GetConn();
-        public override DapperSqlMaker<T, Y, Z, O, P> GetChild() => this; 
+        public override DapperSqlMaker<T, Y, Z, O, P> GetChild() => this;
         /// <summary>
-        /// MSSQL RowRumber OrderBy 字段  p => p.Id  orderfiesExps必须有返回值 后面的orderby就不要拼接了
+        /// MSSQL RowRumber OrderBy 字段  p => new { p.Id }  
+        /// <para>orderfiesExps必须有返回值 </para>
+        /// <para>where子句后不能再拼接orderby子句</para>
+        /// <para>生成语句: row_number() over(order by {0}) as rownum, </para>
+        /// <para>总记录字段 .Column(p => new { SM.LimitCount, a = SM.Sql("*") })</para>
         /// </summary> 
         public DapperSqlMaker<T, Y, Z, O, P> RowRumberOrderBy(Expression<Func<T, Y, Z, O, P, object>> orderfiesExps)
         {
@@ -122,7 +131,8 @@ namespace DapperSqlMaker.DapperExt
             return base.RowRumberOrderBy(fielambda); 
         }
         /// <summary>
-        /// 查询指定字段(默认查询*所有字段) 匿名类型传入Fileds t =>  new { t.f1, t.f2, t2.f3, string SM.Sql() }   ==>   tab1.f1, tab1.f2, tab2.f3
+        /// 查询指定字段(默认查询*所有字段)  t =>  new { t.Id, t2.Id, x = SM.Sql("*") }
+        /// <para>MS Sql总记录字段 .Column(p => new { SM.LimitCount, a = SM.Sql("*") })</para>
         /// </summary> 
         public DapperSqlMaker<T, Y, Z, O, P> Column(Expression<Func<T, Y, Z, O, P, object>> fiesExps = null)
         {
@@ -164,9 +174,13 @@ namespace DapperSqlMaker.DapperExt
     {
         public abstract override IDbConnection GetConn();
         public override DapperSqlMaker<T, Y, Z, O> GetChild() => this;
-         
+
         /// <summary>
-        /// MSSQL RowRumber OrderBy 字段  p => p.Id  orderfiesExps必须有返回值 后面的orderby就不要拼接了
+        /// MSSQL RowRumber OrderBy 字段  p => new { p.Id }  
+        /// <para>orderfiesExps必须有返回值 </para>
+        /// <para>where子句后不能再拼接orderby子句</para>
+        /// <para>生成语句: row_number() over(order by {0}) as rownum, </para>
+        /// <para>总记录字段 .Column(p => new { SM.LimitCount, a = SM.Sql("*") })</para>
         /// </summary> 
         public DapperSqlMaker<T, Y, Z, O> RowRumberOrderBy(Expression<Func<T, Y, Z, O, object>> orderfiesExps)
         { 
@@ -175,7 +189,8 @@ namespace DapperSqlMaker.DapperExt
             return base.RowRumberOrderBy(fielambda); 
         }
         /// <summary>
-        /// 查询指定字段(默认查询*所有字段) 匿名类型传入Fileds t =>  new { t.f1, t.f2, t2.f3, string SM.Sql() }   ==>   tab1.f1, tab1.f2, tab2.f3
+        /// 查询指定字段(默认查询*所有字段)  t =>  new { t.Id, t2.Id, x = SM.Sql("*") }
+        /// <para>MS Sql总记录字段 .Column(p => new { SM.LimitCount, a = SM.Sql("*") })</para>
         /// </summary> 
         public DapperSqlMaker<T, Y, Z, O> Column(Expression<Func<T, Y, Z, O, object>> fiesExps = null)
         {
@@ -216,9 +231,13 @@ namespace DapperSqlMaker.DapperExt
     {
         public abstract override IDbConnection GetConn();
         public override DapperSqlMaker<T, Y, Z> GetChild() => this;
-         
+
         /// <summary>
-        /// MSSQL RowRumber OrderBy 字段  p => p.Id  orderfiesExps必须有返回值 后面的orderby就不要拼接了
+        /// MSSQL RowRumber OrderBy 字段  p => new { p.Id }  
+        /// <para>orderfiesExps必须有返回值 </para>
+        /// <para>where子句后不能再拼接orderby子句</para>
+        /// <para>生成语句: row_number() over(order by {0}) as rownum, </para>
+        /// <para>总记录字段 .Column(p => new { SM.LimitCount, a = SM.Sql("*") })</para>
         /// </summary> 
         public DapperSqlMaker<T, Y, Z> RowRumberOrderBy(Expression<Func<T, Y, Z, object>> orderfiesExps)
         {
@@ -227,7 +246,8 @@ namespace DapperSqlMaker.DapperExt
             return base.RowRumberOrderBy(fielambda); 
         }
         /// <summary>
-        /// 查询指定字段(默认查询*所有字段) 匿名类型传入Fileds t =>  new { t.f1, t.f2, t2.f3, string SM.Sql() }   ==>   tab1.f1, tab1.f2, tab2.f3
+        /// 查询指定字段(默认查询*所有字段)  t =>  new { t.Id, t2.Id, x = SM.Sql("*") }
+        /// <para>MS Sql总记录字段 .Column(p => new { SM.LimitCount, a = SM.Sql("*") })</para>
         /// </summary>
         public DapperSqlMaker<T, Y, Z> Column(Expression<Func<T, Y, Z, object>> fiesExps = null)
         {
@@ -279,9 +299,13 @@ namespace DapperSqlMaker.DapperExt
                 var obj = conn.Query<dynamic>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
                 return obj;
             }
-        } 
+        }
         /// <summary>
-        /// MSSQL RowRumber OrderBy 字段  p => p.Id  orderfiesExps必须有返回值 后面的orderby就不要拼接了
+        /// MSSQL RowRumber OrderBy 字段  p => new { p.Id }  
+        /// <para>orderfiesExps必须有返回值 </para>
+        /// <para>where子句后不能再拼接orderby子句</para>
+        /// <para>生成语句: row_number() over(order by {0}) as rownum, </para>
+        /// <para>总记录字段 .Column(p => new { SM.LimitCount, a = SM.Sql("*") })</para>
         /// </summary> 
         public DapperSqlMaker<T, Y> RowRumberOrderBy(Expression<Func<T, Y, object>> orderfiesExps)
         {
@@ -290,7 +314,8 @@ namespace DapperSqlMaker.DapperExt
             return base.RowRumberOrderBy(fielambda); 
         }
         /// <summary>
-        /// 查询指定字段(默认查询*所有字段) 匿名类型传入Fileds t =>  new { t.f1, t.f2, t2.f3, string SM.Sql() }   ==>   tab1.f1, tab1.f2, tab2.f3
+        /// 查询指定字段(默认查询*所有字段)  t =>  new { t.Id, t2.Id, x = SM.Sql("*") }
+        /// <para>MS Sql总记录字段 .Column(p => new { SM.LimitCount, a = SM.Sql("*") })</para>
         /// </summary>
         public DapperSqlMaker<T, Y> Column(Expression<Func<T, Y, object>> fiesExps = null)
         {
@@ -381,7 +406,11 @@ namespace DapperSqlMaker.DapperExt
 
         // 查询 
         /// <summary>
-        /// MSSQL RowRumber OrderBy 字段  p => p.Id  orderfiesExps必须有返回值 后面的orderby就不要拼接了
+        /// MSSQL RowRumber OrderBy 字段  p => new { p.Id }  
+        /// <para>orderfiesExps必须有返回值 </para>
+        /// <para>where子句后不能再拼接orderby子句</para>
+        /// <para>生成语句   row_number() over(order by {0}) as rownum, </para>
+        /// <para>总记录字段 .Column(p => new { SM.LimitCount, a = SM.Sql("*") })</para>
         /// </summary> 
         public DapperSqlMaker<T> RowRumberOrderBy(Expression<Func<T, object>> orderfiesExps)
         {
@@ -390,7 +419,8 @@ namespace DapperSqlMaker.DapperExt
             return base.RowRumberOrderBy(fielambda); 
         }
         /// <summary>
-        /// 查询指定字段(默认查询*所有字段) 匿名类型传入Fileds t =>  new { t.f1, t.f2, t2.f3, string SM.Sql() }   ==>   tab1.f1, tab1.f2, tab2.f3
+        /// 查询指定字段(默认查询*所有字段)  t =>  new { t.Id, t2.Id, x = SM.Sql("*") }
+        /// <para>MS Sql总记录字段 .Column(p => new { SM.LimitCount, a = SM.Sql("*") })</para>
         /// </summary>
         public DapperSqlMaker<T> Column(Expression<Func<T, object>> fiesExps = null)
         {
@@ -994,6 +1024,10 @@ namespace DapperSqlMaker.DapperExt
 
         /// <summary>
         /// Select 语句头拼接 并记录表别名
+        /// <para>.Selec().Column().From()</para>
+        /// <para>.Selec().Column().From().Where().Order().ExecuteQuery()</para>
+        /// <para>MS Sql分页.Selec().RowRumberOrderBy().Column().From().Where().LoadPagems()</para>
+        /// <para>Sqlite分页.Selec().Column().From().Where().Order().LoadPagelt()</para>
         /// </summary>
         /// <returns>子类对象</returns>
         public Child Select()
@@ -1488,7 +1522,7 @@ namespace DapperSqlMaker.DapperExt
             }
         }
         /// <summary>
-        /// mssql分页 T实体里声明records接受总记录数;
+        /// MS Sql分页 T实体需要声明records总记录数字段;
         /// </summary>  
         public virtual IEnumerable<T> LoadPagems<T>(int page, int rows)
         {
@@ -1505,6 +1539,31 @@ namespace DapperSqlMaker.DapperExt
                 var obj = conn.Query<T>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
                 //var first = obj.FirstOrDefault();
                 //if (first != null) records = int.Parse("0" + first.counts);
+                return obj;
+            }
+        }
+        /// <summary>
+        /// MS Sql分页 T实体里声明records接受总记录数;
+        /// </summary>
+        /// <param name="records">总记录</param>
+        /// <param name="getRecords">p => p.records</param>
+        /// <returns></returns>
+        public virtual IEnumerable<T> LoadPagems<T>(int page, int rows, out int records,Func<T,int> getRecords)
+        {
+            records = 0;
+            ISqlAdapter adp;
+            // Tuple<sql,entity>
+            Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
+            using (var conn = GetConn())
+            {
+                adp = GetSqlAdapter(conn);
+
+                // 生成分页sql
+                adp.RawPage(rawSqlParams.Item1, rawSqlParams.Item2, page, rows);
+                // 查询分页数据
+                var obj = conn.Query<T>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
+                var first = obj.FirstOrDefault();
+                if (first != null) records = getRecords(first);
                 return obj;
             }
         }

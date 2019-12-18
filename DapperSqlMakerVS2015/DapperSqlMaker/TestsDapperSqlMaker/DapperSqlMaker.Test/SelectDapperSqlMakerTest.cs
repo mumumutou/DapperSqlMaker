@@ -415,7 +415,7 @@ namespace TestsDapperSqlMaker
             Expression<Func<LockPers, bool>> where = PredicateBuilder.WhereStart<LockPers>();
             where = where.And((lpw) => lpw.Name.Contains(lpmodel.Name));
             where = where.And((lpw) => lpw.IsDel == lpmodel.IsDel);
-
+             
             DapperSqlMaker<LockPers> query = LockDapperUtilmssql<LockPers>
                 .Selec()
                 .RowRumberOrderBy(lp => new { lp.EditCount, lp.Name })
@@ -436,6 +436,20 @@ namespace TestsDapperSqlMaker
             int page = 1, rows = 3, records;
             var result2 = query.LoadPagems(page, rows, out records);
             WriteJson(result2); //  查询结果
+        }
+        [Test]
+        public void jqGrid数据栗子MS()
+        {
+            Expression<Func<LockPers, bool>> where = PredicateBuilder.WhereStart<LockPers>();
+            where = where.And((lpw) => lpw.Name.Contains("%0%"));
+
+            DapperSqlMaker<LockPers> query = LockDapperUtilmssql<LockPers>
+                .Selec()
+                .RowRumberOrderBy(lp => new { lp.EditCount, lp.Name })
+                .Column(p => new { SM.LimitCount, a = SM.Sql("*") }) // 
+                .From()
+                .Where(where); //lp => lp.Name == lpmodel.Name && lp.IsDel == lpmodel.IsDel  )
+                               //.Order(lp => new { lp.EditCount, lp.Name }); // .ExecuteQuery();
         }
 
         #endregion
