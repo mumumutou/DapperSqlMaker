@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>DapperSqlMaker</id>
-    <version>0.2.4</version>
+    <version>0.2.5</version>
     <title>DapperSqlMaker</title>
     <authors>CC</authors>
     <owners>$author$</owners>
