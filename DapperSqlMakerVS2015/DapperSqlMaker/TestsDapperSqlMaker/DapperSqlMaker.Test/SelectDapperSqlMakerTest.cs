@@ -438,6 +438,55 @@ namespace TestsDapperSqlMaker
             WriteJson(result2); //  查询结果
         }
         [Test]
+        public void 左连接右表条件测试() {
+
+            var where = PredicateBuilder.WhereStart<LockPers, Users>();
+            where = where.And((lpw, uw) => uw.UserName == "jiaojiao");
+
+            var all = LockDapperUtilsqlite<LockPers>.Selec().Column().From().ExecuteQueryList();
+            Console.WriteLine(all.Count);
+
+            var list = LockDapperUtilsqlite<LockPers, Users>
+                .Selec()
+                .Column((lp, u) => new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName }) //null查询所有字段
+                .FromJoin(JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId)
+                .Where(where).ExecuteQueryList();
+            Console.WriteLine(list.Count);
+
+            var name = "jiaojiao";
+            //DynamicParameters jdmp = new DynamicParameters("#");
+            //jdmp.Add("UserName_join_0", name);
+
+            var leftquery = LockDapperUtilsqlite<LockPers, Users>
+                .Selec()
+                .Column((lp, u) => new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName }) //null查询所有字段
+                .FromJoin(JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId && uu.UserName == name);
+                //.Where((l,u) => u.UserName == name)
+                //.SqlParams(jdmp);
+            Console.WriteLine(leftquery.RawSqlParams().Item1);
+            var parms = leftquery.RawSqlParams().Item2;
+
+            var left = leftquery.ExecuteQueryList();
+            Console.WriteLine(left.Count);
+
+        }
+        [Test]
+        public void MsSql12新分页语法测试()
+        {
+            int page = 2;
+            int rows = 3;
+            int records = 0;
+            var name = "jiaojiao";
+            var list = LockDapperUtilmssql<LockPers, Users>
+                .Selec()
+                .Column() //null查询所有字段
+                .FromJoin(JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId && uu.UserName == name)
+                .Order( (l,u) => new { u.UserName })
+                .LoadPageMsSql2List<LockPers>(page,rows,out records, p => p.records);
+            WriteJson(list);
+        }
+
+        [Test]
         public void jqGrid数据栗子MS()
         {
             Expression<Func<LockPers, bool>> where = PredicateBuilder.WhereStart<LockPers>();

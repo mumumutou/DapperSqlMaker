@@ -102,7 +102,11 @@ namespace DapperSqlMaker.DapperExt
         {
             return base.Order(fiesExps, isDesc); 
         }
-         
+
+        /// <summary>
+        /// 补充自定义DynamicParameters参数
+        /// </summary>
+        public new DapperSqlMaker<T, Y, Z, O, P, Q> SqlParams(DynamicParameters SqlParams) => base.SqlParams(SqlParams);
     }
 
     /// <summary>
@@ -158,9 +162,13 @@ namespace DapperSqlMaker.DapperExt
         /// <returns></returns>
         public DapperSqlMaker<T, Y, Z, O, P> Order(Expression<Func<T, Y, Z, O, P, object>> fiesExps, bool isDesc = false)
         {
-            return base.Order(fiesExps, isDesc); 
+            return base.Order(fiesExps, isDesc);
         }
-         
+        /// <summary>
+        /// 补充自定义DynamicParameters参数
+        /// </summary>
+        public new DapperSqlMaker<T, Y, Z, O, P> SqlParams(DynamicParameters SqlParams) => base.SqlParams(SqlParams);
+
     }
 
     /// <summary>
@@ -216,9 +224,13 @@ namespace DapperSqlMaker.DapperExt
         /// <returns></returns>
         public DapperSqlMaker<T, Y, Z, O> Order(Expression<Func<T, Y, Z, O, object>> fiesExps, bool isDesc = false)
         {
-            return base.Order(fiesExps, isDesc); 
+            return base.Order(fiesExps, isDesc);
         }
-         
+        /// <summary>
+        /// 补充自定义DynamicParameters参数
+        /// </summary>
+        public new DapperSqlMaker<T, Y, Z, O> SqlParams(DynamicParameters SqlParams) => base.SqlParams(SqlParams);
+
     }
 
     /// <summary>
@@ -273,9 +285,13 @@ namespace DapperSqlMaker.DapperExt
         /// <returns></returns>
         public DapperSqlMaker<T, Y, Z> Order(Expression<Func<T, Y, Z, object>> fiesExps, bool isDesc = false)
         {
-            return base.Order(fiesExps, isDesc); 
+            return base.Order(fiesExps, isDesc);
         }
-         
+        /// <summary>
+        /// 补充自定义DynamicParameters参数
+        /// </summary>
+        public new DapperSqlMaker<T, Y, Z> SqlParams(DynamicParameters SqlParams) => base.SqlParams(SqlParams);
+
     }
     /// <summary>
     /// 2表查询
@@ -389,9 +405,13 @@ namespace DapperSqlMaker.DapperExt
         // 扩展列 分页行号
         public DapperSqlMaker<T, Y> Order(Expression<Func<T, Y, object>> fiesExps, bool isDesc = false)
         {
-            return base.Order(fiesExps, isDesc); 
+            return base.Order(fiesExps, isDesc);
         }
-         
+        /// <summary>
+        /// 补充自定义DynamicParameters参数
+        /// </summary>
+        public new DapperSqlMaker<T, Y> SqlParams(DynamicParameters SqlParams) => base.SqlParams(SqlParams);
+
     }
     /// <summary>
     /// 1表查询
@@ -453,11 +473,18 @@ namespace DapperSqlMaker.DapperExt
         {
             return base.Where(whereExps); 
         }
+        /// <summary>
+        /// 排序
+        /// </summary>
         public DapperSqlMaker<T> Order(Expression<Func<T, object>> fiesExps, bool isDesc = false)
         {
             return base.Order(fiesExps,isDesc); 
-        } 
+        }
 
+        /// <summary>
+        /// 补充自定义DynamicParameters参数
+        /// </summary>
+        public new DapperSqlMaker<T> SqlParamsx(DynamicParameters SqlParams) => base.SqlParams(SqlParams);
         #endregion
 
         #region 链式 添加数据
@@ -559,9 +586,9 @@ namespace DapperSqlMaker.DapperExt
         }
 
         #region ISqlAdapter 
-        private static readonly ISqlAdapter DefaultAdapter = new SqlServerAdapter();
-        private static readonly Dictionary<string, ISqlAdapter> AdapterDictionary
-            = new Dictionary<string, ISqlAdapter>
+        private static readonly ISqlAdapterDsm DefaultAdapter = new SqlServerAdapter();
+        private static readonly Dictionary<string, ISqlAdapterDsm> AdapterDictionary
+            = new Dictionary<string, ISqlAdapterDsm>
             {
                 {"sqlconnection", new SqlServerAdapter()},
                 {"sqlceconnection", new SqlCeServerAdapter()},
@@ -580,7 +607,7 @@ namespace DapperSqlMaker.DapperExt
                 {"mysqlconnection", "@"},
                 {"oracleconnection",":"}
             };
-        protected ISqlAdapter GetSqlAdapter(IDbConnection connection)
+        protected ISqlAdapterDsm GetSqlAdapter(IDbConnection connection)
         {
             var name = connection.GetType().Name.ToLower();
             return !AdapterDictionary.ContainsKey(name)
@@ -613,6 +640,7 @@ namespace DapperSqlMaker.DapperExt
             EditColumn,
             Delete,
             SqlClause,
+            SqlParams,
         }
 
         protected class Clause
@@ -625,7 +653,8 @@ namespace DapperSqlMaker.DapperExt
                 , string order = null, string extra = null
                 , string insert = null, string addcolumn = null, DynamicParameters insertParms = null
                 , string update = null, string editcolumn = null, DynamicParameters updateParms = null
-                , string delete = null, string sqlclause = null, DynamicParameters sqlClauseParms = null)
+                , string delete = null, string sqlclause = null, DynamicParameters sqlClauseParms = null
+                ,DynamicParameters sqlParams = null)
             {
                 return new Clause
                 {
@@ -653,7 +682,8 @@ namespace DapperSqlMaker.DapperExt
                     Delete = delete,
                     // 任意位置sql
                     SqlClause = sqlclause,
-                    SqlClauseParms = sqlClauseParms
+                    SqlClauseParms = sqlClauseParms,
+                    SqlParams = sqlParams,
                 };
             }
 
@@ -676,6 +706,7 @@ namespace DapperSqlMaker.DapperExt
             public string Update { get; private set; }
             public string EditColumn { get; private set; }
             public DynamicParameters UpdateParms { get; private set; }
+            public DynamicParameters SqlParams { get; private set; }
             public string Delete { get; private set; }
             /// <summary>
             /// 任意位置 sql
@@ -881,7 +912,7 @@ namespace DapperSqlMaker.DapperExt
         /// <param name="joinlambda">联表条件表达式</param>
         /// <param name="jointab">联表实体类型</param>
         /// <returns></returns>
-        protected string GetJoinTabStr(Type jointab, string tabAliasName2, JoinType joinType2, LambdaExpression joinlambda)
+        protected string GetJoinTabStr(Type jointab, string tabAliasName2, JoinType joinType2, LambdaExpression joinlambda,ref DynamicParameters spars)
         {
             var joinstr = joinType2 == JoinType.Inner ? " inner join "
                                       : joinType2 == JoinType.Left ? " left join "
@@ -891,7 +922,7 @@ namespace DapperSqlMaker.DapperExt
             string tabname2 = DsmSqlMapperExtensions.GetTableName(jointab) + " " + tabAliasName2;  // 表名 别名
 
             StringBuilder sql = null;
-            DynamicParameters spars = null;
+            //DynamicParameters spars = null;
 
             int aliasIndex = 1;
             Dictionary<string, int> paramsdic = new Dictionary<string, int>();
@@ -900,7 +931,8 @@ namespace DapperSqlMaker.DapperExt
                 paramsdic.Add(p.Name, aliasIndex++);
             }
 
-            AnalysisExpression.JoinExpression(joinlambda, ref sql, ref spars, paramsdic: paramsdic); //sqlMaker.TabAliasName
+            AnalysisExpression.JoinExpression(joinlambda, ref sql, ref spars, paramsdic: paramsdic, sqlParamSymbol: this.GetSqlParamSymbol(),
+              parmSuffix: "_join_"); //sqlMaker.TabAliasName
             string onCondition = sql.ToString();
             var jointabstr = $" {joinstr} {tabname2} on {onCondition} ";
              
@@ -1002,6 +1034,13 @@ namespace DapperSqlMaker.DapperExt
         // ####################################################################################
 
         /// <summary>
+        /// 补充自定义DynamicParameters参数
+        /// </summary>
+        public Child SqlParams(DynamicParameters SqlParams) {
+            Clauses.Add(Clause.New(ClauseType.SqlParams, sqlParams: SqlParams));
+            return this.GetChild();
+        }
+        /// <summary>
         /// 任意部分sql拼接
         /// </summary>
         /// <param name="sqlClause">拼接语句</param>
@@ -1099,14 +1138,16 @@ namespace DapperSqlMaker.DapperExt
             var tabname1 = DsmSqlMapperExtensions.GetTableName(ChildTypes[0]); // typeof(T));
             /*var selstr = */ sb.AppendFormat( $" from {tabname1} {this.tabAliasList[0]}"); // {tabAliasName1}"; // sel .. from 表明 别名
 
+            DynamicParameters spars = new DynamicParameters();
             for (int i = 1; i < this.tabAliasList.Count; i++)
             {
                 //生成联表2,3,4... sql   (join tab2 b on b.x = a.x  
                 //                        join tab3 c on c.x = b.x)
-                sb.Append( this.GetJoinTabStr(ChildTypes[i], tabAliasList[i], joinTypes[i-1], joinExps[i-1] ) );
+                sb.Append( this.GetJoinTabStr(ChildTypes[i], tabAliasList[i], joinTypes[i-1], joinExps[i-1], ref spars) );
             }
 
             Clauses.Add(Clause.New(ClauseType.ActionSelectFrom, fromJoin: sb.ToString() ));
+            this.SqlParams(spars); // 补充from join 参数
             return this.GetChild();
              
         }
@@ -1308,6 +1349,9 @@ namespace DapperSqlMaker.DapperExt
                     case ClauseType.SqlClause: //任意部分sql字句拼接
                         sb.Append(clause.SqlClause);
                         break;
+                    case ClauseType.SqlParams:
+                        dparam.AddDynamicParams(clause.SqlParams);
+                        break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -1482,7 +1526,7 @@ namespace DapperSqlMaker.DapperExt
         public virtual IEnumerable<dynamic> LoadPagemscte(int page, int rows, out int records)
         {
             records = 0;
-            ISqlAdapter adp;
+            ISqlAdapterDsm adp;
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
             using (var conn = GetConn())
@@ -1505,7 +1549,7 @@ namespace DapperSqlMaker.DapperExt
         public virtual IEnumerable<dynamic> LoadPagems(int page, int rows, out int records)
         {
             records = 0;
-            ISqlAdapter adp;
+            ISqlAdapterDsm adp;
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
             using (var conn = GetConn())
@@ -1526,7 +1570,7 @@ namespace DapperSqlMaker.DapperExt
         /// </summary>  
         public virtual IEnumerable<T> LoadPagems<T>(int page, int rows)
         {
-            ISqlAdapter adp;
+            ISqlAdapterDsm adp;
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
             using (var conn = GetConn())
@@ -1551,29 +1595,105 @@ namespace DapperSqlMaker.DapperExt
         public virtual IEnumerable<T> LoadPagems<T>(int page, int rows, out int records,Func<T,int> getRecords)
         {
             records = 0;
-            ISqlAdapter adp;
+            var obj = LoadPagems<T>(page,rows);
+
+            var first = obj.FirstOrDefault();
+            if (first != null) records = getRecords(first);
+            return obj;
+        }
+
+        /// <summary>
+        ///  MS Sql2012新分页语法(offset / fetch next) T实体里声明records接受总记录数;
+        /// </summary>
+        /// <param name="records">总记录</param>
+        public virtual IEnumerable<dynamic> LoadPageMsSql2<T>(int page, int rows, out int records) {
+
+            records = 0;
+            ISqlAdapterDsm adp;
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
             using (var conn = GetConn())
             {
                 adp = GetSqlAdapter(conn);
 
+                //select * from xxxx
+                //    offset 8 rows				/* 开始行数  (页面-1)*行数 */
+                //    fetch next 5 rows only		/* 行数 */
                 // 生成分页sql
-                adp.RawPage(rawSqlParams.Item1, rawSqlParams.Item2, page, rows);
+                //adp.RawPage(rawSqlParams.Item1, rawSqlParams.Item2, page, rows);
+                var offset = (page - 1) * rows;
+                rawSqlParams.Item1.Append(" offset @offset rows fetch next @rows rows only");
+                rawSqlParams.Item2.Add("offset",offset);
+                rawSqlParams.Item2.Add("rows", rows);
+
                 // 查询分页数据
-                var obj = conn.Query<T>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
+                var obj = conn.Query<dynamic>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
                 var first = obj.FirstOrDefault();
-                if (first != null) records = getRecords(first);
+                if (first != null) records = int.Parse("0" + first.counts);
                 return obj;
             }
         }
+        /// <summary>
+        ///  MS Sql2012新分页   同 LoadPageMsSql2&lt;T&gt;(page, rows, out records).ToList();
+        /// </summary>
+        /// <param name="records">总记录</param>
+        /// <param name="getRecords">p => p.records</param>
+        public virtual List<dynamic> LoadPageMsSql2List<T>(int page, int rows, out int records) => LoadPageMsSql2<T>(page, rows, out records).ToList();
+
+        /// <summary>
+        ///  MS Sql2012新分页语法(offset / fetch next) T实体里声明records接受总记录数;
+        /// </summary>
+        /// <param name="records">总记录</param>
+        /// <param name="getRecords">p => p.records</param>
+        public virtual IEnumerable<T> LoadPageMsSql2<T>(int page, int rows)
+        {
+            ISqlAdapterDsm adp;
+            // Tuple<sql,entity>
+            Tuple<StringBuilder, DynamicParameters> rawSqlParams = this.RawSqlParams();
+            using (var conn = GetConn())
+            {
+                adp = GetSqlAdapter(conn);
+                var offset = (page - 1) * rows;
+                rawSqlParams.Item1.Append(" offset @offset rows fetch next @rows rows only");
+                rawSqlParams.Item2.Add("offset", offset);
+                rawSqlParams.Item2.Add("rows", rows);
+                // 查询分页数据
+                var obj = conn.Query<T>(rawSqlParams.Item1.ToString(), rawSqlParams.Item2);
+                return obj;
+            }
+        }
+        /// <summary>
+        ///  MS Sql2012新分页   同  LoadPageMsSql2&lt;T&gt;(page, rows).ToList&lt;T&gt;()
+        /// </summary>
+        public virtual List<T> LoadPageMsSql2List<T>(int page, int rows) => LoadPageMsSql2<T>(page, rows).ToList<T>();
+        /// <summary>
+        ///  MS Sql2012新分页语法(offset / fetch next) T实体里声明records接受总记录数;
+        /// </summary>
+        /// <param name="records">总记录</param>
+        /// <param name="getRecords">p => p.records</param>
+        public virtual IEnumerable<T> LoadPageMsSql2<T>(int page, int rows, out int records, Func<T, int> getRecords)
+        {
+            records = 0;
+            var obj = LoadPageMsSql2<T>(page, rows);
+
+            var first = obj.FirstOrDefault();
+            if (first != null) records = getRecords(first);
+            return obj;
+        }
+        /// <summary>
+        ///  MS Sql2012新分页   同 LoadPageMsSql2&lt;T&gt;(page, rows, out records, getRecords).ToList&lt;T&gt;()
+        /// </summary>
+        /// <param name="records">总记录</param>
+        /// <param name="getRecords">p => p.records</param>
+        public virtual List<T> LoadPageMsSql2List<T>(int page, int rows, out int records, Func<T, int> getRecords) => LoadPageMsSql2<T>(page, rows, out records, getRecords).ToList<T>();
+
 
         /// <summary>
         /// sqlite分页 dynamic 空数据返回Count=0的IEnumerable&lt;dynamic&gt;
         /// </summary> 
         public virtual IEnumerable<dynamic> LoadPagelt(int page, int rows, out int records)
         {
-            ISqlAdapter adp;
+            ISqlAdapterDsm adp;
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters, StringBuilder> rawSqlParams = this.RawLimitSqlParams();
             using (var conn = GetConn())
@@ -1598,7 +1718,7 @@ namespace DapperSqlMaker.DapperExt
         /// </summary> 
         public virtual IEnumerable<T> LoadPagelt<T>(int page, int rows, out int records)
         {
-            ISqlAdapter adp;
+            ISqlAdapterDsm adp;
             // Tuple<sql,entity>
             Tuple<StringBuilder, DynamicParameters, StringBuilder> rawSqlParams = this.RawLimitSqlParams();
             using (var conn = GetConn())

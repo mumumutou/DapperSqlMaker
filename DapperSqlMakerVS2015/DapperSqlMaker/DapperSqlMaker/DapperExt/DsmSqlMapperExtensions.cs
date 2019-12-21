@@ -44,9 +44,9 @@ namespace Dapper.Contrib.Extensions
         private static readonly ConcurrentDictionary<RuntimeTypeHandle, string> GetQueries = new ConcurrentDictionary<RuntimeTypeHandle, string>();
         private static readonly ConcurrentDictionary<RuntimeTypeHandle, string> TypeTableName = new ConcurrentDictionary<RuntimeTypeHandle, string>();
 
-        private static readonly ISqlAdapter DefaultAdapter = new SqlServerAdapter();
-        private static readonly Dictionary<string, ISqlAdapter> AdapterDictionary
-            = new Dictionary<string, ISqlAdapter>
+        private static readonly ISqlAdapterDsm DefaultAdapter = new SqlServerAdapter();
+        private static readonly Dictionary<string, ISqlAdapterDsm> AdapterDictionary
+            = new Dictionary<string, ISqlAdapterDsm>
             {
                 {"sqlconnection", new SqlServerAdapter()},
                 {"sqlceconnection", new SqlCeServerAdapter()},
@@ -999,7 +999,7 @@ namespace Dapper.Contrib.Extensions
         /// </summary>
         public static GetDatabaseTypeDelegate GetDatabaseType;
 
-        private static ISqlAdapter GetFormatter(IDbConnection connection)
+        private static ISqlAdapterDsm GetFormatter(IDbConnection connection)
         {
             var name = GetDatabaseType?.Invoke(connection).ToLower()
                        ?? connection.GetType().Name.ToLower();
@@ -1610,7 +1610,7 @@ FROM
 /// <summary>
 /// 不同数据库 参数格式适配器 "\"{0}\" = @{1}"
 /// </summary>
-public partial interface ISqlAdapter
+public partial interface ISqlAdapterDsm
 {
     /// <summary>
     /// 添加一条记录 返回受影响行数
@@ -1649,7 +1649,7 @@ public partial interface ISqlAdapter
 
 }
 
-public partial class SqlServerAdapter : ISqlAdapter
+public partial class SqlServerAdapter : ISqlAdapterDsm
 {
     public int InsertGetId(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
     {
@@ -1709,7 +1709,7 @@ public partial class SqlServerAdapter : ISqlAdapter
     }
 }
 
-public partial class SqlCeServerAdapter : ISqlAdapter
+public partial class SqlCeServerAdapter : ISqlAdapterDsm
 {
     public int Insert(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
     {
@@ -1753,7 +1753,7 @@ public partial class SqlCeServerAdapter : ISqlAdapter
     }
 }
 
-public partial class MySqlAdapter : ISqlAdapter
+public partial class MySqlAdapter : ISqlAdapterDsm
 {
     public int Insert(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
     {
@@ -1797,7 +1797,7 @@ public partial class MySqlAdapter : ISqlAdapter
 }
 
 
-public partial class PostgresAdapter : ISqlAdapter
+public partial class PostgresAdapter : ISqlAdapterDsm
 {
     public int Insert(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
     {
@@ -1859,7 +1859,7 @@ public partial class PostgresAdapter : ISqlAdapter
     }
 }
 
-public partial class SQLiteAdapter : ISqlAdapter
+public partial class SQLiteAdapter : ISqlAdapterDsm
 {
     public int InsertGetId(IDbConnection connection, IDbTransaction transaction, int? commandTimeout, string tableName, string columnList, string parameterList, IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
     {

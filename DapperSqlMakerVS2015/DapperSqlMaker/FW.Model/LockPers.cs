@@ -41,6 +41,8 @@ namespace FW.Model
         [Write(false)]
         public Users Users { get; set; }
         public string UserName { get; set; }
+        [Write(false)]
+        public int records { get; set; }
     }
      
 } // namespace
