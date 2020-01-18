@@ -25,7 +25,7 @@ namespace TestsDapperSqlMaker.DapperExt
         {
             var name = "木头人3名称必须唯一" + DateTime.Now.ToString();
             string colm = "img", val = "(select value from skin limit 1 offset 1)"; DateTime cdate = DateTime.Now;
-            var insert = LockDapperUtilsqlite<Users>.Inser().AddColumn(p => new bool[] {
+            var insert = DBSqlite<Users>.Insert().AddColumn(p => new bool[] {
                 p.UserName == name, p.Password == "666", p.CreateTime == cdate
                 , SM.Sql(colm,val), SM.Sql(p.Remark,"(select '荒野高尔夫')")
             });
@@ -34,7 +34,7 @@ namespace TestsDapperSqlMaker.DapperExt
             var efrow = insert.ExecuteInsert();
             Console.WriteLine(efrow);
             string guid = Guid.NewGuid().ToString();
-            var efrow2 = LockDapperUtilsqlite<LockPers>.Inser().AddColumn(p => new bool[] {
+            var efrow2 = DBSqlite<LockPers>.Insert().AddColumn(p => new bool[] {
                 p.Id            ==   guid,
                 p.Name          == "木头人1"  ,
                 p.Content       == "这是棉花好多好多"         ,
@@ -59,7 +59,7 @@ namespace TestsDapperSqlMaker.DapperExt
         {
             
             Skin additem = new Skin() { InsertDate = DateTime.Now.ToString(), Name = "奥的阿三", Remake = "背景", Type = "bg", Value = "www.baidu.com" };
-            int efrow = DapperFuncs.New.Inser<Skin>(additem);
+            int efrow = DBSqliteFuncs.New.Inser<Skin>(additem);
             Console.WriteLine("影响行数-" + efrow);
         }
 
@@ -67,7 +67,7 @@ namespace TestsDapperSqlMaker.DapperExt
         public void 添加部分字段_返回影响行_测试lt()
         {
             
-            var efrow = DapperFuncs.New.Insert<LockPers>(p =>
+            var efrow = DBSqliteFuncs.New.Insert<LockPers>(p =>
             {
                 p._IsWriteFiled = true;
                 p.Id = Guid.NewGuid().ToString();
@@ -86,7 +86,7 @@ namespace TestsDapperSqlMaker.DapperExt
 
             
             return;
-            var efrow = DapperFuncs.New.InsertGetId<LockPers>(p =>
+            var efrow = DBSqliteFuncs.New.InsertGetId<LockPers>(p =>
             {
                 p._IsWriteFiled = true;
                 p.Id = Guid.NewGuid().ToString();
@@ -118,7 +118,7 @@ namespace TestsDapperSqlMaker.DapperExt
                 IsDel = false,
                 UserId = 3
             };
-            var efrow = DapperFuncs.New.Inser<LockPers_ms>(item
+            var efrow = DBSqliteFuncs.New.Inser<LockPers_ms>(item
                 );
             Console.WriteLine("影响行数-" + efrow);
         }
@@ -127,7 +127,7 @@ namespace TestsDapperSqlMaker.DapperExt
         {
             
             return;
-            var efrow = DapperFuncs.New.Insert<LockPers_ms>(p =>
+            var efrow = DBSqliteFuncs.New.Insert<LockPers_ms>(p =>
             {
                 p._IsWriteFiled = true;
                 p.Id = Guid.NewGuid().ToString();
@@ -145,7 +145,7 @@ namespace TestsDapperSqlMaker.DapperExt
             //return;
             
 
-            var id = DapperFuncs.New.InsertGetId<LockPers_ms>(p =>
+            var id = DBSqliteFuncs.New.InsertGetId<LockPers_ms>(p =>
             {
                 p._IsWriteFiled = true;
                 p.Id = Guid.NewGuid().ToString();
@@ -187,7 +187,7 @@ namespace TestsDapperSqlMaker.DapperExt
             //return;  // sqlite 读取 批量插入到 mssql
             
 
-            var list3old = DapperFuncs.New.GetAll<LockPers_>();
+            var list3old = DBSqliteFuncs.New.GetAll<LockPers_>();
             List<LockPers_ms_> list3new = new List<LockPers_ms_>();
             foreach (var item in list3old)
             {
@@ -200,7 +200,7 @@ namespace TestsDapperSqlMaker.DapperExt
 
             return;
 
-            var list2old = DapperFuncs.New.GetAll<SynNote>();
+            var list2old = DBSqliteFuncs.New.GetAll<SynNote>();
             foreach (var item in list2old)
             {
                 var model = CopyModelHelper.Mapper<SynNote_ms, SynNote>(item);
@@ -208,7 +208,7 @@ namespace TestsDapperSqlMaker.DapperExt
                 //newlist.Add ( );
             }
 
-            var list1old = DapperFuncs.New.GetAll<Users>();
+            var list1old = DBSqliteFuncs.New.GetAll<Users>();
             foreach (var item in list1old)
             {
                 var model = CopyModelHelper.Mapper<Users_ms, Users>(item);

@@ -78,6 +78,7 @@
     <Compile Include="ModelPartial\Users.cs">
       <DependentUpon>SQLiteModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="MSSQLModelPartial\Esy_Sys_User.cs" />
     <Compile Include="MSSQLModelPartial\pa\LockPers.cs" />
     <Compile Include="MSSQLModelPartial\pa\SynNote.cs" />
     <Compile Include="MSSQLModelPartial\pa\Users.cs" />

@@ -17,7 +17,7 @@ namespace TestsDapperSqlMaker.DapperExt
         [Test]
         public void 删除数据_含子查询_测试lt() {
             var sql = " UserId = ( select Id from users  where UserName = '木头人1' )";
-            var delete = LockDapperUtilsqlite<LockPers>.Delet().Where(p => 
+            var delete = DBSqlite<LockPers>.Delete().Where(p => 
                     p.Name == "H$E22222" && SM.SQL(sql) && SM.SQL(" IsDel = '1' "));
             var efrow = delete.ExecuteDelete();
             Console.WriteLine(efrow);
@@ -32,7 +32,7 @@ namespace TestsDapperSqlMaker.DapperExt
         {
             
             var Name = "mssqlmmmmmmmx1";
-            var issucs = DapperFuncs.New .Delete<LockPers>(w => w.Name == Name && w.IsDel == true);
+            var issucs = DBSqliteFuncs.New .Delete<LockPers>(w => w.Name == Name && w.IsDel == true);
             Console.WriteLine(issucs);
         }
 
@@ -50,7 +50,7 @@ namespace TestsDapperSqlMaker.DapperExt
             where = where.Or(p => p.Name == Name2);
             where = where.And(p => p.UserId == 3);
 
-            var issucs = DapperFuncs.New .Deleters<LockPers>(where);
+            var issucs = DBSqliteFuncs.New .Deleters<LockPers>(where);
             Console.WriteLine(issucs);
         }
 
@@ -72,7 +72,7 @@ namespace TestsDapperSqlMaker.DapperExt
             where = where.Or(p => p.Name == Name2);
             where = where.And(p => p.UserId == 3);
 
-            var issucs = DapperFuncs.New.Delete<LockPers_ms>(where);
+            var issucs = DBSqliteFuncs.New.Delete<LockPers_ms>(where);
             Console.WriteLine(issucs);
         }
 

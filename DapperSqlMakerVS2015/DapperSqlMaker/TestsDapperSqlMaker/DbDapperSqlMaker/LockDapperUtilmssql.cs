@@ -8,7 +8,7 @@ using System.Text;
 namespace DapperSqlMaker.DapperExt
 {
 
-    public partial class EshineCloudBase : DapperFuncsBase
+    public partial class EsyDbFuncs : DapperFuncsBase
     {
         //public string a { get; set; }
 
@@ -19,9 +19,9 @@ namespace DapperSqlMaker.DapperExt
         //    return this.GetConn();
         //}
 
-        private EshineCloudBase() { }
-        private readonly static EshineCloudBase _New = new EshineCloudBase();
-        public static EshineCloudBase New()
+        private EsyDbFuncs() { }
+        private readonly static EsyDbFuncs _New = new EsyDbFuncs();
+        public static EsyDbFuncs New()
         {
             return _New;
         }
@@ -38,7 +38,7 @@ namespace DapperSqlMaker.DapperExt
 
     }
 
-    public partial class EshineCloudBaseUtil : IDapperSqlMakerBase
+    public partial class EsyDb : IDapperSqlMakerBase
     {
         //public string a { get; set; }
 
@@ -49,9 +49,9 @@ namespace DapperSqlMaker.DapperExt
         //    return this.GetConn();
         //}
 
-        private EshineCloudBaseUtil() { }
-        private readonly static EshineCloudBaseUtil _New = new EshineCloudBaseUtil();
-        public static EshineCloudBaseUtil New()
+        private EsyDb() { }
+        private readonly static EsyDb _New = new EsyDb();
+        public static EsyDb New()
         {
             return _New;
         }
@@ -67,42 +67,42 @@ namespace DapperSqlMaker.DapperExt
         public string GetSqlParamSymbol() => SM.ParamSymbolMSSql;
     }
 
-    public partial class EshineCloudBaseUtil<T> : DapperSqlMaker<T>
+    public partial class EsyDb<T> : DapperSqlMaker<T>
                                          where T : class, new()
     {
-        public override string GetSqlParamSymbol() => EshineCloudBaseUtil.New().GetSqlParamSymbol();
+        public override string GetSqlParamSymbol() => EsyDb.New().GetSqlParamSymbol();
         public override IDbConnection GetConn()
         {
-            return EshineCloudBaseUtil.New().GetConn();
+            return EsyDb.New().GetConn();
         }
 
-        public static DapperSqlMaker<T> Selec()
+        public static new DapperSqlMaker<T> Select()
         {
-            return new EshineCloudBaseUtil<T>().Select();
+            return ((DapperSqlMaker<T>)new EsyDb<T>()).Select();
         }
-        public static DapperSqlMaker<T> Inser()
+        public static new DapperSqlMaker<T> Insert()
         {
-            return new EshineCloudBaseUtil<T>().Insert();
+            return ((DapperSqlMaker<T>)new EsyDb<T>()).Insert();
         }
-        public static DapperSqlMaker<T> Updat()
-        {
-            return new EshineCloudBaseUtil<T>().Update();
+        public static new DapperSqlMaker<T> Update()
+        { 
+            return ((DapperSqlMaker<T>)new EsyDb<T>()).Update();
         }
-        public static DapperSqlMaker<T> Delet()
+        public static new DapperSqlMaker<T> Delete()
         {
-            return new EshineCloudBaseUtil<T>().Delete();
+            return ((DapperSqlMaker<T>)new EsyDb<T>()).Delete();
         }
 
         public static DapperSqlMaker<T> SqlClaus(string sqlClause, int index = -1)
         {
-            return new EshineCloudBaseUtil<T>().SqlClause(sqlClause, index);
+            return ((DapperSqlMaker<T>)new EsyDb<T>()).SqlClause(sqlClause, index);
         }
 
 
         /// <summary>
         /// 增删改 查
         /// </summary>
-        public readonly static DapperSqlMaker<T> Cud = new EshineCloudBaseUtil<T>();
+        public readonly static DapperSqlMaker<T> Cud = ((DapperSqlMaker<T>)new EsyDb<T>());
 
     }
 
@@ -128,7 +128,7 @@ namespace DapperSqlMaker.DapperExt
     /// <summary>
     /// 链式封装的上下文类  Sqlite库1
     /// </summary>
-    public partial class LockDapperUtilmssql : IDapperSqlMakerBase
+    public partial class DBMSSql : IDapperSqlMakerBase
     {
         //public string a { get; set; }
 
@@ -139,9 +139,9 @@ namespace DapperSqlMaker.DapperExt
         //    return this.GetConn();
         //}
 
-        private LockDapperUtilmssql() { }
-        private readonly static LockDapperUtilmssql _New = new LockDapperUtilmssql();
-        public static LockDapperUtilmssql New()
+        private DBMSSql() { }
+        private readonly static DBMSSql _New = new DBMSSql();
+        public static DBMSSql New()
         {
             return _New;
         }
@@ -157,131 +157,131 @@ namespace DapperSqlMaker.DapperExt
         public string GetSqlParamSymbol() => SM.ParamSymbolMSSql;
     }
 
-    public partial class LockDapperUtilmssql<T> : DapperSqlMaker<T>
+    public partial class DBMSSql<T> : DapperSqlMaker<T>
                                          where T : class, new()
     {
-        public override string GetSqlParamSymbol() => LockDapperUtilmssql.New().GetSqlParamSymbol();
+        public override string GetSqlParamSymbol() => DBMSSql.New().GetSqlParamSymbol();
         public override IDbConnection GetConn()
         {
-            return LockDapperUtilmssql.New().GetConn();
+            return DBMSSql.New().GetConn();
         }
          
-        public static DapperSqlMaker<T> Selec()
+        public static new DapperSqlMaker<T> Select()
         {
-            return new LockDapperUtilmssql<T>().Select();
+            return ((DapperSqlMaker<T>)new DBMSSql<T>()).Select();
         }
-        public static DapperSqlMaker<T> Inser()
+        public static new DapperSqlMaker<T> Insert()
         {
-            return new LockDapperUtilmssql<T>().Insert();
+            return ((DapperSqlMaker<T>)new DBMSSql<T>()).Insert();
         }
-        public static DapperSqlMaker<T> Updat()
+        public static new DapperSqlMaker<T> Update()
         {
-            return new LockDapperUtilmssql<T>().Update();
+            return ((DapperSqlMaker<T>)new DBMSSql<T>()).Update();
         }
-        public static DapperSqlMaker<T> Delet()
+        public static new DapperSqlMaker<T> Delete()
         {
-            return new LockDapperUtilmssql<T>().Delete();
+            return ((DapperSqlMaker<T>)new DBMSSql<T>()).Delete();
         }
 
         public static DapperSqlMaker<T> SqlClaus(string sqlClause,int index=-1)
         {
-            return new LockDapperUtilmssql<T>().SqlClause(sqlClause, index);
+            return ((DapperSqlMaker<T>)new DBMSSql<T>()).SqlClause(sqlClause, index);
         }
 
 
         /// <summary>
         /// 增删改 查
         /// </summary>
-        public readonly static DapperSqlMaker<T> Cud = new LockDapperUtilmssql<T>();
+        public readonly static DapperSqlMaker<T> Cud = ((DapperSqlMaker<T>)new DBMSSql<T>());
 
     }
-    public partial class LockDapperUtilmssql<T, Y> : DapperSqlMaker<T, Y>
+    public partial class DBMSSql<T, Y> : DapperSqlMaker<T, Y>
     {
-        public override string GetSqlParamSymbol() => LockDapperUtilmssql.New().GetSqlParamSymbol();
+        public override string GetSqlParamSymbol() => DBMSSql.New().GetSqlParamSymbol();
         public override IDbConnection GetConn()
         {
-            return LockDapperUtilmssql.New().GetConn();
+            return DBMSSql.New().GetConn();
         }
         // 不能用单例 单例后面的表别名字典会冲突
-        public static DapperSqlMaker<T, Y> Selec()
+        public static new DapperSqlMaker<T, Y> Select()
         {
-            return new LockDapperUtilmssql<T, Y>().Select();
+            return ((DapperSqlMaker<T, Y>)new DBMSSql<T, Y>()).Select();
         }
         public static DapperSqlMaker<T, Y> SqlClaus(string sqlClause, int index = -1)
         {
-            return new LockDapperUtilmssql<T, Y>().SqlClause(sqlClause, index);
+            return ((DapperSqlMaker<T, Y>)new DBMSSql<T, Y>()).SqlClause(sqlClause, index);
         }
     }
 
-    public partial class LockDapperUtilmssql<T, Y, Z> : DapperSqlMaker<T, Y, Z>
+    public partial class DBMSSql<T, Y, Z> : DapperSqlMaker<T, Y, Z>
     {
-        public override string GetSqlParamSymbol() => LockDapperUtilmssql.New().GetSqlParamSymbol();
+        public override string GetSqlParamSymbol() => DBMSSql.New().GetSqlParamSymbol();
         public override IDbConnection GetConn()
         {
-            return LockDapperUtilmssql.New().GetConn();
+            return DBMSSql.New().GetConn();
         }
         // 不能用单例 单例后面的表别名字典会冲突
-        public static DapperSqlMaker<T, Y, Z> Selec()
+        public static new DapperSqlMaker<T, Y, Z> Select()
         {
-            return new LockDapperUtilmssql<T, Y, Z>().Select();
+            return ((DapperSqlMaker<T, Y, Z>)new DBMSSql<T, Y, Z>()).Select();
         }
         public static DapperSqlMaker<T, Y, Z> SqlClaus(string sqlClause, int index = -1)
         {
-            return new LockDapperUtilmssql<T, Y, Z>().SqlClause(sqlClause, index);
+            return ((DapperSqlMaker<T, Y, Z>)new DBMSSql<T, Y, Z>()).SqlClause(sqlClause, index);
         }
 
     }
-    public partial class LockDapperUtilmssql<T, Y, Z, O> : DapperSqlMaker<T, Y, Z, O>
+    public partial class DBMSSql<T, Y, Z, O> : DapperSqlMaker<T, Y, Z, O>
     {
-        public override string GetSqlParamSymbol() => LockDapperUtilmssql.New().GetSqlParamSymbol();
+        public override string GetSqlParamSymbol() => DBMSSql.New().GetSqlParamSymbol();
         public override IDbConnection GetConn()
         {
-            return LockDapperUtilmssql.New().GetConn();
+            return DBMSSql.New().GetConn();
         }
         // 不能用单例 单例后面的表别名字典会冲突
-        public static DapperSqlMaker<T, Y, Z, O> Selec()
+        public static new DapperSqlMaker<T, Y, Z, O> Select()
         {
-            return new LockDapperUtilmssql<T, Y, Z, O>().Select();
+            return ((DapperSqlMaker<T, Y, Z, O>)new DBMSSql<T, Y, Z, O>()).Select();
         }
         public static DapperSqlMaker<T, Y, Z, O> SqlClaus(string sqlClause, int index = -1)
         {
-            return new LockDapperUtilmssql<T, Y, Z, O>().SqlClause(sqlClause, index);
+            return new DBMSSql<T, Y, Z, O>().SqlClause(sqlClause, index);
         }
 
     }
-    public partial class LockDapperUtilmssql<T, Y, Z, O, P> : DapperSqlMaker<T, Y, Z, O, P>
+    public partial class DBMSSql<T, Y, Z, O, P> : DapperSqlMaker<T, Y, Z, O, P>
     {
-        public override string GetSqlParamSymbol() => LockDapperUtilmssql.New().GetSqlParamSymbol();
+        public override string GetSqlParamSymbol() => DBMSSql.New().GetSqlParamSymbol();
         public override IDbConnection GetConn()
         {
-            return LockDapperUtilmssql.New().GetConn();
+            return DBMSSql.New().GetConn();
         }
         // 不能用单例 单例后面的表别名字典会冲突
-        public static DapperSqlMaker<T, Y, Z, O, P> Selec()
+        public static new DapperSqlMaker<T, Y, Z, O, P> Select()
         {
-            return new LockDapperUtilmssql<T, Y, Z, O, P>().Select();
+            return ((DapperSqlMaker<T, Y, Z, O, P>)new DBMSSql<T, Y, Z, O, P>()).Select();
         }
         public static DapperSqlMaker<T, Y, Z, O, P> SqlClaus(string sqlClause, int index = -1)
         {
-            return new LockDapperUtilmssql<T, Y, Z, O, P>().SqlClause(sqlClause, index);
+            return new DBMSSql<T, Y, Z, O, P>().SqlClause(sqlClause, index);
         }
 
     }
-    public partial class LockDapperUtilmssql<T, Y, Z, O, P, Q> : DapperSqlMaker<T, Y, Z, O, P, Q>
+    public partial class DBMSSql<T, Y, Z, O, P, Q> : DapperSqlMaker<T, Y, Z, O, P, Q>
     {
-        public override string GetSqlParamSymbol() => LockDapperUtilmssql.New().GetSqlParamSymbol();
+        public override string GetSqlParamSymbol() => DBMSSql.New().GetSqlParamSymbol();
         public override IDbConnection GetConn()
         {
-            return LockDapperUtilmssql.New().GetConn();
+            return DBMSSql.New().GetConn();
         }
         // 不能用单例 单例后面的表别名字典会冲突
-        public static DapperSqlMaker<T, Y, Z, O, P, Q> Selec()
+        public static new DapperSqlMaker<T, Y, Z, O, P, Q> Select()
         {
-            return new LockDapperUtilmssql<T, Y, Z, O, P, Q>().Select();
+            return ((DapperSqlMaker<T, Y, Z, O, P, Q>)new DBMSSql<T, Y, Z, O, P, Q>()).Select();
         }
         public static DapperSqlMaker<T, Y, Z, O, P, Q> SqlClaus(string sqlClause, int index = -1)
         {
-            return new LockDapperUtilmssql<T, Y, Z, O, P, Q>().SqlClause(sqlClause, index);
+            return new DBMSSql<T, Y, Z, O, P, Q>().SqlClause(sqlClause, index);
         }
 
     }

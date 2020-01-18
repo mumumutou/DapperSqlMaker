@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using DapperSqlMaker;
 using DapperSqlMaker.DapperExt;
+using Esy.Base.Application.Model;
 using FW.Model;
 using NUnit.Framework;
 using System;
@@ -27,7 +28,7 @@ namespace TestsDapperSqlMaker.DapperExt
         {
             var model = new Users() { CreateTime = DateTime.Now };
             string colm = "img", val = "(select value from skin limit 1 offset 1)"; DateTime cdate = DateTime.Now;
-            var update = LockDapperUtilsqlite<Users>.Updat().EditColumn(p => new bool[] {
+            var update = DBSqlite<Users>.Update().EditColumn(p => new bool[] {
                p.UserName =="几十行代码几十个错 调一步改一步....", p.Password == "bug制造者"
                , p.CreateTime == model.CreateTime,  SM.Sql(p.Remark,"(select '奥德赛 终于改好了')")
             }).Where(p => p.Id == 6 && SM.SQL("IsDel == 0"));
@@ -102,13 +103,23 @@ namespace TestsDapperSqlMaker.DapperExt
 
             //var exparrs = Expression.NewArrayInit(typeof(bool), exparr);
 
-            //LockDapperUtilsqlite<Users>.Updat().EditColumn( )
+            //LockDapperUtilsqlite<Users>.Update().EditColumn( )
 
             // ###########
             //把editcolumn改为 where == 形式才能 随意拼接
 
         }
 
+        [Test]
+        public void Update_Output子句测试() {
+
+            var edit = EsyDb<EsySysUser>.Update().EditColum().SqlClause("output Inserted.F_Name where");
+            var qurry = EsyDb<EsySysUser>.Insert().AddColumn().EditClause(ClauseType.AddColumn, "values", " output Inserted.F_Name values ")
+              .ExecuteQuery();
+
+            EsyDb<EsySysUser>.Delete().EditClause(ClauseType.Delete, "values", " output Inserted.F_Name values ").ExecuteDelete(); 
+
+        }
 
 
         [Test]
@@ -116,9 +127,9 @@ namespace TestsDapperSqlMaker.DapperExt
         {
             var str = DateTime.Now.ToString();
             Console.WriteLine(str);
-            var update = LockDapperUtilmssql<Users>.Updat().EditColumn(p => new bool[] { p.UserName == "事务修改 第一条语句", p.Password == str })
+            var update = DBMSSql<Users>.Update().EditColumn(p => new bool[] { p.UserName == "事务修改 第一条语句", p.Password == str })
                 .Where(p => p.Id == 4 && SM.SQL(" IsDel = 'false' "));
-            var update2 = LockDapperUtilmssql<Users>.Updat().EditColumn(p => new bool[] { p.UserName == "xxxxx 2 sql事务修改", p.Password == str })
+            var update2 = DBMSSql<Users>.Update().EditColumn(p => new bool[] { p.UserName == "xxxxx 2 sql事务修改", p.Password == str })
                 .Where(p => p.Id == 6 && SM.SQL(" IsDel = 'false' "));
 
             Console.WriteLine(update.RawSqlParams().Item1);
@@ -150,7 +161,7 @@ namespace TestsDapperSqlMaker.DapperExt
 
             //var efrow = update.ExecuteUpdate();
 
-            var rows = LockDapperUtilmssql<Users>.Selec().Column().From().Where(p => p.Id == 4 || p.Id == 6).ExecuteQuery();
+            var rows = DBMSSql<Users>.Select().Column().From().Where(p => p.Id == 4 || p.Id == 6).ExecuteQuery();
             WriteJson(rows);
 
         } 
@@ -164,7 +175,7 @@ namespace TestsDapperSqlMaker.DapperExt
         public void 更新部分字段测试lt()
         {
             
-            var issucs = DapperFuncs.New.Update<LockPers>(
+            var issucs = DBSqliteFuncs.New.Update<LockPers>(
                 s =>
                 {
                     s._IsWriteFiled = true;
@@ -186,7 +197,7 @@ namespace TestsDapperSqlMaker.DapperExt
             set.IsDel = true;
             set.ContentOld = "忽略Write(false)标记字段";
 
-            var issucs = DapperFuncs.New.Update<LockPers>(
+            var issucs = DBSqliteFuncs.New.Update<LockPers>(
                 set,
                 w => w.Name == "测试bool修改2" && w.IsDel == true
                 );
@@ -196,14 +207,14 @@ namespace TestsDapperSqlMaker.DapperExt
         public void 根据主键ID更新整个实体lt()
         {
             
-            var model = LockDapperUtilsqlite<LockPers>
-                .Selec().Column().From().Where(p => p.Name == "测试bool修改2 xxxxxx").ExecuteQuery<LockPers>().FirstOrDefault();
+            var model = DBSqlite<LockPers>
+                .Select().Column().From().Where(p => p.Name == "测试bool修改2 xxxxxx").ExecuteQuery<LockPers>().FirstOrDefault();
 
             model.Content = "棉花棉花棉花棉花棉花";
             model.ContentOld = "忽略Write(false)标记字段";
             model.Prompt = "xxxxxxxxxxx";
 
-            var issucs = DapperFuncs.New.Updat<LockPers>(model);
+            var issucs = DBSqliteFuncs.New.Updat<LockPers>(model);
             Console.WriteLine(issucs);
 
         }
@@ -213,8 +224,8 @@ namespace TestsDapperSqlMaker.DapperExt
         {
             LockPers p = new LockPers() { Id = "028e7910-6431-4e95-a50f-b9190801933b" };
 
-            var query = LockDapperUtilsqlite<LockPers>
-                        .Selec().Column(c => new { c.Content, c.EditCount }).From().Where(m => m.Id == p.Id);
+            var query = DBSqlite<LockPers>
+                        .Select().Column(c => new { c.Content, c.EditCount }).From().Where(m => m.Id == p.Id);
 
             var old = query.ExecuteQuery<LockPers>().FirstOrDefault();
 
@@ -225,7 +236,7 @@ namespace TestsDapperSqlMaker.DapperExt
 
             var id = old.Id;
             
-            var t = DapperFuncs.New.Update<LockPers>(old, w => w.Id == p.Id);
+            var t = DBSqliteFuncs.New.Update<LockPers>(old, w => w.Id == p.Id);
         }
 
 

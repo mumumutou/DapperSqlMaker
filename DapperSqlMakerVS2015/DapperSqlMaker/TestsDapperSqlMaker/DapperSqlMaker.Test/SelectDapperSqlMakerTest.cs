@@ -45,8 +45,8 @@ namespace TestsDapperSqlMaker
             where = where.And((lpw, uw, sn, snn, s5, s6) => uw.UserName == umodel.UserName);
             where = where.And((lpw, uw, sn, snn, s5, s6) => sn.Name.Contains(snmodel.Name));
             //  SM.LimitCount,
-            DapperSqlMaker<LockPers, Users, SynNote, SynNote, SynNote, SynNote> query = LockDapperUtilsqlite<LockPers, Users, SynNote, SynNote, SynNote, SynNote>
-                .Selec()
+            DapperSqlMaker<LockPers, Users, SynNote, SynNote, SynNote, SynNote> query = DBSqlite<LockPers, Users, SynNote, SynNote, SynNote, SynNote>
+                .Select()
                 .Column((lp, u, s, sn, s5, s6) =>  // )null查询所有字段
                     new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName, s.Content, s.Name })
                 .FromJoin(JoinType.Left,  (lpp, uu, snn, snnn, s5, s6) => uu.Id == lpp.UserId
@@ -78,8 +78,8 @@ namespace TestsDapperSqlMaker
             where = where.And((lpw, uw, sn, snn, s5) => uw.UserName == umodel.UserName);
             where = where.And((lpw, uw, sn, snn, s5) => sn.Name.Contains(snmodel.Name));
             //  SM.LimitCount,
-            DapperSqlMaker<LockPers, Users, SynNote, SynNote, SynNote> query = LockDapperUtilsqlite<LockPers, Users, SynNote, SynNote, SynNote>
-                .Selec()
+            DapperSqlMaker<LockPers, Users, SynNote, SynNote, SynNote> query = DBSqlite<LockPers, Users, SynNote, SynNote, SynNote>
+                .Select()
                 .Column((lp, u, s, sn, s5) =>  // )null查询所有字段
                     new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName, s.Content, s.Name })
                 .FromJoin(JoinType.Left,  (lpp, uu, snn, snnn, s5) => uu.Id == lpp.UserId
@@ -110,8 +110,8 @@ namespace TestsDapperSqlMaker
             where = where.And((lpw, uw, sn, snn) => uw.UserName == umodel.UserName);
             where = where.And((lpw, uw, sn, snn) => sn.Name.Contains(snmodel.Name));
             //  SM.LimitCount,
-            DapperSqlMaker<LockPers, Users, SynNote, SynNote> query = LockDapperUtilsqlite<LockPers, Users, SynNote, SynNote>
-                .Selec()
+            DapperSqlMaker<LockPers, Users, SynNote, SynNote> query = DBSqlite<LockPers, Users, SynNote, SynNote>
+                .Select()
                 .Column((lp, u, s, sn) =>  // )null查询所有字段
                     new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName, s.Content, s.Name })
                 .FromJoin(JoinType.Left, (lpp, uu, snn, snnn) => uu.Id == lpp.UserId
@@ -144,8 +144,8 @@ namespace TestsDapperSqlMaker
             where = where.And((l, u, s) => s.Name == snmodel.Name );
             where = where.And((l, u, s) => SM.In(u.Id, arruser));
 
-            DapperSqlMaker<LockPers, Users, SynNote> query = LockDapperUtilsqlite<LockPers, Users, SynNote>
-                .Selec()
+            DapperSqlMaker<LockPers, Users, SynNote> query = DBSqlite<LockPers, Users, SynNote>
+                .Select()
                 .Column((lp, u, s) => //null)  //查询所有字段
                     new { lp.Name, lpid = lp.Id, x = "LENGTH(a.Prompt) as len", b = SM.Sql(uall), scontent = s.Content, sname = s.Name })
                 .FromJoin(JoinType.Left, (lpp, uu, snn) => uu.Id == lpp.UserId
@@ -173,8 +173,8 @@ namespace TestsDapperSqlMaker
             where = where.And((lpw, uw) => lpw.IsDel == lpmodel.IsDel);
             where = where.And((lpw, uw) => uw.UserName == umodel.UserName);
 
-            DapperSqlMaker<LockPers, Users> query = LockDapperUtilsqlite<LockPers, Users>
-                .Selec()
+            DapperSqlMaker<LockPers, Users> query = DBSqlite<LockPers, Users>
+                .Select()
                 .Column((lp, u) => new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName }) //null查询所有字段
                 .FromJoin(JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId)
                 .Where(where)
@@ -198,8 +198,8 @@ namespace TestsDapperSqlMaker
             where = where.And((lpw) => lpw.Name.Contains(lpmodel.Name));
             where = where.And((lpw) => lpw.IsDel == lpmodel.IsDel);
 
-            DapperSqlMaker<LockPers> query = LockDapperUtilsqlite<LockPers>
-                .Selec()
+            DapperSqlMaker<LockPers> query = DBSqlite<LockPers>
+                .Select()
                 .Column() // lp => new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel }) // null查询所有字段
                 .From()
                 .Where(where) //lp => lp.Name == lpmodel.Name && lp.IsDel == lpmodel.IsDel  )
@@ -219,7 +219,7 @@ namespace TestsDapperSqlMaker
         public void 查表简单查询测试()
         {
 
-            var first = LockDapperUtilsqlite<LockPers>.Selec()
+            var first = DBSqlite<LockPers>.Select()
                 .Column()
                 .From()
                 .Where(a => a.IsDel == true)
@@ -230,7 +230,7 @@ namespace TestsDapperSqlMaker
         [Test]
         public void 查询首行首列列测试() {
 
-            var first = LockDapperUtilsqlite<Users, Skin>.Selec()
+            var first = DBSqlite<Users, Skin>.Select()
                 .Column((a, b) => new { Value = b.Value })
                 .FromJoin(JoinType.Inner, (a, b) => a.SkinId == b.Id)
                 .Where((a, b) => a.Id == 1 && a.UserName == "cc")
@@ -256,8 +256,8 @@ namespace TestsDapperSqlMaker
             where = where.And((lpw, uw, sn, snn, s5, s6) => uw.UserName == umodel.UserName);
             where = where.And((lpw, uw, sn, snn, s5, s6) => sn.Name.Contains(snmodel.Name));
             //  SM.LimitCount,
-            DapperSqlMaker<LockPers, Users, SynNote, SynNote, SynNote, SynNote> query = LockDapperUtilmssql<LockPers, Users, SynNote, SynNote, SynNote, SynNote>
-                .Selec()
+            DapperSqlMaker<LockPers, Users, SynNote, SynNote, SynNote, SynNote> query = DBMSSql<LockPers, Users, SynNote, SynNote, SynNote, SynNote>
+                .Select()
                 .RowRumberOrderBy((lp, u, s, sn, s5, s6) => new { lp.Id, b = SM.OrderDesc(lp.EditCount), a = u.Id })
                 .Column((lp, u, s, sn, s5, s6) =>  // )null查询所有字段
                     new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName, s.Content, s.Name })
@@ -290,8 +290,8 @@ namespace TestsDapperSqlMaker
             where = where.And((lpw, uw, sn, snn, s5) => uw.UserName == umodel.UserName);
             where = where.And((lpw, uw, sn, snn, s5) => sn.Name.Contains(snmodel.Name));
             //  SM.LimitCount,
-            DapperSqlMaker<LockPers, Users, SynNote, SynNote, SynNote> query = LockDapperUtilmssql<LockPers, Users, SynNote, SynNote, SynNote>
-                .Selec()
+            DapperSqlMaker<LockPers, Users, SynNote, SynNote, SynNote> query = DBMSSql<LockPers, Users, SynNote, SynNote, SynNote>
+                .Select()
                 .RowRumberOrderBy((lp, u, s, sn, s5) => new { lp.Id, a = u.Id })
                 .Column((lp, u, s, sn, s5) =>  // )null查询所有字段
                     new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName, s.Content, s.Name })
@@ -324,8 +324,8 @@ namespace TestsDapperSqlMaker
             where = where.And((lpw, uw, sn, snn) => sn.Name.Contains(snmodel.Name));
             //  SM.LimitCount,
             DapperSqlMaker<LockPers_ms, Users_ms, SynNote_ms, SynNote_ms> query =
-                LockDapperUtilmssql<LockPers_ms, Users_ms, SynNote_ms, SynNote_ms>
-                .Selec()
+                DBMSSql<LockPers_ms, Users_ms, SynNote_ms, SynNote_ms>
+                .Select()
                 .RowRumberOrderBy((lp, u, s, sn) => new { lp.Id, a = u.Id })
                 .Column((lp, u, s, sn) =>
                    new { SM.LimitCount, lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName, s.Content, s.Name })//null查询所有字段
@@ -358,8 +358,8 @@ namespace TestsDapperSqlMaker
             where = where.And((lpw, uw, sn) => uw.UserName == umodel.UserName);
             where = where.And((lpw, uw, sn) => sn.Name.Contains(snmodel.Name));
 
-            DapperSqlMaker<LockPers_ms, Users_ms, SynNote_ms> query = LockDapperUtilmssql<LockPers_ms, Users_ms, SynNote_ms>
-                .Selec()
+            DapperSqlMaker<LockPers_ms, Users_ms, SynNote_ms> query = DBMSSql<LockPers_ms, Users_ms, SynNote_ms>
+                .Select()
                 .RowRumberOrderBy((lp, u, sn) => new { x = SM.OrderDesc(lp.EditCount), lp.Name, sn.Content })
                 .Column((lp, u, s) => //null)  //查询所有字段
                     new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName, s.Content, s.Name })
@@ -387,8 +387,8 @@ namespace TestsDapperSqlMaker
             where = where.And((lpw, uw) => lpw.IsDel == lpmodel.IsDel);
             where = where.And((lpw, uw) => uw.UserName == umodel.UserName);
 
-            DapperSqlMaker<LockPers, Users> query = LockDapperUtilmssql<LockPers, Users>
-                .Selec()
+            DapperSqlMaker<LockPers, Users> query = DBMSSql<LockPers, Users>
+                .Select()
                 .RowRumberOrderBy((lp, u) => new { lp.EditCount, lp.Name })
                 .Column((lp, u) => new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName }) //null查询所有字段
                 .FromJoin(JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId)
@@ -416,8 +416,8 @@ namespace TestsDapperSqlMaker
             where = where.And((lpw) => lpw.Name.Contains(lpmodel.Name));
             where = where.And((lpw) => lpw.IsDel == lpmodel.IsDel);
              
-            DapperSqlMaker<LockPers> query = LockDapperUtilmssql<LockPers>
-                .Selec()
+            DapperSqlMaker<LockPers> query = DBMSSql<LockPers>
+                .Select()
                 .RowRumberOrderBy(lp => new { lp.EditCount, lp.Name })
                 .Column() // lp => new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel }) // null查询所有字段
                 .From()
@@ -443,11 +443,11 @@ namespace TestsDapperSqlMaker
             var where = PredicateBuilder.WhereStart<LockPers, Users>();
             where = where.And((lpw, uw) => uw.UserName == "jiaojiao");
 
-            var all = LockDapperUtilsqlite<LockPers>.Selec().Column().From().ExecuteQueryList();
+            var all = DBSqlite<LockPers>.Select().Column().From().ExecuteQueryList();
             Console.WriteLine(all.Count);
 
-            var list = LockDapperUtilsqlite<LockPers, Users>
-                .Selec()
+            var list = DBSqlite<LockPers, Users>
+                .Select()
                 .Column((lp, u) => new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName }) //null查询所有字段
                 .FromJoin(JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId)
                 .Where(where).ExecuteQueryList();
@@ -457,8 +457,8 @@ namespace TestsDapperSqlMaker
             //DynamicParameters jdmp = new DynamicParameters("#");
             //jdmp.Add("UserName_join_0", name);
 
-            var leftquery = LockDapperUtilsqlite<LockPers, Users>
-                .Selec()
+            var leftquery = DBSqlite<LockPers, Users>
+                .Select()
                 .Column((lp, u) => new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName }) //null查询所有字段
                 .FromJoin(JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId && uu.UserName == name);
                 //.Where((l,u) => u.UserName == name)
@@ -477,8 +477,8 @@ namespace TestsDapperSqlMaker
             int rows = 3;
             int records = 0;
             var name = "jiaojiao";
-            var list = LockDapperUtilmssql<LockPers, Users>
-                .Selec()
+            var list = DBMSSql<LockPers, Users>
+                .Select()
                 .Column() //null查询所有字段
                 .FromJoin(JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId && uu.UserName == name)
                 .Order( (l,u) => new { u.UserName })
@@ -492,8 +492,8 @@ namespace TestsDapperSqlMaker
             Expression<Func<LockPers, bool>> where = PredicateBuilder.WhereStart<LockPers>();
             where = where.And((lpw) => lpw.Name.Contains("%0%"));
 
-            DapperSqlMaker<LockPers> query = LockDapperUtilmssql<LockPers>
-                .Selec()
+            DapperSqlMaker<LockPers> query = DBMSSql<LockPers>
+                .Select()
                 .RowRumberOrderBy(lp => new { lp.EditCount, lp.Name })
                 .Column(p => new { SM.LimitCount, a = SM.Sql("*") }) // 
                 .From()
@@ -504,46 +504,71 @@ namespace TestsDapperSqlMaker
         #endregion
 
         [Test]
+        public void MSSql新分页测试() {
+            var x = PredicateBuilder.WhereStart<Esy.Base.Application.Model.EsySysUser_>();
+            x = x.And(p => p.F_UserId != "");
+            var query = EsyDb<Esy.Base.Application.Model.EsySysUser_>.Select()
+                //.RowRumberOrderBy(p => new { p.F_OrdCode })
+                //.Column(p => new { SM.LimitCount, x = SM.Sql("*") })
+                .Column()
+                .From().Where(x)
+                .Order(p => new { p.F_UserId })
+                ;
+            var sql = query.RawSqlParams().Item1.ToString();
+            Console.WriteLine("1");
+            try
+            {
+                var list = query.LoadPageMsSql2<Esy.Base.Application.Model.EsySysUser_>(1, 50);
+                Console.WriteLine(list);
+                // 没问题
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        [Test]
         public void 空数据查询() {
 
             try
             { // 首行空数据 T (空数据报错)
-                LockPers tnull = LockDapperUtilsqlite<LockPers>.Selec().Column().From().Where(p => p.Name == "null").ExecuteQueryFirst<LockPers>();
+                LockPers tnull = DBSqlite<LockPers>.Select().Column().From().Where(p => p.Name == "null").ExecuteQueryFirst<LockPers>();
             }
             catch (Exception) { Console.WriteLine("查询首行报错啦"); }
             try
             {   // 首行空数据 dynamic (空数据报错)
-                var mnull = LockDapperUtilsqlite<LockPers>.Selec().Column().From().Where(p => p.Name == "null").ExecuteQueryFirst();
+                var mnull = DBSqlite<LockPers>.Select().Column().From().Where(p => p.Name == "null").ExecuteQueryFirst();
             }
             catch (Exception) { Console.WriteLine("查询首行报错啦"); }
             // 首行空数据 T (空数据返回null)
-            LockPers dftnull = LockDapperUtilsqlite<LockPers>.Selec().Column().From().Where(p => p.Name == "null").ExecuteQueryFirstOrDefault<LockPers>();
+            LockPers dftnull = DBSqlite<LockPers>.Select().Column().From().Where(p => p.Name == "null").ExecuteQueryFirstOrDefault<LockPers>();
             // 首行空数据 T (空数据返回null)
-            var dfmnull = LockDapperUtilsqlite<LockPers>.Selec().Column().From().Where(p => p.Name == "null").ExecuteQueryFirstOrDefault();
+            var dfmnull = DBSqlite<LockPers>.Select().Column().From().Where(p => p.Name == "null").ExecuteQueryFirstOrDefault();
 
 
             // 首行首列 (空数据返回null)
-            var mcolumnnull = LockDapperUtilsqlite<LockPers>.Selec().Column(p => new { p.Name }).From().Where(p => p.Name == "null").ExecuteScalar<string>();
+            var mcolumnnull = DBSqlite<LockPers>.Select().Column(p => new { p.Name }).From().Where(p => p.Name == "null").ExecuteScalar<string>();
             // 首行首列 (空数据返回0)
-            var icolumnnull = LockDapperUtilsqlite<LockPers>.Selec().Column(p => new { p.Name }).From().Where(p => p.Name == "null").ExecuteScalar<int>();
+            var icolumnnull = DBSqlite<LockPers>.Select().Column(p => new { p.Name }).From().Where(p => p.Name == "null").ExecuteScalar<int>();
 
 
             // 以下多行空数据 都返回Count=0的集合
 
             // 多行空数据 dynamic
-            var tdsmlistnullist = LockDapperUtilsqlite<LockPers>.Selec().Column().From().Where(p => p.Name == "null").ExecuteQuery();
+            var tdsmlistnullist = DBSqlite<LockPers>.Select().Column().From().Where(p => p.Name == "null").ExecuteQuery();
             // 多行空数据 T
-            var tlistnull = LockDapperUtilsqlite<LockPers>.Selec().Column().From().Where(p => p.Name == "null").ExecuteQuery<LockPers>();
+            var tlistnull = DBSqlite<LockPers>.Select().Column().From().Where(p => p.Name == "null").ExecuteQuery<LockPers>();
             // 多行空数据 dynamic
-            var tdsmlistnull = LockDapperUtilsqlite<LockPers>.Selec().Column().From().Where(p => p.Name == "null").ExecuteQueryList();
+            var tdsmlistnull = DBSqlite<LockPers>.Select().Column().From().Where(p => p.Name == "null").ExecuteQueryList();
             // 多行空数据 T
-            var tlistnullist = LockDapperUtilsqlite<LockPers>.Selec().Column().From().Where(p => p.Name == "null").ExecuteQueryList<LockPers>();
+            var tlistnullist = DBSqlite<LockPers>.Select().Column().From().Where(p => p.Name == "null").ExecuteQueryList<LockPers>();
 
             int records;
             // 多行空数据 T
-            var pagesnull = LockDapperUtilsqlite<LockPers>.Selec().Column().From().Where(p => p.Name == "null").LoadPagelt<LockPers>(1,10,out records);
+            var pagesnull = DBSqlite<LockPers>.Select().Column().From().Where(p => p.Name == "null").LoadPagelt<LockPers>(1,10,out records);
             // 多行空数据 T
-            var pagesdsmnull = LockDapperUtilsqlite<LockPers>.Selec().Column().From().Where(p => p.Name == "null").LoadPagelt(1, 10, out records);
+            var pagesdsmnull = DBSqlite<LockPers>.Select().Column().From().Where(p => p.Name == "null").LoadPagelt(1, 10, out records);
 
 
 
@@ -552,9 +577,9 @@ namespace TestsDapperSqlMaker
         [Test]
         public void 查询首行()
         {
-            var m = LockDapperUtilsqlite<LockPers>.Selec().Column().From().ExecuteQueryFirst();
+            var m = DBSqlite<LockPers>.Select().Column().From().ExecuteQueryFirst();
 
-            LockPers t = LockDapperUtilsqlite<LockPers>.Selec().Column().From().ExecuteQueryFirst<LockPers>();
+            LockPers t = DBSqlite<LockPers>.Select().Column().From().ExecuteQueryFirst<LockPers>();
 
             WriteJson(m); //  查询结果
             Console.WriteLine("-------------------");
@@ -582,8 +607,8 @@ namespace TestsDapperSqlMaker
         public void 查询所有数据() {
             // 4表
             DapperSqlMaker<LockPers, Users, SynNote, SynNote> query4 = 
-                LockDapperUtilsqlite<LockPers, Users, SynNote, SynNote>
-                .Selec()
+                DBSqlite<LockPers, Users, SynNote, SynNote>
+                .Select()
                 .Column()  // null查询所有字段 // (lp, u, s, sn) =>  new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName, s.Content, s.Name })
                 .FromJoin(JoinType.Left, (lpp, uu, snn, snnn) => uu.Id == lpp.UserId
                         , JoinType.Inner, (lpp, uu, snn, snnn) => uu.Id == snn.UserId && snn.Id == snn.UserId
@@ -592,8 +617,8 @@ namespace TestsDapperSqlMaker
             WriteJson(result4); //  查询结果
             // 3表
             DapperSqlMaker<LockPers, Users, SynNote> query3 = 
-                LockDapperUtilsqlite<LockPers, Users, SynNote>
-               .Selec()
+                DBSqlite<LockPers, Users, SynNote>
+               .Select()
                .Column() //null 查询所有字段 // (lp, u, s) => new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName, s.Content, s.Name })
                .FromJoin(JoinType.Left, (lpp, uu, snn) => uu.Id == lpp.UserId
                        , JoinType.Inner, (lpp, uu, snn) => uu.Id == snn.UserId);
@@ -601,16 +626,16 @@ namespace TestsDapperSqlMaker
             WriteJson(result3); //  查询结果
 
             // 2表
-            DapperSqlMaker<LockPers, Users> query2 = LockDapperUtilsqlite<LockPers, Users>
-               .Selec()
+            DapperSqlMaker<LockPers, Users> query2 = DBSqlite<LockPers, Users>
+               .Select()
                .Column() //null 查询所有字段 //(lp, u) => new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName }) //null查询所有字段
                .FromJoin(JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId);
             var result2 = query2.ExecuteQuery();
             WriteJson(result2); //  查询结果
 
             // 1 表
-            DapperSqlMaker<LockPers> query = LockDapperUtilsqlite<LockPers>
-               .Selec()
+            DapperSqlMaker<LockPers> query = DBSqlite<LockPers>
+               .Select()
                .Column() // null查询所有字段// lp => new { lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel }) 
                .From();
             var result = query.ExecuteQuery();
@@ -631,8 +656,8 @@ namespace TestsDapperSqlMaker
             where = where.And((lpw, uw) => lpw.IsDel == lpmodel.IsDel);
             where = where.And((lpw, uw) => uw.UserName == umodel.UserName);
 
-            DapperSqlMaker<LockPers, Users> query = LockDapperUtilsqlite<LockPers, Users>
-                .Selec()
+            DapperSqlMaker<LockPers, Users> query = DBSqlite<LockPers, Users>
+                .Select()
                 .Column((lp, u) => new { a="LENGTH(a.Prompt) as len",b=SM.Sql(umodelall), lpid = lp.Id, lp.Name, lp.Prompt })
                 .FromJoin(JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId)
                 .Where(where)
@@ -655,8 +680,8 @@ namespace TestsDapperSqlMaker
             where = where.And((lpw, uw) => lpw.IsDel == lpmodel.IsDel);
             where = where.And((lpw, uw) => uw.UserName == umodel.UserName);
 
-            DapperSqlMaker<LockPers, Users> query = LockDapperUtilsqlite<LockPers, Users>
-                .Selec()
+            DapperSqlMaker<LockPers, Users> query = DBSqlite<LockPers, Users>
+                .Select()
                 .Column() 
                 .FromJoin(JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId)
                 .Where(where)
@@ -676,8 +701,8 @@ namespace TestsDapperSqlMaker
             Users umodel = new Users();
             umodel.UserName = "jiaojiao";
 
-            DapperSqlMaker<LockPers, Users> query = LockDapperUtilsqlite<LockPers, Users>
-                .Selec()
+            DapperSqlMaker<LockPers, Users> query = DBSqlite<LockPers, Users>
+                .Select()
                 .Column() //(lp, u) => new { SM.LimitCount , lp.Id, lp.InsertTime, lp.EditCount, lp.IsDel, u.UserName }) //null查询所有字段
                 .FromJoin(JoinType.Left, (lpp, uu) => uu.Id == lpp.UserId)
                 .Where((lp, u) => lp.Name.Contains(lpmodel.Name) && lp.IsDel == lpmodel.IsDel && u.UserName == umodel.UserName)
@@ -701,8 +726,8 @@ namespace TestsDapperSqlMaker
             var lpnobj = new { UserName = "%jiaojiao%" };
 
 
-            var query =  LockDapperUtilsqlite<LockPers, Users>
-                .Selec().Column().FromJoin(JoinType.Left, (p, u) => p.UserId == u.Id)
+            var query =  DBSqlite<LockPers, Users>
+                .Select().Column().FromJoin(JoinType.Left, (p, u) => p.UserId == u.Id)
                 .Where((p, u) => u.UserName.Contains(lpnobj.UserName));
             var rawsqlparms = query.RawSqlParams();
             WriteSqlParams(rawsqlparms); //打印sql和参数
@@ -730,8 +755,8 @@ namespace TestsDapperSqlMaker
             where = where.And(m => m.IsDel != true);
             where = where.And(m => (m.Name.Contains(serh) || m.Prompt.Contains(serh)));
 
-            DapperSqlMaker<LockPers> query = LockDapperUtilsqlite<LockPers>
-                .Selec()
+            DapperSqlMaker<LockPers> query = DBSqlite<LockPers>
+                .Select()
                 .Column()
                 .From()
                 .Where(where)
@@ -759,7 +784,7 @@ namespace TestsDapperSqlMaker
             where = where.And((lpw) => lpw.Name.Contains(lpmodel.Name));
             where = where.And((lpw) => lpw.IsDel == lpmodel.IsDel);
 
-            DapperSqlMaker<LockPers> query = LockDapperUtilmssql<LockPers>
+            DapperSqlMaker<LockPers> query = DBMSSql<LockPers>
                 .SqlClaus(withsql)  // 公用表表达式
                 .Select()
                 .RowRumberOrderBy(lp => new { lp.EditCount, lp.Name })
@@ -918,9 +943,9 @@ namespace TestsDapperSqlMaker
         [Test]
         public void Base_Select_Test()
         {
-            LockDapperUtilmssql<LockPers, LockPers>.Selec().FromJoin(JoinType.Inner, (a, b) => a.UserId == b.UserId);
-            LockDapperUtilmssql<Skin, Skin>.Selec().FromJoin(JoinType.Inner, (a, b) => a.Id == b.Id);
-            LockDapperUtilmssql<LockPers, LockPers>.Selec().FromJoin(JoinType.Inner, (a, b) => a.UserId == b.UserId);
+            DBMSSql<LockPers, LockPers>.Select().FromJoin(JoinType.Inner, (a, b) => a.UserId == b.UserId);
+            DBMSSql<Skin, Skin>.Select().FromJoin(JoinType.Inner, (a, b) => a.Id == b.Id);
+            DBMSSql<LockPers, LockPers>.Select().FromJoin(JoinType.Inner, (a, b) => a.UserId == b.UserId);
 
             //DapperSqlMaker<LockPers> query = LockDapperUtilmssql<LockPers>
 
@@ -934,21 +959,21 @@ namespace TestsDapperSqlMaker
         [Test]
         public void where_暂未做解析的方法() {
 
-            var efup = LockDapperUtilsqlite<Users>.Updat().EditColumn(p => new bool[] { p.Remark == "木头人xx" }).Where(p => p.UserName.Contains("%木头人%") ).ExecuteUpdate();
+            var efup = DBSqlite<Users>.Update().EditColumn(p => new bool[] { p.Remark == "木头人xx" }).Where(p => p.UserName.Contains("%木头人%") ).ExecuteUpdate();
             Console.WriteLine(efup);
-            var efde = LockDapperUtilsqlite< Users>.Delet().Where(p => p.UserName == "木头人3名称必须唯一19/11/3 21:17:42").ExecuteDelete();
+            var efde = DBSqlite< Users>.Delete().Where(p => p.UserName == "木头人3名称必须唯一19/11/3 21:17:42").ExecuteDelete();
             Console.WriteLine(efde);
 
             Expression<Func<LockPers, bool>> where = PredicateBuilder.WhereStart<LockPers>();
 
             Console.WriteLine("=======");
             Console.WriteLine("=======");
-            var query = LockDapperUtilmssql<LockPers>.Selec().Column().From().Where(where).ExecuteQuery();
+            var query = DBMSSql<LockPers>.Select().Column().From().Where(where).ExecuteQuery();
             WriteJson(query);
             Console.WriteLine("=======");
             Console.WriteLine("=======");
             Console.WriteLine("=======");
-            var q2 = LockDapperUtilsqlite<Users>.Selec().Column().From().Where(p =>  p.UserName.Contains("%木头人%") // p.UserName == "木头人1 名称必须唯一" // 
+            var q2 = DBSqlite<Users>.Select().Column().From().Where(p =>  p.UserName.Contains("%木头人%") // p.UserName == "木头人1 名称必须唯一" // 
             ).ExecuteQuery();
             WriteJson(q2);
 
@@ -1015,8 +1040,8 @@ namespace TestsDapperSqlMaker
             int page = 2, rows = 20;
             string rownm = " (SELECT COUNT(*) FROM LockPers AS t2  WHERE t2.Name < a.Name ) + (SELECT COUNT(*) FROM LockPers AS t3 WHERE t3.Name = a.Name AND t3.rowid < a.rowid  ) +1 AS rowNum";
 
-            var query = LockDapperUtilsqlite<LockPers>
-               .Selec().Column(p => new { t = "datetime(a.InsertTime) as InsertTimestr", b = SM.Sql(rownm), p.Id, p.Name, p.Content, p.Prompt, p.EditCount })
+            var query = DBSqlite<LockPers>
+               .Select().Column(p => new { t = "datetime(a.InsertTime) as InsertTimestr", b = SM.Sql(rownm), p.Id, p.Name, p.Content, p.Prompt, p.EditCount })
                .From().Where(m => m.IsDel != true && m.Name.Contains(nobj.name)).Order(m => new { m.Name });
             //Tuple<StringBuilder, Dapper.DynamicParameters> ru = query.RawSqlParams();
             //var list = query.ExecuteQuery<LockPers>();

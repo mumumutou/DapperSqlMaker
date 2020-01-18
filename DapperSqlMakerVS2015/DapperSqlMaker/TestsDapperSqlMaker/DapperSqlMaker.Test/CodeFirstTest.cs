@@ -60,7 +60,7 @@ namespace TestsDapperSqlMaker.DapperSqlMaker.Test
     {
         [Test]
         public void Code_First_粗暴模式_先删再键表_() {
-           var ef = EshineCloudBase.New()
+           var ef = EsyDbFuncs.New()
                 .CodeFirstInitgg(false,typeof(MK_Skin_), typeof(MK_User_));
             Console.WriteLine($"表更新数量:{ef}");
         }
@@ -70,7 +70,7 @@ namespace TestsDapperSqlMaker.DapperSqlMaker.Test
         */
         [Test]
         public void Code_First_友好模式_修改表() {
-            var ef = EshineCloudBase.New()
+            var ef = EsyDbFuncs.New()
                 .CodeFirstInit(true,typeof(MK_Skin),typeof(MK_User));
             Console.WriteLine($"表更新数量:{ef}");
         }
@@ -91,16 +91,16 @@ namespace TestsDapperSqlMaker.DapperSqlMaker.Test
             var droplsitsql =  
 @"SELECT 'drop table ' + TABLE_NAME + ';' FROM  INFORMATION_SCHEMA.TABLES
 WHERE(TABLE_TYPE = 'BASE TABLE' OR TABLE_TYPE = 'VIEW') and TABLE_NAME like 'bak_%'  ";
-            var list = EshineCloudBase.New().Query<string>(droplsitsql, null).ToList();
+            var list = EsyDbFuncs.New().Query<string>(droplsitsql, null).ToList();
             Console.WriteLine(list.Count());
             var dropsql = string.Join("",list);
-            var ef = EshineCloudBase.New().Query(dropsql,null);
+            var ef = EsyDbFuncs.New().Query(dropsql,null);
         }
 
         [Test]
         public void Dapper_存储过程2种方式()
         {
-            using (var conn = EshineCloudBase.New().GetConn())
+            using (var conn = EsyDbFuncs.New().GetConn())
             {
                 var trans = conn.BeginTransaction();
                 try

@@ -460,7 +460,8 @@ namespace DapperSqlMaker.DapperExt
             var tabname1 = DsmSqlMapperExtensions.GetTableName(typeof(T));
             var selstr = $" from {tabname1} {tabAliasName1}"; // sel .. from 表明 别名
 
-            Clauses.Add(Clause.New(ClauseType.ActionSelectFrom, fromJoin: selstr));
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectFrom, fromJoin: selstr));
+            Clauses.Add(Clause.New(ClauseType.ActionSelectFrom, sql: selstr));
             return this;
         }
 
@@ -496,14 +497,20 @@ namespace DapperSqlMaker.DapperExt
         {
             // 1. insert into tab
             var tabname1 = DsmSqlMapperExtensions.GetTableName(typeof(T));
-            Clauses.Add(Clause.New(ClauseType.Insert, insert: " insert into " + tabname1));
+            //Clauses.Add(Clause.New(ClauseType.Insert, insert: " insert into " + tabname1));
+            Clauses.Add(Clause.New(ClauseType.Insert, sql: " insert into " + tabname1));
             base.ClauseFirst = ClauseType.Insert;
             return this;
             // $"insert into {name} ({sbColumnList}) values ({sbParameterList})"
         }
         /// <summary>
-        /// 要添加的数据列 栗子: p => new bool[] { p.Id == guid, p.Name == "123" , bool SM.Sql("age","(select 1)")
-        /// , bool SM.Sql(p.Age,valsql), bool SM.Sql(varage,varsql) }
+        /// 要添加的数据列
+        /// <para> 栗子: p => new bool[] { p.Id == guid, p.Name == "123"</para>
+        /// <para>              , bool SM.Sql("age","(select 1)")</para>
+        /// <para>              , bool SM.Sql(p.Age,valsql), bool SM.Sql(varage,varsql) }] </para>
+        /// <para> insert output 语句 替换AddColumn语句块的values </para>
+        /// <para> .AddColumn().EditClause(ClauseType.AddColumn, "values", " output Inserted.F_Name values ").ExecuteQuery();</para>
+        /// <para>.ExecuteQuery()返回output查询列 ExecuteInsert()返回影响行数 </para>
         /// </summary> 
         public DapperSqlMaker<T> AddColumn(Expression<Func<T, bool[]>> fiesExps = null)
         {
@@ -512,7 +519,8 @@ namespace DapperSqlMaker.DapperExt
             if (fiesExps == null) throw new Exception("不能执行空的插入语句");
             LambdaExpression fielambda = fiesExps as LambdaExpression;
             base.GetInsertOrUpdateColumnValueStr(fielambda, out spars, out sqlColmval);
-            Clauses.Add(Clause.New(ClauseType.AddColumn, addcolumn: sqlColmval, insertParms: spars));
+            //Clauses.Add(Clause.New(ClauseType.AddColumn, addcolumn: sqlColmval, insertParms: spars));
+            Clauses.Add(Clause.New(ClauseType.AddColumn, sql: sqlColmval, parms: spars));
             return this;
         }
         // Insert 影响行数  Insert 最后插入数据Id
@@ -528,14 +536,18 @@ namespace DapperSqlMaker.DapperExt
         {
             // 1. insert into tab
             var tabname1 = DsmSqlMapperExtensions.GetTableName(typeof(T));
-            Clauses.Add(Clause.New(ClauseType.Update, update: " update " + tabname1));
+            //Clauses.Add(Clause.New(ClauseType.Update, update: " update " + tabname1));
+            Clauses.Add(Clause.New(ClauseType.Update, sql: " update " + tabname1));
             base.ClauseFirst = ClauseType.Update;
             return this;
             // $" update {name} set {EditColumn}where {where}"
         }
         /// <summary>
-        /// 要跟新的数据列 栗子: p => new bool[] { p.Id == guid, p.Name == "123" , bool SM.Sql("age","(select 1)")
-        /// , bool SM.Sql(p.Age,valsql), bool SM.Sql(varage,varsql) }
+        /// 要更新的数据列 
+        ///<para>栗子: p => new bool[] { p.Id == guid, p.Name == "123" </para>
+        ///<para>           , bool SM.Sql("age","(select 1)")</para>
+        ///<para>           , bool SM.Sql(p.Age,valsql), bool SM.Sql(varage,varsql) }</para>
+        ///<para>语句结尾会拼接 where 防止全表误操作</para>
         /// </summary> 
         public DapperSqlMaker<T> EditColumn(Expression<Func<T, bool[]>> fiesExps = null)
         {
@@ -544,10 +556,27 @@ namespace DapperSqlMaker.DapperExt
             if (fiesExps == null) throw new Exception("不能执行空的插入语句");
             LambdaExpression fielambda = fiesExps as LambdaExpression;
             base.GetInsertOrUpdateColumnValueStr(fielambda, out spars, out sqlColmval, addOrEdit: 2);
-            Clauses.Add(Clause.New(ClauseType.EditColumn, editcolumn: " set " + sqlColmval, updateParms: spars));
+            //Clauses.Add(Clause.New(ClauseType.EditColumn, editcolumn: " set " + sqlColmval, updateParms: spars));
+            Clauses.Add(Clause.New(ClauseType.EditColumn, sql: " set " + sqlColmval, parms: spars));
 
             return this;
             // $"insert into {name} ({sbColumnList}) values ({sbParameterList})"
+        }
+        /// <summary>
+        /// 更新列   
+        /// <para>update output 需要手动拼接where</para>
+        /// <para>.EditColum().SqlClause("output Inserted.F_Name where")</para>
+        /// </summary> 
+        public DapperSqlMaker<T> EditColum(Expression<Func<T, bool[]>> fiesExps = null)
+        {
+            DynamicParameters spars;
+            string sqlColmval;
+            if (fiesExps == null) throw new Exception("不能执行空的插入语句");
+            LambdaExpression fielambda = fiesExps as LambdaExpression;
+            base.GetInsertOrUpdateColumnValueStr(fielambda, out spars, out sqlColmval, addOrEdit: 2, addwhere: false);
+            //Clauses.Add(Clause.New(ClauseType.EditColumn, editcolumn: " set " + sqlColmval, updateParms: spars));
+            Clauses.Add(Clause.New(ClauseType.EditColumn, sql: " set " + sqlColmval, parms: spars));
+            return this;
         }
 
         #endregion
@@ -558,7 +587,8 @@ namespace DapperSqlMaker.DapperExt
             // 1. insert into tab
             var tabname1 = DsmSqlMapperExtensions.GetTableName(typeof(T));
             // 添加where关键字防止全表删除
-            Clauses.Add(Clause.New(ClauseType.Delete, delete: string.Format(" delete from {0} where ", tabname1)));
+            //Clauses.Add(Clause.New(ClauseType.Delete, delete: string.Format(" delete from {0} where ", tabname1)));
+            Clauses.Add(Clause.New(ClauseType.Delete, sql: string.Format(" delete from {0} where ", tabname1)));
             base.ClauseFirst = ClauseType.Delete;
             return this;
             // $" delete from {0} where "
@@ -571,6 +601,147 @@ namespace DapperSqlMaker.DapperExt
     }
 
 
+
+    /// <summary>
+    /// 语句块类型
+    /// </summary>
+    public enum ClauseType
+    {
+        /// <summary>
+        /// 查询sql 开始块
+        /// </summary>
+        ActionSelect,
+        //ActionSelectLimitCounts,   
+        ActionSelectRowRumberOrderBy,
+        ActionSelectColumn,
+        ActionSelectFrom,
+        //ActionSelectJoin,
+        //ActionLeftJoin,
+        //ActionRightJoin,
+        //ActionInnerJoin,
+        ActionSelectWhereOnHaving,
+        ActionSelectOrder,
+        Table,
+
+        /// <summary>
+        /// 新增sql 开始块
+        /// </summary>
+        Insert,
+        /// <summary>
+        /// 新增sql 赋值块 
+        /// <para> (name1,name2) value(x1,x2)</para>
+        /// </summary>
+        AddColumn,
+        /// <summary>
+        /// 修改sql 开始块
+        /// </summary>
+        Update,
+        /// <summary>
+        /// 修改sql 赋值块
+        /// <para> set name1=x1, name2=x2 where </para>
+        /// </summary>
+        EditColumn,
+        /// <summary>
+        /// 删除sql 开始块
+        /// </summary>
+        Delete,
+        SqlClause,
+        SqlParams,
+    }
+
+    /// <summary>
+    /// 拼接语句实体
+    /// </summary>
+    public class Clause
+    {
+        public static Clause New(ClauseType type, string sql = null, DynamicParameters parms = null)
+        {
+            return new Clause
+            {
+                ClauseType = type,
+                ClauseSql = sql,
+                ClauseParms = parms
+            };
+        }
+        public ClauseType ClauseType { get; private set; }
+        public string ClauseSql { get; set; } // private set; }
+        public DynamicParameters ClauseParms { get; set; } // private set; }
+         
+        //public static Clause New(ClauseType type, string select = null
+        //    , string rowRumberOrderBy = null  //, string selectCounts = null
+        //    , string selectColumn = null, string fromJoin = null
+        //    , string seletTable = null//, string jointable = null, string aliace = null
+        //    , string condition = null, DynamicParameters conditionParms = null
+        //    , string order = null, string extra = null
+        //    , string insert = null, string addcolumn = null, DynamicParameters insertParms = null
+        //    , string update = null, string editcolumn = null, DynamicParameters updateParms = null
+        //    , string delete = null, string sqlclause = null, DynamicParameters sqlClauseParms = null
+        //    ,DynamicParameters sqlParams = null)
+        //{
+        //    return new Clause
+        //    {
+        //        ClauseType = type,
+        //        Select = select,
+        //        //SelectCounts = selectCounts,
+        //        SeletTable = seletTable, // 无用
+        //        RowRumberOrderBy = rowRumberOrderBy,
+        //        SelectColumn = selectColumn,
+        //        FromJoin = fromJoin,
+        //        //JoinTable = jointable,
+        //        //Aliace = aliace,
+        //        Condition = condition,
+        //        ConditionParms = conditionParms,
+        //        Order = order,
+        //        Extra = extra,
+        //        //添加 ------------
+        //        Insert = insert,
+        //        AddColumn = addcolumn,
+        //        InsertParms = insertParms,
+        //        //修改 ------------
+        //        Update = update,
+        //        EditColumn = editcolumn,
+        //        UpdateParms = updateParms,
+        //        Delete = delete,
+        //        // 任意位置sql
+        //        SqlClause = sqlclause,
+        //        SqlClauseParms = sqlClauseParms,
+        //        SqlParams = sqlParams,
+        //    };
+        //}
+
+
+
+        //public string SeletTable { get; private set; }
+        //public string Select { get; private set; }
+        ////public string SelectCounts { get; private set; }
+        //public string RowRumberOrderBy { get; private set; }
+        //public string SelectColumn { get; private set; }
+        //public string FromJoin { get; private set; }
+        ////public string JoinTable { get; private set; }//
+        //public string Condition { get; private set; } // where
+        //public string Order { get; private set; }
+        ////public string Aliace { get; private set; } 
+        //public DynamicParameters ConditionParms { get; private set; }
+        //public string Extra { get; private set; } // 字段 
+        //public string Insert { get; private set; }
+        //public string AddColumn { get; private set; }
+        //public DynamicParameters InsertParms { get; private set; }
+        //public string Update { get; private set; }
+        //public string EditColumn { get; private set; }
+        //public DynamicParameters UpdateParms { get; private set; }
+        //public DynamicParameters SqlParams { get; private set; }
+        //public string Delete { get; private set; }
+        ///// <summary>
+        ///// 任意位置 sql
+        ///// </summary>
+        //public string SqlClause { get; private set; }
+        ///// <summary>
+        ///// 任意位置 sql 参数
+        ///// </summary>
+        //public DynamicParameters SqlClauseParms { get; private set; }
+
+    }
+
     /// <summary>
     /// 内部基础方法封装
     /// </summary>
@@ -582,7 +753,10 @@ namespace DapperSqlMaker.DapperExt
         public abstract Child GetChild();
         public DapperSqlMakerBase()
         {
-            GetConn().Dispose(); //在子类必须重写抽象方法
+            //GetConn().Dispose(); //在子类必须重写抽象方法
+
+            //var conn = GetConn();
+            //if (conn != null) conn.Dispose();
         }
 
         #region ISqlAdapter 
@@ -619,112 +793,38 @@ namespace DapperSqlMaker.DapperExt
         #region Clause
         protected ClauseType ClauseFirst { get; set; }
 
-        protected enum ClauseType
-        {
-            ActionSelect,
-            //ActionSelectLimitCounts,   
-            ActionSelectRowRumberOrderBy,
-            ActionSelectColumn,
-            ActionSelectFrom,
-            //ActionSelectJoin,
-            //ActionLeftJoin,
-            //ActionRightJoin,
-            //ActionInnerJoin,
-            ActionSelectWhereOnHaving,
-            ActionSelectOrder,
-            Table,
-
-            Insert,
-            AddColumn,
-            Update,
-            EditColumn,
-            Delete,
-            SqlClause,
-            SqlParams,
-        }
-
-        protected class Clause
-        {
-            public static Clause New(ClauseType type, string select = null
-                , string rowRumberOrderBy = null  //, string selectCounts = null
-                , string selectColumn = null, string fromJoin = null
-                , string seletTable = null//, string jointable = null, string aliace = null
-                , string condition = null, DynamicParameters conditionParms = null
-                , string order = null, string extra = null
-                , string insert = null, string addcolumn = null, DynamicParameters insertParms = null
-                , string update = null, string editcolumn = null, DynamicParameters updateParms = null
-                , string delete = null, string sqlclause = null, DynamicParameters sqlClauseParms = null
-                ,DynamicParameters sqlParams = null)
-            {
-                return new Clause
-                {
-                    ClauseType = type,
-                    Select = select,
-                    //SelectCounts = selectCounts,
-                    SeletTable = seletTable, // 无用
-                    RowRumberOrderBy = rowRumberOrderBy,
-                    SelectColumn = selectColumn,
-                    FromJoin = fromJoin,
-                    //JoinTable = jointable,
-                    //Aliace = aliace,
-                    Condition = condition,
-                    ConditionParms = conditionParms,
-                    Order = order,
-                    Extra = extra,
-                    //添加 ------------
-                    Insert = insert,
-                    AddColumn = addcolumn,
-                    InsertParms = insertParms,
-                    //修改 ------------
-                    Update = update,
-                    EditColumn = editcolumn,
-                    UpdateParms = updateParms,
-                    Delete = delete,
-                    // 任意位置sql
-                    SqlClause = sqlclause,
-                    SqlClauseParms = sqlClauseParms,
-                    SqlParams = sqlParams,
-                };
-            }
-
-            public ClauseType ClauseType { get; private set; }
-            public string SeletTable { get; private set; }
-            public string Select { get; private set; }
-            //public string SelectCounts { get; private set; }
-            public string RowRumberOrderBy { get; private set; }
-            public string SelectColumn { get; private set; }
-            public string FromJoin { get; private set; }
-            //public string JoinTable { get; private set; }//
-            public string Condition { get; private set; } // where
-            public string Order { get; private set; }
-            //public string Aliace { get; private set; } 
-            public DynamicParameters ConditionParms { get; private set; }
-            public string Extra { get; private set; } // 字段 
-            public string Insert { get; private set; }
-            public string AddColumn { get; private set; }
-            public DynamicParameters InsertParms { get; private set; }
-            public string Update { get; private set; }
-            public string EditColumn { get; private set; }
-            public DynamicParameters UpdateParms { get; private set; }
-            public DynamicParameters SqlParams { get; private set; }
-            public string Delete { get; private set; }
-            /// <summary>
-            /// 任意位置 sql
-            /// </summary>
-            public string SqlClause { get; private set; }
-            /// <summary>
-            /// 任意位置 sql 参数
-            /// </summary>
-            public DynamicParameters SqlClauseParms { get; private set; }
-        }
           
         protected List<Clause> _clauses;
         protected List<Clause> Clauses
         {
             get { return _clauses ?? (_clauses = new List<Clause>()); }
         }
+        /// <summary>
+        /// 获取 语句块 实体
+        /// </summary>
+        /// <param name="ct">语句块类型</param>
+        public Clause GetClause(ClauseType ct) => Clauses.FirstOrDefault<Clause>(p => p.ClauseType == ct);
+        /// <summary>
+        /// 修改 语句块
+        /// </summary>
+        public DapperSqlMakerBase<Child> EditClause(ClauseType ct,Action<Clause> acf)
+        {
+            var c = GetClause(ct);
+            if (acf != null) acf(c);
+            return this;
+        }
+        /// <summary>
+        /// 替换 语句块 sql
+        /// </summary>
+        /// <param name="ct">语句块类型</param>
+        public DapperSqlMakerBase<Child> EditClause(ClauseType ct, string replaceSql, string newsql)
+        {
+            var c = GetClause(ct);
+            c.ClauseSql = c.ClauseSql.Replace(replaceSql, newsql);
+            return this;
+        }
         #endregion
-         
+
         #region 表别名字典 缓存数据
         //表别名 ConcurrentDictionary FullName, tabAliasName
 
@@ -982,10 +1082,12 @@ namespace DapperSqlMaker.DapperExt
         private DapperSqlMakerBase<Child> SqlClauseAddClauses(string sqlClause , int index = -1) {
             if (index == -1)
             {
-                Clauses.Add(Clause.New(ClauseType.SqlClause, sqlclause: sqlClause));
+                //Clauses.Add(Clause.New(ClauseType.SqlClause, sqlclause: sqlClause));
+                Clauses.Add(Clause.New(ClauseType.SqlClause, sql: sqlClause));
             }
             else { // 不为-1则拼接到 指定位置
-                Clauses.Insert(index, Clause.New(ClauseType.SqlClause, sqlclause: sqlClause));
+       //Clauses.Insert(index, Clause.New(ClauseType.SqlClause, sqlclause: sqlClause));
+                 Clauses.Insert(index, Clause.New(ClauseType.SqlClause, sql: sqlClause));
             }
             return this;
         }
@@ -1002,10 +1104,12 @@ namespace DapperSqlMaker.DapperExt
                 switch (sqlClauseType)
                 {
                     case SqlClauseType.PageStartms:
-                        Clauses.Add(Clause.New(ClauseType.SqlClause, sqlclause: SM.PageStartms));
+                        //Clauses.Add(Clause.New(ClauseType.SqlClause, sqlclause: SM.PageStartms));
+                        Clauses.Add(Clause.New(ClauseType.SqlClause, sql: SM.PageStartms));
                         return this;
                     case SqlClauseType.PageEndms:
-                        Clauses.Add(Clause.New(ClauseType.SqlClause, sqlclause: SM.PageEndms));
+                        //Clauses.Add(Clause.New(ClauseType.SqlClause, sqlclause: SM.PageEndms));
+                        Clauses.Add(Clause.New(ClauseType.SqlClause, sql: SM.PageEndms));
                         return this;
                     case SqlClauseType.None:
                     default:
@@ -1018,10 +1122,12 @@ namespace DapperSqlMaker.DapperExt
                 switch (sqlClauseType)
                 {
                     case SqlClauseType.PageStartms:
-                        Clauses.Insert(index ,Clause.New(ClauseType.SqlClause, sqlclause: SM.PageStartms)) ;
+                        //Clauses.Insert(index ,Clause.New(ClauseType.SqlClause, sqlclause: SM.PageStartms)) ;
+                        Clauses.Insert(index, Clause.New(ClauseType.SqlClause, sql: SM.PageStartms));
                         return this;
                     case SqlClauseType.PageEndms:
-                        Clauses.Insert(index, Clause.New(ClauseType.SqlClause, sqlclause: SM.PageEndms));
+                        //Clauses.Insert(index, Clause.New(ClauseType.SqlClause, sqlclause: SM.PageEndms));
+                        Clauses.Insert(index, Clause.New(ClauseType.SqlClause, sql: SM.PageEndms));
                         return this;
                     case SqlClauseType.None:
                     default:
@@ -1037,7 +1143,8 @@ namespace DapperSqlMaker.DapperExt
         /// 补充自定义DynamicParameters参数
         /// </summary>
         public Child SqlParams(DynamicParameters SqlParams) {
-            Clauses.Add(Clause.New(ClauseType.SqlParams, sqlParams: SqlParams));
+            //Clauses.Add(Clause.New(ClauseType.SqlParams, sqlParams: SqlParams));
+            Clauses.Add(Clause.New(ClauseType.SqlParams, parms: SqlParams));
             return this.GetChild();
         }
         /// <summary>
@@ -1084,8 +1191,8 @@ namespace DapperSqlMaker.DapperExt
                 this.TabAliaceDic.Add(typeFullName, tabAliasName);
                 this.tabAliasList.Add(tabAliasName);
             }
-            Clauses.Add(Clause.New(ClauseType.ActionSelect, select: " select "));
-              
+            //Clauses.Add(Clause.New(ClauseType.ActionSelect, select: " select "));
+            Clauses.Add(Clause.New(ClauseType.ActionSelect, sql: " select "));
             return r;
         }
         /// <summary>
@@ -1104,7 +1211,8 @@ namespace DapperSqlMaker.DapperExt
             columns = GetFieldrrExps(arryexps.Arguments, pdic); //"select " +
             columns = string.Format(SM.LimitRowNumber_Sql, columns);
 
-            Clauses.Add(Clause.New(ClauseType.ActionSelectRowRumberOrderBy, rowRumberOrderBy: columns));
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectRowRumberOrderBy, rowRumberOrderBy: columns));
+            Clauses.Add(Clause.New(ClauseType.ActionSelectRowRumberOrderBy, sql: columns));
             return this.GetChild();
         }
         /// <summary>
@@ -1119,7 +1227,8 @@ namespace DapperSqlMaker.DapperExt
             columns = this.GetColumnStr(fielambda);
 
             columnsall:
-            Clauses.Add(Clause.New(ClauseType.ActionSelectColumn, selectColumn: columns));
+            Clauses.Add(Clause.New(ClauseType.ActionSelectColumn, sql: columns));
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectColumn, selectColumn: columns));
             return this.GetChild();
         }
         public Child FromJoin(  JoinType[] joinTypes, LambdaExpression[] joinExps  )
@@ -1145,8 +1254,8 @@ namespace DapperSqlMaker.DapperExt
                 //                        join tab3 c on c.x = b.x)
                 sb.Append( this.GetJoinTabStr(ChildTypes[i], tabAliasList[i], joinTypes[i-1], joinExps[i-1], ref spars) );
             }
-
-            Clauses.Add(Clause.New(ClauseType.ActionSelectFrom, fromJoin: sb.ToString() ));
+            Clauses.Add(Clause.New(ClauseType.ActionSelectFrom, sql: sb.ToString()));
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectFrom, fromJoin: sb.ToString() ));
             this.SqlParams(spars); // 补充from join 参数
             return this.GetChild();
              
@@ -1163,15 +1272,16 @@ namespace DapperSqlMaker.DapperExt
             string sqlCondition;
             this.GetWhereStr(whereExps, out spars, out sqlCondition);
 
-            Clauses.Add(Clause.New(ClauseType.ActionSelectWhereOnHaving, condition: sqlCondition, conditionParms: spars));
-
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectWhereOnHaving, condition: sqlCondition, conditionParms: spars));
+            Clauses.Add(Clause.New(ClauseType.ActionSelectWhereOnHaving, sql: sqlCondition, parms: spars));
             return this.GetChild();
         }
         public Child Order(LambdaExpression fielambda, bool isDesc = false)
         {
             //LambdaExpression fielambda = fiesExps as LambdaExpression;
             string columns = this.GetOrderStr(fielambda, isDesc);
-            Clauses.Add(Clause.New(ClauseType.ActionSelectOrder, order: columns));
+            //Clauses.Add(Clause.New(ClauseType.ActionSelectOrder, order: columns));
+            Clauses.Add(Clause.New(ClauseType.ActionSelectOrder, sql: columns));
             return this.GetChild();
         }
         #endregion
@@ -1184,7 +1294,8 @@ namespace DapperSqlMaker.DapperExt
         /// <param name="spars">插入语句参数</param>
         /// <param name="sqlColmval">插入语句sql</param>
         /// <param name="addOrEdit">默认新增 1 新增 2 修改</param>
-        protected void GetInsertOrUpdateColumnValueStr(LambdaExpression colmvalambda, out DynamicParameters spars, out string sqlColmval, int addOrEdit = 1)
+        /// <param name="addwhere">修改是否 拼接where</param>
+        protected void GetInsertOrUpdateColumnValueStr(LambdaExpression colmvalambda, out DynamicParameters spars, out string sqlColmval, int addOrEdit = 1, bool addwhere = true)
         {
             //2.解析查询字段
             if (!(colmvalambda.Body is NewArrayExpression)) throw new Exception("不能执行空的插入语句");
@@ -1265,7 +1376,7 @@ namespace DapperSqlMaker.DapperExt
             { // 修改
                 // 拼接子查询插入的 参数名
                 sb.Append((spars.ParameterNames.Count() > 0 && customColmval.Count > 0 ? ", " : string.Empty) + string.Join(",", customColmval.Select(p => p[0] + "=" + p[1]).ToList<string>()));
-                sb.Append(" where "); // 添加where关键字防止全表操作
+                if(addwhere) sb.Append(" where "); // 添加where关键字防止全表操作
                 // 简单参数值 和 子查询
                 //sb.AppendFormat(") val/*ues ({0}{1}) ", string.Join(",", spars.ParameterNames.ToList<string>().Select(p => "@" + p).ToList<string>())*/
                 //     , (spars.ParameterNames.Count() > 0 && customColmval.Count > 0 ? ", " : string.Empty) + string.Join(",", customColmval.Select(p => p[1]).ToList<string>()));
@@ -1302,20 +1413,20 @@ namespace DapperSqlMaker.DapperExt
                 switch (clause.ClauseType)
                 {
                     case ClauseType.ActionSelect: // 查询 ----------------
-                        sb.Append(clause.Select);
+                        sb.Append(clause.ClauseSql); //.Select);
                         break;
                     case ClauseType.ActionSelectRowRumberOrderBy:
-                        sb.Append(clause.RowRumberOrderBy);
+                        sb.Append(clause.ClauseSql);//RowRumberOrderBy);
                         break;
                     case ClauseType.ActionSelectColumn:
-                        sb.Append(clause.SelectColumn);
+                        sb.Append(clause.ClauseSql); //SelectColumn);
                         break;
                     case ClauseType.ActionSelectFrom:
-                        sb.Append(clause.FromJoin);
+                        sb.Append(clause.ClauseSql); //FromJoin);
                         break;
                     case ClauseType.ActionSelectWhereOnHaving:
-                        sb.Append(clause.Condition);
-                        dparam.AddDynamicParams(clause.ConditionParms);
+                        sb.Append(clause.ClauseSql); //Condition);
+                        dparam.AddDynamicParams(clause.ClauseParms); //ConditionParms);
                         //if (this.ClauseFirst == ClauseType.ActionSelect)
                         //    dparam.AddDynamicParams(clause.ConditionParms);
                         //else if (this.ClauseFirst == ClauseType.Update)
@@ -1324,33 +1435,33 @@ namespace DapperSqlMaker.DapperExt
                         //    dparam.AddDynamicParams(clause.ConditionParms);
                         break;
                     case ClauseType.ActionSelectOrder:
-                        sb.Append(clause.Order);
+                        sb.Append(clause.ClauseSql); //Order);
                         break; // --------------查询
 
                     case ClauseType.Insert: // 新增 -----------------------
-                        sb.Append(clause.Insert);
+                        sb.Append(clause.ClauseSql); //Insert);
                         break;
                     case ClauseType.AddColumn:
-                        sb.Append(clause.AddColumn);
-                        dparam.AddDynamicParams(clause.InsertParms);
+                        sb.Append(clause.ClauseSql); //AddColumn);
+                        dparam.AddDynamicParams(clause.ClauseParms); //InsertParms);
                         break;// ----------新增
 
                     case ClauseType.Update: // 更新 -----------------------
-                        sb.Append(clause.Update);
+                        sb.Append(clause.ClauseSql); //Update);
                         break;
                     case ClauseType.EditColumn:
-                        sb.Append(clause.EditColumn);
-                        dparam.AddDynamicParams(clause.UpdateParms);
+                        sb.Append(clause.ClauseSql); //EditColumn);
+                        dparam.AddDynamicParams(clause.ClauseParms); //UpdateParms);
                         break;// ----------更新 where子句公用select的
                     case ClauseType.Delete: // 删除 -------------------
-                        sb.Append(clause.Delete);
+                        sb.Append(clause.ClauseSql); //Delete);
                         break;// ----------删除 where子句公用select的
 
                     case ClauseType.SqlClause: //任意部分sql字句拼接
-                        sb.Append(clause.SqlClause);
+                        sb.Append(clause.ClauseSql); //SqlClause);
                         break;
                     case ClauseType.SqlParams:
-                        dparam.AddDynamicParams(clause.SqlParams);
+                        dparam.AddDynamicParams(clause.ClauseParms); //SqlParams);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -1386,27 +1497,27 @@ namespace DapperSqlMaker.DapperExt
                 switch (clause.ClauseType)
                 {
                     case ClauseType.ActionSelect:
-                        sb.Append(clause.Select);
+                        sb.Append(clause.ClauseSql);//Select);
                         //countsb.Append(clause.Select);
                         break;
                     case ClauseType.ActionSelectColumn:
-                        sb.Append(clause.SelectColumn);  // 查询分页数据  
+                        sb.Append(clause.ClauseSql); //SelectColumn);  // 查询分页数据  
                         break;
                     case ClauseType.ActionSelectFrom:
-                        sb.Append(clause.FromJoin);
-                        countsb.Append(clause.FromJoin);
+                        sb.Append(clause.ClauseSql); //FromJoin);
+                        countsb.Append(clause.ClauseSql); //FromJoin);
                         break;
                     case ClauseType.ActionSelectWhereOnHaving:
-                        sb.Append(clause.Condition);
-                        countsb.Append(clause.Condition);
-                        dparam = clause.ConditionParms;
+                        sb.Append(clause.ClauseSql); //Condition);
+                        countsb.Append(clause.ClauseSql); //Condition);
+                        dparam = clause.ClauseParms; //ConditionParms;
                         break;
                     case ClauseType.ActionSelectOrder:
-                        sb.Append(clause.Order);
-                        countsb.Append(clause.Order);
+                        sb.Append(clause.ClauseSql); //Order);
+                        countsb.Append(clause.ClauseSql); //Order);
                         break;
                     case ClauseType.SqlClause: //任意部分sql字句拼接
-                        sb.Append(clause.SqlClause);
+                        sb.Append(clause.ClauseSql); //SqlClause);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -1763,6 +1874,7 @@ namespace DapperSqlMaker.DapperExt
         public virtual int ExecuteUpdate() => this.ExecuteInsert();
         /// <summary>
         /// 执行删除sql 返回影响行 删除全表操作需写Where条件  
+        /// <para>delete output 语句 同insert处理方式 替换Delete语句块的where</para>
         /// </summary>
         public virtual int ExecuteDelete() => this.ExecuteInsert(); 
 

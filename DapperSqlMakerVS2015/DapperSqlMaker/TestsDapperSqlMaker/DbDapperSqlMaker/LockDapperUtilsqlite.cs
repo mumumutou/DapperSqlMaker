@@ -5,7 +5,7 @@ using System.Data.SQLite;
 
 namespace DapperSqlMaker.DapperExt
 {
-    public partial class DapperFuncs : DapperFuncsBase
+    public partial class DBSqliteFuncs : DapperFuncsBase
     {
         public override IDbConnection GetConn()
         {
@@ -13,21 +13,21 @@ namespace DapperSqlMaker.DapperExt
             conn.Open();
             return conn;
         }
-        private DapperFuncs() { }
-        public readonly static DapperFuncs New = new DapperFuncs();
+        private DBSqliteFuncs() { }
+        public readonly static DBSqliteFuncs New = new DBSqliteFuncs();
 
     }
 
     /// <summary>
     /// Sqlite 连接上下文类
     /// </summary>
-    public partial class LockDapperUtilsqlite : IDapperSqlMakerBase
+    public partial class DBSqlite : IDapperSqlMakerBase
     {
         //public override LockDapperUtilsqlite GetChild() => this;
         //public override string GetSqlParams() => SM.ParamsMSSql;
-        private LockDapperUtilsqlite() { }
+        private DBSqlite() { }
 
-        public readonly static LockDapperUtilsqlite New = new LockDapperUtilsqlite();
+        public readonly static DBSqlite New = new DBSqlite();
 
         public IDbConnection GetConn()
         { 
@@ -39,108 +39,108 @@ namespace DapperSqlMaker.DapperExt
 
     }
 
-    public partial class LockDapperUtilsqlite<T> : DapperSqlMaker<T>
+    public partial class DBSqlite<T> : DapperSqlMaker<T>
                                          where T : class, new()
     {
-        public override string GetSqlParamSymbol() => LockDapperUtilsqlite.New.GetSqlParamSymbol();
+        public override string GetSqlParamSymbol() => DBSqlite.New.GetSqlParamSymbol();
         public override IDbConnection GetConn()
         {
-            return LockDapperUtilsqlite.New.GetConn();
+            return DBSqlite.New.GetConn();
         }
 
-        public static DapperSqlMaker<T> Selec()
+        public static new DapperSqlMaker<T> Select()
         {
-            return new LockDapperUtilsqlite<T>().Select();
+            return ((DapperSqlMaker<T>)new DBSqlite<T>()).Select();
         }
-        public static DapperSqlMaker<T> Inser()
+        public static new DapperSqlMaker<T> Insert()
         {
-            return new LockDapperUtilsqlite<T>().Insert();
+            return ((DapperSqlMaker<T>)new DBSqlite<T>()).Insert();
         }
-        public static DapperSqlMaker<T> Updat()
+        public static new DapperSqlMaker<T> Update()
         {
-            return new LockDapperUtilsqlite<T>().Update();
+            return ((DapperSqlMaker<T>) new DBSqlite<T>()).Update();
         }
-        public static DapperSqlMaker<T> Delet()
+        public static new DapperSqlMaker<T> Delete()
         {
-            return new LockDapperUtilsqlite<T>().Delete();
+            return ((DapperSqlMaker<T>)new DBSqlite<T>()).Delete();
         }
 
         /// <summary>
         /// 增删改
         /// </summary>
-        public readonly static DapperSqlMaker<T> Cud = new LockDapperUtilsqlite<T>();
+        public readonly static DapperSqlMaker<T> Cud = new DBSqlite<T>();
 
     }
-    public partial class LockDapperUtilsqlite<T, Y> : DapperSqlMaker<T, Y>
+    public partial class DBSqlite<T, Y> : DapperSqlMaker<T, Y>
     {
-        public override string GetSqlParamSymbol() => LockDapperUtilsqlite.New.GetSqlParamSymbol();
+        public override string GetSqlParamSymbol() => DBSqlite.New.GetSqlParamSymbol();
         public override IDbConnection GetConn()
         {
-            return LockDapperUtilsqlite.New.GetConn();
+            return DBSqlite.New.GetConn();
         }
          
         // 不能用单例 单例后面的表别名字典会冲突
-        public static DapperSqlMaker<T, Y> Selec()
+        public static DapperSqlMaker<T, Y> Select()
         {
-            return new LockDapperUtilsqlite<T, Y>().Select();
+            return ((DapperSqlMaker<T, Y>)new DBSqlite<T, Y>()).Select();
         }
     }
 
-    public partial class LockDapperUtilsqlite<T, Y, Z> : DapperSqlMaker<T, Y, Z>
+    public partial class DBSqlite<T, Y, Z> : DapperSqlMaker<T, Y, Z>
     {
-        public override string GetSqlParamSymbol() => LockDapperUtilsqlite.New.GetSqlParamSymbol();
+        public override string GetSqlParamSymbol() => DBSqlite.New.GetSqlParamSymbol();
         public override IDbConnection GetConn()
         {
-            return LockDapperUtilsqlite.New.GetConn();
+            return DBSqlite.New.GetConn();
         }
         // 不能用单例 单例后面的表别名字典会冲突
 
-        public static DapperSqlMaker<T, Y, Z> Selec()
+        public static DapperSqlMaker<T, Y, Z> Select()
         {
-            return new LockDapperUtilsqlite<T, Y, Z>().Select();
+            return ((DapperSqlMaker<T, Y, Z>)new DBSqlite<T, Y, Z>()).Select();
         }
 
     }
-    public partial class LockDapperUtilsqlite<T, Y, Z, O> : DapperSqlMaker<T, Y, Z, O>
+    public partial class DBSqlite<T, Y, Z, O> : DapperSqlMaker<T, Y, Z, O>
     {
-        public override string GetSqlParamSymbol() => LockDapperUtilsqlite.New.GetSqlParamSymbol();
+        public override string GetSqlParamSymbol() => DBSqlite.New.GetSqlParamSymbol();
         public override IDbConnection GetConn()
         {
-            return LockDapperUtilsqlite.New.GetConn();
+            return DBSqlite.New.GetConn();
         }
         // 不能用单例 单例后面的表别名字典会冲突
 
-        public static DapperSqlMaker<T, Y, Z, O> Selec()
+        public static DapperSqlMaker<T, Y, Z, O> Select()
         {
-            return new LockDapperUtilsqlite<T, Y, Z, O>().Select();
+            return ((DapperSqlMaker<T, Y, Z, O>)new DBSqlite<T, Y, Z, O>()).Select();
         }
     }
-    public partial class LockDapperUtilsqlite<T, Y, Z, O, P> : DapperSqlMaker<T, Y, Z, O, P>
+    public partial class DBSqlite<T, Y, Z, O, P> : DapperSqlMaker<T, Y, Z, O, P>
     {
-        public override string GetSqlParamSymbol() => LockDapperUtilsqlite.New.GetSqlParamSymbol();
+        public override string GetSqlParamSymbol() => DBSqlite.New.GetSqlParamSymbol();
         public override IDbConnection GetConn()
         {
-            return LockDapperUtilsqlite.New.GetConn();
+            return DBSqlite.New.GetConn();
         }
         // 不能用单例 单例后面的表别名字典会冲突
 
-        public static DapperSqlMaker<T, Y, Z, O, P> Selec()
+        public static DapperSqlMaker<T, Y, Z, O, P> Select()
         {
-            return new LockDapperUtilsqlite<T, Y, Z, O, P>().Select();
+            return ((DapperSqlMaker<T, Y, Z, O, P>)new DBSqlite<T, Y, Z, O, P>()).Select();
         }
     }
-    public partial class LockDapperUtilsqlite<T, Y, Z, O, P, Q> : DapperSqlMaker<T, Y, Z, O, P, Q>
+    public partial class DBSqlite<T, Y, Z, O, P, Q> : DapperSqlMaker<T, Y, Z, O, P, Q>
     {
-        public override string GetSqlParamSymbol() => LockDapperUtilsqlite.New.GetSqlParamSymbol();
+        public override string GetSqlParamSymbol() => DBSqlite.New.GetSqlParamSymbol();
         public override IDbConnection GetConn()
         {
-            return LockDapperUtilsqlite.New.GetConn();
+            return DBSqlite.New.GetConn();
         }
         // 不能用单例 单例后面的表别名字典会冲突
 
-        public static DapperSqlMaker<T, Y, Z, O, P, Q> Selec()
+        public static DapperSqlMaker<T, Y, Z, O, P, Q> Select()
         {
-            return new LockDapperUtilsqlite<T, Y, Z, O, P, Q>().Select();
+            return ((DapperSqlMaker<T, Y, Z, O, P, Q>)new DBSqlite<T, Y, Z, O, P, Q>()).Select();
         }
     }
 
