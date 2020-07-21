@@ -1,4 +1,5 @@
-﻿using DapperSqlMaker;
+﻿using Dapper;
+using DapperSqlMaker;
 using DapperSqlMaker.DapperExt;
 using FW.Model;
 using NUnit.Framework;
@@ -16,6 +17,15 @@ namespace TestsDapperSqlMaker.DapperExt
         {
             var str = Newtonsoft.Json.JsonConvert.SerializeObject(test2);
             Console.WriteLine(str);
+        }
+        // 打印sql和参数
+        private static void WriteSqlParams(Tuple<StringBuilder, DynamicParameters> resultsqlparams)
+        {
+            Console.WriteLine(resultsqlparams.Item1.ToString()); // sql
+            foreach (var name in resultsqlparams.Item2.ParameterNames)
+            {
+                WriteJson(name + " -- " + Newtonsoft.Json.JsonConvert.SerializeObject(resultsqlparams.Item2.Get<object>(name))); // 参数 -- 值
+            }
         }
 
         #region 链式解析 添加数据
@@ -44,6 +54,40 @@ namespace TestsDapperSqlMaker.DapperExt
 
             }).ExecuteInsert();
             Console.WriteLine(efrow2);
+
+        } 
+        /// <summary>
+        /// 直接拼sql测试
+        /// </summary>
+        [Test]
+        public void AddColumnSqlTest() {
+            string colm = "img", val = "(select value from skin limit 1 offset 1)";
+            var insert = DBSqlite<Users>.Insert().AddColumn(p => new bool[] {
+                 SM.Sql(colm,val), SM.Sql(p.Remark,"(select '荒野高尔夫')"), 
+            });
+
+            WriteSqlParams(insert.RawSqlParams());
+
+
+        }
+        [Test]
+        public void 动态添加不同字段测试() {
+            /*
+测试名称:	动态添加不同字段测试
+测试结果:	已通过
+结果 的标准输出:	insert into Users (img,Remark) values ((select value from skin limit 1 offset 1),(select '荒野高尔夫'))  (age) values ((select 1))
+
+            问题   把多个AddColumn合并到1个
+            将AddColumn里的sql和parms添加到 addList集合中 最后AddColumnEnd子句中执行 字段和values的join 
+ */
+
+            string colm = "img", val = "(select value from skin limit 1 offset 1)";
+            var insert = DBSqlite<Users>.Insert().AddColumn(p => new bool[] {
+                 SM.Sql(colm,val), SM.Sql(p.Remark,"(select '荒野高尔夫')"),
+            })
+            .AddColumn(p => new bool[] { SM.Sql("age", "(select 1)") });
+
+            WriteSqlParams(insert.RawSqlParams());
 
         }
 
