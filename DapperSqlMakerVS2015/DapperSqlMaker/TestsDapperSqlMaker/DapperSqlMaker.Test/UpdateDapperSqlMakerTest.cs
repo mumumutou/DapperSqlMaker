@@ -67,7 +67,7 @@ namespace TestsDapperSqlMaker.DapperExt
                 .EditColumn(p => new bool[] { SM.Sql(colm, val) })
                 .EditColumn(p => new bool[] { SM.Sql(p.Remark, "(select '奥德赛 终于改好了')") })
                 .EditColumn(p => new bool[] { p.numx == 123 })
-                .EditColumnEnd()
+                //.EditColumnEnd()
                 .Where(p => p.Id == 6 && SM.SQL("IsDel == 0"));
             WriteSqlParams(update.RawSqlParams());
 

@@ -631,6 +631,8 @@ namespace Esy.Base.Application.Model
 		private string _F_CarNum ;
         #endregion
 
+        public short Gen { get; set; }
+
         /// <summary>
         /// 用户主键
         /// </summary>

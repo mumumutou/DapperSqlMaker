@@ -154,7 +154,14 @@ public void 删除数据_含子查询_测试lt() {
 }
 ```
  
-##### 6.条件方法参数传入规范示例  Column/Where/AddColumn/EditColumn
+##### 6.事务示例
+```csharp
+
+
+```
+
+
+##### 7.条件方法参数传入规范示例  Column/Where/AddColumn/EditColumn
 > 1. 直接where()方法中赋值       s.IsDel = 1;
 > 2. 声明变量 接收参数 再传入    int Id = int.Parse( Request.Form["Id"]);  ---->   w.Id == Id_
 > 3. Action参数装载器的参数不能直接传入  int Id_ = Id;  ---->   w.Id == Id_
@@ -193,3 +200,17 @@ public void 删除数据_含子查询_测试lt() {
 > 2.可以解析还有待继续测试 // actin自动装载的参数 传入 不能解析的问题
     ActionResult AddSkin(string name, string url)
       LockSqlite<Skin>.Inser().AddColumn( ...
+
+VS2015测试工具NUnit安装:
+```csharp
+
+1.工具 -> 扩展和更新 ->联机
+NUnit第3版，那么搜索NUnit 3 Test Adapter
+
+2.先把这个东西复制上 -》》》   download.visualstudio.microsoft.com
+搜索站长工具    -》http://tool.chinaz.com/dns/?type=1&host=download.visualstudio.microsoft.com&ip=
+
+3.然后打开cmd
+输入ipconfig /flushdns
+
+```
