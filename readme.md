@@ -158,10 +158,23 @@ public void 删除数据_含子查询_测试lt() {
 ```csharp
 
 
+``` 
+##### 7.事务示例
+```csharp
+ using (var conn = DBSqliteFuncs.New.GetConn()) // var = GetConn())
+    {
+        System.Data.IDbTransaction transaction = null;
+        int? commandTimeout = null;
+        var entity = new SynNote();
+        // using Dapper.Contrib.Extensions;
+        var t = conn.Inser(entity, false, transaction, commandTimeout);
+        return (int)t;
+    }
+
 ```
 
 
-##### 7.条件方法参数传入规范示例  Column/Where/AddColumn/EditColumn
+##### 8.条件方法参数传入规范示例  Column/Where/AddColumn/EditColumn
 > 1. 直接where()方法中赋值       s.IsDel = 1;
 > 2. 声明变量 接收参数 再传入    int Id = int.Parse( Request.Form["Id"]);  ---->   w.Id == Id_
 > 3. Action参数装载器的参数不能直接传入  int Id_ = Id;  ---->   w.Id == Id_

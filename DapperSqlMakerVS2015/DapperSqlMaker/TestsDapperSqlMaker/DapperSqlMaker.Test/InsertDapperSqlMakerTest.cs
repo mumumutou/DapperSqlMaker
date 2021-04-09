@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Dapper.Contrib.Extensions;
 
 namespace TestsDapperSqlMaker.DapperExt
 {
@@ -259,6 +260,25 @@ namespace TestsDapperSqlMaker.DapperExt
                 DapperFuncMs.New.Insert<Users_ms>(model);
             }
         }
+
+        [Test]
+        public int Dapper_Contrib插入语句测试示例()
+        {
+             
+            using (var conn = DBSqliteFuncs.New.GetConn()) // var = GetConn())
+            {
+                System.Data.IDbTransaction transaction = null;
+                int? commandTimeout = null;
+                var entity = new SynNote();
+                // using Dapper.Contrib.Extensions;
+                var t = conn.Inser(entity, false, transaction, commandTimeout);
+                return (int)t;
+            }
+
+        }
+
+
+
 
     }
 }
