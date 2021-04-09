@@ -156,10 +156,45 @@ public void 删除数据_含子查询_测试lt() {
  
 ##### 6.事务示例
 ```csharp
+	var str = DateTime.Now.ToString();
+	Console.WriteLine(str);
+	var update = DBMSSql<Users>.Update().EditColumn(p => new bool[] { p.UserName == "事务修改 第一条语句", p.Password == str })
+		.Where(p => p.Id == 4 && SM.SQL(" IsDel = 'false' "));
+	var update2 = DBMSSql<Users>.Update().EditColumn(p => new bool[] { p.UserName == "xxxxx 2 sql事务修改", p.Password == str })
+		.Where(p => p.Id == 6 && SM.SQL(" IsDel = 'false' "));
 
+	Console.WriteLine(update.RawSqlParams().Item1);
+	Console.WriteLine(update2.RawSqlParams().Item1);
+
+	using (var conn = update.GetConn())
+	{
+		var trans = conn.BeginTransaction();
+		try
+		{
+			var efrow = conn.Execute(update.RawSqlParams().Item1.ToString(), update.RawSqlParams().Item2, trans);
+			Console.WriteLine(efrow + "第一执行了");
+
+			//throw new Exception("机房爆炸了");
+			var efrow2 = conn.Execute(update2.RawSqlParams().Item1.ToString(), update2.RawSqlParams().Item2, trans);
+			Console.WriteLine(efrow2 + "第2执行了");
+
+			trans.Commit();
+		}
+		catch (Exception ex)
+		{
+			trans.Rollback();
+			Console.WriteLine(ex.Message);
+		}
+
+	}
+
+//var efrow = update.ExecuteUpdate();
+
+var rows = DBMSSql<Users>.Select().Column().From().Where(p => p.Id == 4 || p.Id == 6).ExecuteQuery();
+WriteJson(rows);
 
 ``` 
-##### 7.事务示例
+##### 7.Dapper_Contrib语句示例
 ```csharp
  using (var conn = DBSqliteFuncs.New.GetConn()) // var = GetConn())
     {
