@@ -208,6 +208,14 @@ WriteJson(rows);
 
 ```
 
+#### 7.x 动态参数
+```csharp
+	
+    DynamicParameters jdmp = new DynamicParameters("#");
+    jdmp.Add("UserName_join_0", name);
+
+```
+
 
 ##### 8.条件方法参数传入规范示例  Column/Where/AddColumn/EditColumn
 > 1. 直接where()方法中赋值       s.IsDel = 1;
